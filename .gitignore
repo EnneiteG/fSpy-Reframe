@@ -14,6 +14,7 @@
 ghtoken
 
 # misc
+.codenomad/
 .DS_Store
 .env.local
 .env.development.local
