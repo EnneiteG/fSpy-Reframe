@@ -2,6 +2,14 @@
 
 fSpy is an open source, cross platform app for still image camera matching. See [fspy.io](https://fspy.io) for more info. The source code is available under the GPL license.
 
+## Purpose of this fork
+
+fSpy-UE is a fork of fSpy focused on making the camera matching workflow easier to use with [Unreal Engine](https://www.unrealengine.com/).
+
+The goal is to keep fSpy's original calibration model intact while adding target-specific output options. In practice, this means the solved camera data remains compatible with fSpy, but the UI and exports can present the same camera in Unreal-friendly coordinates, units and rotation order.
+
+This fork currently adds an Unreal Engine target preset, scene orientation options, Unreal-style camera rotation display and a target camera JSON export. These additions are intended to reduce manual coordinate conversion when recreating a matched camera in Unreal Engine.
+
 ![fSpy screenshot](screenshot.jpg)
 
 ## Backstory
