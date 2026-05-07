@@ -28,6 +28,7 @@ import { AppAction, setPrincipalPoint, setOrigin, setReferenceDistanceAnchor, ad
 import { CalibrationSettingsBase, CalibrationSettings1VP, CalibrationSettings2VP } from '../types/calibration-settings'
 import { SolverResult } from '../solver/solver-result'
 import { Dispatch } from 'redux'
+import { ResultDisplaySettings } from '../types/result-display-settings'
 
 export interface ControlPointsContainerCallbacks {
   onPrincipalPointDrag(position: Point2D): void
@@ -67,6 +68,7 @@ interface ControlPointsContainerProps {
   controlPointsState1VP: ControlPointsState1VP
   controlPointsState2VP: ControlPointsState2VP
   solverResult: SolverResult
+  resultDisplaySettings: ResultDisplaySettings
   applyImagePadding: boolean
 }
 
@@ -84,6 +86,7 @@ class ControlPointsContainer extends React.Component<ControlPointsContainerProps
         controlPointsState1VP={this.props.controlPointsState1VP}
         controlPointsState2VP={this.props.controlPointsState2VP}
         solverResult={this.props.solverResult}
+        resultDisplaySettings={this.props.resultDisplaySettings}
         applyImagePadding={this.props.applyImagePadding}
       />
     )
@@ -101,6 +104,7 @@ export function mapStateToProps(state: StoreState) {
     controlPointsState1VP: state.controlPointsState1VP,
     controlPointsState2VP: state.controlPointsState2VP,
     solverResult: state.solverResult,
+    resultDisplaySettings: state.resultDisplaySettings,
     applyImagePadding: state.uiState.sidePanelsAreVisible
   }
 }

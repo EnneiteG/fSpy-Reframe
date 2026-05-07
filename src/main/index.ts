@@ -226,6 +226,12 @@ function createWindow() {
           new ExportMessage(ExportType.CameraParametersJSON)
         )
       },
+      onExportTargetJSON: () => {
+        window.webContents.send(
+          ExportMessage.type,
+          new ExportMessage(ExportType.TargetCameraParametersJSON)
+        )
+      },
       onExportProjectImage: () => {
         window.webContents.send(
           ExportMessage.type,

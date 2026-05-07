@@ -30,6 +30,7 @@ import AABB from '../../solver/aabb'
 import AABBOps from '../../solver/aabb-ops'
 import { Point } from 'electron'
 import { axisGlyph } from './glyph-paths'
+import { targetPointToFSpy, targetPresetForId, targetSceneOrientationForId } from '../../solver/target-presets'
 
 interface GridLineProps {
   points: Point2D[]
@@ -61,6 +62,8 @@ interface Overlay3DPanelProps {
   cameraParameters: CameraParameters
   globalSettings: GlobalSettings,
   referenceDistanceAxis: Axis | null
+  targetPresetId: string
+  targetSceneOrientationId: string
 }
 
 export default class Overlay3DPanel extends React.PureComponent<Overlay3DPanelProps> {
@@ -293,6 +296,11 @@ export default class Overlay3DPanel extends React.PureComponent<Overlay3DPanelPr
   }
 
   private project(point: Vector3D): Point2D {
+    const fSpyPoint = targetPointToFSpy(
+      point,
+      targetPresetForId(this.props.targetPresetId),
+      targetSceneOrientationForId(this.props.targetSceneOrientationId)
+    )
     let viewTransform = this.props.cameraParameters.viewTransform
     let principalPoint = this.props.cameraParameters.principalPoint
     let imageWidth = AABBOps.width(this.props.imageAABB)
@@ -301,7 +309,7 @@ export default class Overlay3DPanel extends React.PureComponent<Overlay3DPanelPr
 
     let relativePosition = CoordinatesUtil.convert(
       MathUtil.perspectiveProject(
-        point,
+        fSpyPoint,
         viewTransform,
         principalPoint,
         horizontalFieldOfView

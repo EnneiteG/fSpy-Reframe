@@ -17,10 +17,13 @@
  */
 
 import { ResultDisplaySettings, OrientationFormat, PrincipalPointFormat, FieldOfViewFormat } from '../types/result-display-settings'
+import { TargetPresetId, TargetSceneOrientationId } from '../solver/target-presets'
 
 export const defaultResultDisplaySettings: ResultDisplaySettings = {
   orientationFormat: OrientationFormat.AxisAngleDegrees,
   principalPointFormat: PrincipalPointFormat.Absolute,
   fieldOfViewFormat: FieldOfViewFormat.Degrees,
-  displayAbsoluteFocalLength: false
+  displayAbsoluteFocalLength: false,
+  targetPresetId: TargetPresetId.FSpy,
+  targetSceneOrientationId: TargetSceneOrientationId.Default
 }

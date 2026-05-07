@@ -66,6 +66,7 @@ export class SetSidePanelVisibilityMessage {
 
 export enum ExportType {
   CameraParametersJSON,
+  TargetCameraParametersJSON,
   ProjectImage
 }
 

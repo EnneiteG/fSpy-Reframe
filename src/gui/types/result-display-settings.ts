@@ -37,4 +37,6 @@ export interface ResultDisplaySettings {
   orientationFormat: OrientationFormat
   principalPointFormat: PrincipalPointFormat
   displayAbsoluteFocalLength: boolean // 2 vp only
+  targetPresetId: string
+  targetSceneOrientationId: string
 }

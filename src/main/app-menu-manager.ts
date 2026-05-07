@@ -27,6 +27,7 @@ export interface AppMenuCallbacks {
   onOpenExampleProject(): void
   onQuit(): void
   onExportJSON(): void
+  onExportTargetJSON(): void
   onExportProjectImage(): void
   onEnterFullScreenMode(): void
   onExitFullScreenMode(): void
@@ -115,6 +116,12 @@ export default class AppMenuManager {
             label: 'Camera parameters as JSON',
             click: () => {
               this.callbacks.onExportJSON()
+            }
+          },
+          {
+            label: 'Target camera parameters as JSON',
+            click: () => {
+              this.callbacks.onExportTargetJSON()
             }
           },
           {

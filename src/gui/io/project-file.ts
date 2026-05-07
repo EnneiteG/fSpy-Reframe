@@ -132,6 +132,11 @@ export default class ProjectFile {
         }
         if (loadedState.resultDisplaySettings === undefined) {
           loadedState.resultDisplaySettings = defaultResultDisplaySettings
+        } else if (loadedState.resultDisplaySettings.targetPresetId === undefined) {
+          loadedState.resultDisplaySettings.targetPresetId = defaultResultDisplaySettings.targetPresetId
+        }
+        if (loadedState.resultDisplaySettings.targetSceneOrientationId === undefined) {
+          loadedState.resultDisplaySettings.targetSceneOrientationId = defaultResultDisplaySettings.targetSceneOrientationId
         }
 
         // Earlier versions had yards as a reference distance unit. Switch to feet

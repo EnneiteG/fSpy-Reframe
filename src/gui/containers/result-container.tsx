@@ -19,7 +19,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import { AppAction, setCameraPreset, setCameraSensorSize, setFieldOfViewDisplayFormat, setOrientationDisplayFormat, setPrincipalPointDisplayFormat, SetDisplayAbsoluteFocalLength } from '../actions'
+import { AppAction, setCameraPreset, setCameraSensorSize, setFieldOfViewDisplayFormat, setOrientationDisplayFormat, setPrincipalPointDisplayFormat, SetDisplayAbsoluteFocalLength, setTargetPreset, setTargetSceneOrientation } from '../actions'
 
 import { ImageState } from '../types/image-state'
 import { StoreState } from '../types/store-state'
@@ -44,6 +44,8 @@ interface ResultContainerProps {
   onOrientationDisplayFormatChanged(displayFormat: OrientationFormat): void
   onPrincipalPointDisplayFormatChanged(displayFormat: PrincipalPointFormat): void
   onDisplayAbsoluteFocalLengthChanged(enabled: boolean): void
+  onTargetPresetChanged(targetPresetId: string): void
+  onTargetSceneOrientationChanged(targetSceneOrientationId: string): void
 }
 
 class ResultContainer extends React.PureComponent<ResultContainerProps> {
@@ -65,6 +67,8 @@ class ResultContainer extends React.PureComponent<ResultContainerProps> {
         onOrientationDisplayFormatChanged={this.props.onOrientationDisplayFormatChanged}
         onPrincipalPointDisplayFormatChanged={this.props.onPrincipalPointDisplayFormatChanged}
         onDisplayAbsoluteFocalLengthChanged={this.props.onDisplayAbsoluteFocalLengthChanged}
+        onTargetPresetChanged={this.props.onTargetPresetChanged}
+        onTargetSceneOrientationChanged={this.props.onTargetSceneOrientationChanged}
       />
     )
   }
@@ -100,6 +104,12 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
     },
     onDisplayAbsoluteFocalLengthChanged: (enabled: boolean) => {
       dispatch(SetDisplayAbsoluteFocalLength(enabled))
+    },
+    onTargetPresetChanged: (targetPresetId: string) => {
+      dispatch(setTargetPreset(targetPresetId))
+    },
+    onTargetSceneOrientationChanged: (targetSceneOrientationId: string) => {
+      dispatch(setTargetSceneOrientation(targetSceneOrientationId))
     }
   }
 }

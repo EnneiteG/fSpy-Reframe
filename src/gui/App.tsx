@@ -37,6 +37,7 @@ import { loadImage } from './io/util'
 import store from './store/store'
 import SplashScreen from './components/splash-screen'
 import { Dispatch } from 'redux'
+import { convertCameraParametersForTarget, targetPresetForId, targetSceneOrientationForId } from './solver/target-presets'
 
 interface AppProps {
   uiState: UIState,
@@ -214,6 +215,21 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
           const cameraParameters = storeState.solverResult.cameraParameters
           if (cameraParameters) {
             dataToExport = JSON.stringify(cameraParameters, null, 2)
+          }
+          break
+        case ExportType.TargetCameraParametersJSON:
+          const targetCameraParameters = storeState.solverResult.cameraParameters
+          if (targetCameraParameters) {
+            dataToExport = JSON.stringify(
+              convertCameraParametersForTarget(
+                targetCameraParameters,
+                storeState.calibrationSettingsBase,
+                targetPresetForId(storeState.resultDisplaySettings.targetPresetId),
+                targetSceneOrientationForId(storeState.resultDisplaySettings.targetSceneOrientationId)
+              ),
+              null,
+              2
+            )
           }
           break
         case ExportType.ProjectImage:

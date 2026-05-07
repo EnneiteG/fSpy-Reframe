@@ -27,11 +27,11 @@ import { cameraPresets } from '../../solver/camera-presets'
 import { GlobalSettings, CalibrationMode } from '../../types/global-settings'
 import Dropdown from '../common/dropdown'
 import { FieldOfViewFormat, OrientationFormat, PrincipalPointFormat, ResultDisplaySettings } from '../../types/result-display-settings'
-import MathUtil from '../../solver/math-util'
 import CoordinatesUtil, { ImageCoordinateFrame } from '../../solver/coordinates-util'
 import Checkbox from '../settings-panel/checkbox'
 import Solver from '../../solver/solver'
 import strings from '../../strings/strings'
+import { convertCameraParametersForTarget, targetPresetForId, targetPresets, targetSceneOrientationForId, targetSceneOrientations } from '../../solver/target-presets'
 
 interface ResultPanelProps {
   globalSettings: GlobalSettings
@@ -45,6 +45,8 @@ interface ResultPanelProps {
   onOrientationDisplayFormatChanged(displayFormat: OrientationFormat): void
   onDisplayAbsoluteFocalLengthChanged(enabled: boolean): void
   onPrincipalPointDisplayFormatChanged(displayFormat: PrincipalPointFormat): void
+  onTargetPresetChanged(targetPresetId: string): void
+  onTargetSceneOrientationChanged(targetSceneOrientationId: string): void
 }
 
 export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
@@ -90,9 +92,36 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
     if (!cameraParameters) {
       return null
     }
+    const targetCameraParameters = this.targetCameraParameters()
 
     return (
       <div>
+        <div className='panel-section bottom-border'>
+          <div className='panel-group-title'>Target preset</div>
+          <Dropdown
+            options={Object.keys(targetPresets).map((id: string) => {
+              return {
+                id: id,
+                value: id,
+                title: targetPresets[id].displayName
+              }
+            })}
+            selectedOptionId={this.props.resultDisplaySettings.targetPresetId}
+            onOptionSelected={this.props.onTargetPresetChanged}
+          />
+          <div style={{ marginTop: '7px' }} className='panel-group-title'>Scene orientation</div>
+          <Dropdown
+            options={Object.keys(targetSceneOrientations).map((id: string) => {
+              return {
+                id: id,
+                value: id,
+                title: targetSceneOrientations[id].displayName
+              }
+            })}
+            selectedOptionId={this.props.resultDisplaySettings.targetSceneOrientationId}
+            onOptionSelected={this.props.onTargetSceneOrientationChanged}
+          />
+        </div>
         <div className='panel-section bottom-border'>
           <div className='panel-group-title'>Image</div>
           <TableRow
@@ -107,19 +136,19 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
         </div>
         {this.renderFieldOfViewSection()}
         <div className='panel-section bottom-border'>
-          <div className='panel-group-title'>Camera position</div>
+          <div className='panel-group-title'>Camera position ({targetCameraParameters.locationUnit})</div>
           <TableRow
-            title={'x'}
-            value={cameraParameters.cameraTransform.matrix[0][3]}
+            title={targetCameraParameters.locationLabels[0]}
+            value={targetCameraParameters.location[0]}
           />
           <TableRow
-            title={'y'}
-            value={cameraParameters.cameraTransform.matrix[1][3]}
+            title={targetCameraParameters.locationLabels[1]}
+            value={targetCameraParameters.location[1]}
           />
           <TableRow
             isLastRow={true}
-            title={'z'}
-            value={cameraParameters.cameraTransform.matrix[2][3]}
+            title={targetCameraParameters.locationLabels[2]}
+            value={targetCameraParameters.location[2]}
           />
         </div>
         { this.renderOrientationSection() }
@@ -134,8 +163,9 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
     if (!this.props.solverResult.cameraParameters) {
       return null
     }
+    const targetCameraParameters = this.targetCameraParameters()
     const displayDegrees = this.props.resultDisplaySettings.fieldOfViewFormat == FieldOfViewFormat.Degrees
-    const fovFactor = displayDegrees ? 180 / Math.PI : 1
+    const fovFactor = displayDegrees ? 1 : Math.PI / 180
     return (
       <div className='panel-section bottom-border'>
         <div className='panel-group-title'>Field of view</div>
@@ -150,12 +180,12 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
         <TableRow
           isFirstRow={true}
           title={'Horizontal'}
-          value={fovFactor * this.props.solverResult.cameraParameters.horizontalFieldOfView}
+          value={fovFactor * targetCameraParameters.horizontalFieldOfView}
         />
         <TableRow
           isLastRow={true}
           title={'Vertical'}
-          value={fovFactor * this.props.solverResult.cameraParameters.verticalFieldOfView }
+          value={fovFactor * targetCameraParameters.verticalFieldOfView }
         />
       </div>
     )
@@ -165,44 +195,33 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
     if (!this.props.solverResult.cameraParameters) {
       return null
     }
-    const displayFormat = this.props.resultDisplaySettings.orientationFormat
-    const displayAxisAngle = displayFormat != OrientationFormat.Quaterion
-    const cameraTransform = this.props.solverResult.cameraParameters.cameraTransform
-    const components = displayAxisAngle ? MathUtil.matrixToAxisAngle(cameraTransform) : MathUtil.matrixToQuaternion(cameraTransform)
-    if (displayFormat == OrientationFormat.AxisAngleDegrees) {
-      components[3] = 180 * components[3] / Math.PI
-    }
+    const targetCameraParameters = this.targetCameraParameters()
+    const rotation = targetCameraParameters.rotation
+    const labels = targetCameraParameters.rotationLabels
+    const fourthLabel = labels[3]
 
     return (
       <div className='panel-section bottom-border'>
-          <div className='panel-group-title'>Camera orientation</div>
-          <Dropdown
-            options={[
-              { id: OrientationFormat.AxisAngleDegrees, title: 'Axis angle (degrees)', value: OrientationFormat.AxisAngleDegrees },
-              { id: OrientationFormat.AxisAngleRadians, title: 'Axis angle (radians)', value: OrientationFormat.AxisAngleRadians },
-              { id: OrientationFormat.Quaterion, title: 'Quaternion', value: OrientationFormat.Quaterion }
-            ]}
-            selectedOptionId={this.props.resultDisplaySettings.orientationFormat}
-            onOptionSelected={this.props.onOrientationDisplayFormatChanged}
-          />
+          <div className='panel-group-title'>Camera orientation ({targetCameraParameters.rotationUnit})</div>
           <TableRow
             isFirstRow={true}
-            title={'x'}
-            value={components[0]}
+            title={labels[0]}
+            value={rotation[0]}
           />
           <TableRow
-            title={'y'}
-            value={components[1]}
+            title={labels[1]}
+            value={rotation[1]}
           />
           <TableRow
-            title={'z'}
-            value={components[2]}
+            isLastRow={fourthLabel === null}
+            title={labels[2]}
+            value={rotation[2]}
           />
-          <TableRow
+          {fourthLabel !== null ? (<TableRow
             isLastRow={true}
-            title={displayAxisAngle ? 'Angle' : 'w'}
-            value={components[3]}
-          />
+            title={fourthLabel}
+            value={rotation[3] || 0}
+          />) : null}
         </div>
     )
   }
@@ -341,6 +360,15 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
           type={BulletListType.Warnings}
         />
       </div>
+    )
+  }
+
+  private targetCameraParameters() {
+    return convertCameraParametersForTarget(
+      this.props.solverResult.cameraParameters!,
+      this.props.calibrationSettings,
+      targetPresetForId(this.props.resultDisplaySettings.targetPresetId),
+      targetSceneOrientationForId(this.props.resultDisplaySettings.targetSceneOrientationId)
     )
   }
 }

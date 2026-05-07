@@ -39,6 +39,7 @@ import Solver from '../../solver/solver'
 import MathUtil from '../../solver/math-util'
 import AABBOps from '../../solver/aabb-ops'
 import MagnifyingGlass from './magnifying-glass'
+import { ResultDisplaySettings } from '../../types/result-display-settings'
 
 interface ControlPointsPanelState {
   width: number | undefined
@@ -62,6 +63,7 @@ export interface ControlPointsPanelProps {
   controlPointsState2VP: ControlPointsState2VP
 
   solverResult: SolverResult
+  resultDisplaySettings: ResultDisplaySettings
 
   applyImagePadding: boolean
 }
@@ -232,6 +234,8 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
         height={this.state.height}
         cameraParameters={cameraParameters}
         globalSettings={this.props.globalSettings}
+        targetPresetId={this.props.resultDisplaySettings.targetPresetId}
+        targetSceneOrientationId={this.props.resultDisplaySettings.targetSceneOrientationId}
       />
     )
 

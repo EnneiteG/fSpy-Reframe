@@ -46,6 +46,16 @@ export function resultDisplaySettings(state: ResultDisplaySettings | undefined, 
         ...state,
         displayAbsoluteFocalLength: action.displayAbsoluteFocalLength
       }
+    case ActionTypes.SET_TARGET_PRESET:
+      return {
+        ...state,
+        targetPresetId: action.targetPresetId
+      }
+    case ActionTypes.SET_TARGET_SCENE_ORIENTATION:
+      return {
+        ...state,
+        targetSceneOrientationId: action.targetSceneOrientationId
+      }
     case ActionTypes.LOAD_STATE:
       return {
         ...state,
