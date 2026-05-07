@@ -1,0 +1,46 @@
+name: Windows Build
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    name: Build and test Windows package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Enable Yarn 1
+        shell: pwsh
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          yarn --version
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify build and tests
+        run: npm run verify
+
+      - name: Build unpacked Windows package
+        run: npm run dist-preview
+
+      - name: Upload unpacked app
+        uses: actions/upload-artifact@v4
+        with:
+          name: fSpy-UE-win-unpacked
+          path: dist/win-unpacked
+          if-no-files-found: error
