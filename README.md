@@ -69,4 +69,4 @@ To create a Windows installer locally, run:
 yarn dist-win
 ```
 
-On Windows, this creates an NSIS setup executable in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer. Pushing a tag such as `v0.1.0-ue` creates a GitHub Release and attaches the generated installer.
+On Windows, this creates an x64 NSIS setup executable in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer. Pushing a tag such as `v0.1.0-ue` creates a GitHub Release and attaches the generated installer. The generated file names use the version from `package.json`.

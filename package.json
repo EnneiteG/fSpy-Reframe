@@ -1,6 +1,6 @@
 {
   "name": "fspy-ue",
-  "version": "1.1.0-beta.3",
+  "version": "0.1.0",
   "packageManager": "yarn@1.22.22",
   "main": "build/main.js",
   "homepage": "https://github.com/EnneiteG/fSpy-UE",
@@ -62,9 +62,9 @@
     "build-dist": "node scripts/run-webpack-tool.js webpack --config webpack.config.js --mode production",
     "predist": "npm run build-dist",
     "predist-preview": "npm run build-dist",
-    "predist-win": "npm run build-dist",
+    "predist-win": "trash dist && npm run build-dist",
     "dist-preview": "electron-builder --dir",
-    "dist-win": "electron-builder --win --publish never",
+    "dist-win": "electron-builder --win --x64 --publish never",
     "prebuild-test": "trash __tests__",
     "build-test": "node scripts/run-webpack-tool.js webpack --config webpack.tests.config.js --mode development",
     "pretest": "npm run build-test",
@@ -113,22 +113,8 @@
     },
     "win": {
       "target": [
-        {
-          "target": "nsis",
-          "arch": "x64"
-        },
-        {
-          "target": "nsis",
-          "arch": "ia32"
-        },
-        {
-          "target": "zip",
-          "arch": "x64"
-        },
-        {
-          "target": "zip",
-          "arch": "ia32"
-        }
+        "nsis",
+        "zip"
       ]
     },
     "files": [
