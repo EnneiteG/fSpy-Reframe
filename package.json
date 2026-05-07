@@ -1,12 +1,12 @@
 {
-  "name": "fspy",
+  "name": "fspy-ue",
   "version": "1.1.0-beta.3",
   "packageManager": "yarn@1.22.22",
   "main": "build/main.js",
-  "homepage": "https://fspy.io",
+  "homepage": "https://github.com/EnneiteG/fSpy-UE",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stuffmatic/fSpy.git"
+    "url": "https://github.com/EnneiteG/fSpy-UE.git"
   },
   "author": {
     "name": "Per Gantelius",
@@ -62,7 +62,9 @@
     "build-dist": "node scripts/run-webpack-tool.js webpack --config webpack.config.js --mode production",
     "predist": "npm run build-dist",
     "predist-preview": "npm run build-dist",
+    "predist-win": "npm run build-dist",
     "dist-preview": "electron-builder --dir",
+    "dist-win": "electron-builder --win --publish never",
     "prebuild-test": "trash __tests__",
     "build-test": "node scripts/run-webpack-tool.js webpack --config webpack.tests.config.js --mode development",
     "pretest": "npm run build-test",
@@ -94,11 +96,12 @@
   "build": {
     "publish": {
       "provider": "github",
-      "repo": "fSpy",
+      "owner": "EnneiteG",
+      "repo": "fSpy-UE",
       "publishAutoUpdate": false
     },
-    "productName": "fSpy",
-    "appId": "com.stuffmatic.fspy",
+    "productName": "fSpy UE",
+    "appId": "com.enneiteg.fspyue",
     "mac": {
       "target": "dmg",
       "category": "public.app-category.utilities"

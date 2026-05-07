@@ -21,7 +21,7 @@ Interested in writing an importer for your favorite application? Then the [fSpy 
 
 ## Building and running
 
-The following instructions are for developers. If you just want to run the app, [download the latest executable for your platform](https://github.com/stuffmatic/fSpy/releases).
+The following instructions are for developers. If you just want to run the app, download the latest build from the [fSpy-UE releases page](https://github.com/EnneiteG/fSpy-UE/releases).
 
 fSpy is written in [Typescript](https://www.typescriptlang.org) using [Electron](https://electronjs.org), [React](https://reactjs.org) and [Redux](https://redux.js.org). [Visual Studio Code](https://code.visualstudio.com) is recommended for a pleasant editing experience.
 
@@ -48,17 +48,25 @@ To test a packaged app without creating installers, run:
 yarn dist-preview
 ```
 
-On Windows, this creates `dist/win-unpacked/fSpy.exe`.
+On Windows, this creates an unpacked app in `dist/win-unpacked`.
 
 ⚠️ The current build process is not ideal. For example, it lacks support for live reloading on main process code changes. Changes to main process code require a manual rebuild, i.e steps 2-3, in order to show up in the app.
 
 
 ## Creating binaries for distribution
 
-To create executables for distribution, run
+To create installers and archives for all configured platforms, run
 
 ```
 yarn dist
 ```
 
 which invokes [Electron builder](https://github.com/electron-userland/electron-builder).
+
+To create a Windows installer locally, run:
+
+```
+yarn dist-win
+```
+
+On Windows, this creates an NSIS setup executable in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer. Pushing a tag such as `v0.1.0-ue` creates a GitHub Release and attaches the generated installer.
