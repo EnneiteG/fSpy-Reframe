@@ -152,12 +152,14 @@ Done. Upgraded in 4 hops: 12→20 (no fixes needed), 20→28 (fixed `Event` type
 
 Done. Replaced `app.on('ready')` with `app.whenReady().then()`. Fixed `getResourceURL()` — was incorrectly using `path.join()` with `file://` prefix (produces backslash paths on Windows); now uses `pathToFileURL().href` for correct cross-platform file URLs. Replaced `startUrl` template literal with `pathToFileURL().href`. Cleaned up duplicate `path` import (was importing both `path` default and `{ basename, join }` destructured); now uses `path.join()`, `path.basename()` consistently. Verified dialog APIs (already promise-based), IPC patterns (already using `handle`/`invoke` for request-response, `on`/`send` for fire-and-forget).
 
-### 2.7 Update electron-builder
+### 2.7 Update electron-builder ✅
 
 - Update `electron-builder` to `^25.x`.
 - Update build config: remove `ia32` targets if 32-bit support is not needed.
 - Add `arm64` targets for Apple Silicon Macs.
 - Update `@types/electron-window-state` or remove if types are bundled.
+
+Done. Upgraded `electron-builder` from ^22.4.0 to 25.1.8. Removed Windows `ia32` targets (nsis and zip) — only `x64` remains. Updated Mac target from bare `"dmg"` string to structured format with `arch: ["x64", "arm64"]` for Apple Silicon support. Kept `@types/electron-window-state@^2.0.33` — `electron-window-state` does not bundle its own types. All 3 webpack bundles compile cleanly.
 
 ---
 

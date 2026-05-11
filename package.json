@@ -26,7 +26,7 @@
     "@typescript-eslint/parser": "^7.18.0",
     "css-loader": "^7.1.4",
     "electron": "^42.0.1",
-    "electron-builder": "^22.4.0",
+    "electron-builder": "^25.1.8",
     "eslint": "^8.57.1",
     "html-webpack-plugin": "^5.6.7",
     "jest": "^23.1.0",
@@ -78,7 +78,12 @@
     "productName": "fSpy",
     "appId": "com.stuffmatic.fspy",
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
       "category": "public.app-category.utilities"
     },
     "linux": {
@@ -93,16 +98,8 @@
           "arch": "x64"
         },
         {
-          "target": "nsis",
-          "arch": "ia32"
-        },
-        {
           "target": "zip",
           "arch": "x64"
-        },
-        {
-          "target": "zip",
-          "arch": "ia32"
         }
       ]
     },
