@@ -15,7 +15,6 @@
   "description": "An open source, cross platform app for still image camera matching",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@types/electron-window-state": "^2.0.33",
     "@types/jest": "^29.5.14",
     "@types/minimist": "^1.2.0",
     "@types/react": "^18.3.28",
@@ -26,7 +25,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.4",
     "electron": "^42.0.1",
-    "electron-builder": "^25.1.8",
+    "electron-builder": "^26.8.1",
     "eslint": "^8.57.1",
     "html-webpack-plugin": "^5.6.7",
     "jest": "^29.7.0",
@@ -57,9 +56,9 @@
     "publish-release": "electron-builder -mwl --publish always"
   },
   "dependencies": {
-    "electron-window-state": "^4.1.1",
+    "electron-window-state": "^5.0.3",
     "konva": "^9.3.22",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-konva": "^18.2.14",

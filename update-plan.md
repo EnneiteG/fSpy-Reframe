@@ -250,12 +250,14 @@ Done. Upgraded jest from ^23.1.0 to ^29.7.0, @types/jest from ^23.0.0 to ^29.5.1
 
 Done. Uninstalled `trash-cli`; installed `rimraf@^6.0.0` and `cross-env@^7.0.3`. Replaced `trash build` with `rimraf build` in `prebuild-dev` and `prebuild-dist`. Changed `electron-dev` from `DEV=true electron ./build/main.js` (Unix-only) to `cross-env DEV=true electron ./build/main.js` (cross-platform). Added `start` script that builds dev + launches Electron in one command. All 3 webpack bundles compile, tests unchanged.
 
-### 6.2 Dependency Audit
+### 6.2 Dependency Audit ✅
 
 - Update `minimist` to `^1.2.8` (already at latest).
 - Update `electron-window-state` to `^5.0.3` and `@types/electron-window-state` to `^5.0.2`.
 - Remove `trash-cli` after replacing with `rimraf`.
 - Run `npm audit` and fix vulnerabilities.
+
+Done. Upgraded `minimist` from ^1.2.0 to ^1.2.8 (was already installed at 1.2.8, pinned range updated). Upgraded `electron-window-state` from ^4.1.1 to ^5.0.3. Removed `@types/electron-window-state` — v5 bundles its own type definitions (the @types stub package is deprecated). `trash-cli` was already removed in 6.1. Ran `npm audit fix` which resolved `ansi-regex`, `brace-expansion`, and transitive `minimist` vulnerabilities. Remaining 11 vulns were all in `electron-builder@25.1.8` transitive deps (`tar`, `@tootallnate/once`, `node-gyp`, `cacache`); fixed by upgrading `electron-builder` from ^25.1.8 to ^26.8.1. Final result: **0 vulnerabilities**. Zero type errors, all 3 webpack bundles compile.
 
 ### 6.3 Consider Build Tool Migration (optional)
 
