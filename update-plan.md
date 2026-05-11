@@ -241,12 +241,14 @@ Done. Upgraded jest from ^23.1.0 to ^29.7.0, @types/jest from ^23.0.0 to ^29.5.1
 
 **Priority: Low — nice-to-haves.**
 
-### 6.1 Modernize Package Scripts
+### 6.1 Modernize Package Scripts ✅
 
-- Replace `trash-cli` with `rimraf@^6.1.3` (cross-platform, well-maintained).
+- Replace `trash-cli` with `rimraf@^6.0.0` (cross-platform, well-maintained).
 - Simplify `pre*` scripts.
 - Add a `start` script for development.
 - Add cross-platform `electron-dev` script (current uses `DEV=true` which is Unix-only).
+
+Done. Uninstalled `trash-cli`; installed `rimraf@^6.0.0` and `cross-env@^7.0.3`. Replaced `trash build` with `rimraf build` in `prebuild-dev` and `prebuild-dist`. Changed `electron-dev` from `DEV=true electron ./build/main.js` (Unix-only) to `cross-env DEV=true electron ./build/main.js` (cross-platform). Added `start` script that builds dev + launches Electron in one command. All 3 webpack bundles compile, tests unchanged.
 
 ### 6.2 Dependency Audit
 
