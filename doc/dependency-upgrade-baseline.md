@@ -150,3 +150,47 @@ Results:
 Deferred updates:
 
 - Electron, Electron Builder, React, React DOM, React Redux, React Konva, Konva, Webpack, Babel, Jest, TypeScript and TSLint remain pinned for later dedicated migration phases.
+
+## Phase 5 Build Toolchain Migration
+
+The build pipeline was migrated from Webpack 4/Babel 6 to Webpack 5/Babel 7 while keeping Electron, React, Jest and TSLint on their existing major versions.
+
+Updated build packages:
+
+- `webpack`: `4.10.2` -> `5.106.2`
+- `webpack-cli`: `3.0.1` -> `5.1.4`
+- `webpack-dev-server`: `3.1.4` -> `4.15.2`
+- `ts-loader`: `8.4.0` -> `9.5.4`
+- `babel-loader`: `7.1.4` -> `9.2.1`
+- `html-webpack-plugin`: `3.2.0` -> `5.6.0`
+- `css-loader`: `0.28.11` -> `6.11.0`
+- `style-loader`: `0.21.0` -> `3.3.4`
+- Added Babel 7 packages: `@babel/core`, `@babel/preset-env`, `@babel/preset-react`.
+- Removed obsolete Babel 6 packages and `standard-loader`.
+
+Configuration changes:
+
+- Updated `.babelrc` to Babel 7 presets targeting Electron `8.2`.
+- Updated Webpack loader syntax for Webpack 5.
+- Updated `dev-server` from `webpack-dev-server --content-base` to `webpack serve` with `devServer.static`.
+- Removed the Webpack 4 OpenSSL legacy provider workaround from `scripts/run-webpack-tool.js`.
+- Disabled Jest transforms because tests are already bundled by Webpack before Jest executes them.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+corepack yarn dev-server
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+- `dev-server`: success, served on `http://localhost:8080/`.
+
+Deferred updates:
+
+- Jest still uses version `23.6.0`; its transform pipeline is disabled for bundled test files and should be modernized in a dedicated test-tooling phase.
+- TSLint and `tslint-loader` remain in place and continue to emit legacy warnings; ESLint migration remains a separate phase.

@@ -32,7 +32,7 @@ corepack enable
 yarn
 ```
 
-Node.js 16 is the recommended development runtime for this legacy Electron/Webpack stack. The repository includes an `.nvmrc` file for this purpose. Newer Node.js versions can still be used; the build scripts automatically enable Webpack 4's required legacy OpenSSL provider when needed.
+Node.js 16 is the recommended development runtime for this legacy Electron stack. The repository includes an `.nvmrc` file for this purpose. Newer Node.js versions can still be used with the Webpack 5 build pipeline.
 
 The `src` folder contains two subfolders `main` and `gui`, containing code for the [Electron main and renderer processes](https://electronjs.org/docs/tutorial/application-architecture) respectively.
 

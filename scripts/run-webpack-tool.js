@@ -9,19 +9,6 @@ if (!toolName) {
   process.exit(1)
 }
 
-const env = { ...process.env }
-const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10)
-
-if (nodeMajorVersion >= 17) {
-  const legacyProviderFlag = '--openssl-legacy-provider'
-  const existingNodeOptions = env.NODE_OPTIONS || ''
-  if (!existingNodeOptions.includes(legacyProviderFlag)) {
-    env.NODE_OPTIONS = existingNodeOptions
-      ? existingNodeOptions + ' ' + legacyProviderFlag
-      : legacyProviderFlag
-  }
-}
-
 const executable = path.join(
   __dirname,
   '..',
@@ -31,7 +18,7 @@ const executable = path.join(
 )
 
 const result = spawnSync(executable, args, {
-  env: env,
+  env: process.env,
   stdio: 'inherit',
   shell: process.platform === 'win32'
 })

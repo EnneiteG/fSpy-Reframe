@@ -31,6 +31,9 @@ module.exports = [
   Object.assign({}, webPack[0], {entry: getEntries('./tests/gui/')}),
   Object.assign({}, webPack[0], {entry: getEntries('./tests/main/')})
 ].map(s => {
-  s.output.path = path.resolve(__dirname, '__tests__')
-  return s
+  return Object.assign({}, s, {
+    output: Object.assign({}, s.output, {
+      path: path.resolve(__dirname, '__tests__')
+    })
+  })
 })

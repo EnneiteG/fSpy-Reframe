@@ -23,19 +23,11 @@ const commonConfig = {
       },
       {
         test: /\.tsx?$/,
-        loader: ['babel-loader', 'ts-loader']
-      },
-      {
-        test: /\.js$/,
-        enforce: 'pre',
-        loader: 'standard-loader',
-        options: {
-          typeCheck: true,
-          emitErrors: true
-        }
+        use: ['babel-loader', 'ts-loader']
       },
       {
         test: /\.jsx?$/,
+        exclude: /node_modules/,
         loader: 'babel-loader'
       },
       {
@@ -64,6 +56,12 @@ module.exports = [
     {
       target: 'electron-renderer',
       entry: { gui: './src/gui/index.tsx' },
+      devServer: {
+        static: {
+          directory: path.resolve(__dirname, 'build')
+        },
+        port: 8080
+      },
       plugins: [new HtmlWebpackPlugin({
         template: 'src/gui/index.html'
       })]
