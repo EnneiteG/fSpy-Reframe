@@ -9,11 +9,7 @@ const commonConfig = {
     rules: [
       {
         test: /\.tsx?$/,
-        loader: ['babel-loader', 'ts-loader']
-      },
-      {
-        test: /\.jsx?$/,
-        loader: 'babel-loader'
+        loader: 'ts-loader'
       },
       {
         test: /\.css$/,

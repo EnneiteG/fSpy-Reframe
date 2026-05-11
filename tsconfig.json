@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2018",
     "module": "commonjs",
     "moduleResolution": "node",
     "pretty": true,
