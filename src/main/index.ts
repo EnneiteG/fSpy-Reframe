@@ -51,12 +51,11 @@ function isProjectFile(filePath: string): boolean {
 }
 
 function getResourcePath(fileName: string): string {
+  if (!app.isPackaged) {
+    return path.join(process.cwd(), 'assets/electron', fileName)
+  }
   if (process.resourcesPath != null) {
-    if (process.env.DEV) {
-      return path.join(process.cwd(), 'assets/electron', fileName)
-    } else {
-      return path.join(process.resourcesPath, fileName)
-    }
+    return path.join(process.resourcesPath, fileName)
   }
   return ''
 }
