@@ -494,3 +494,8 @@ Manual validation still required:
 
 - Re-test the control point UI before proceeding to React 19 or any further Konva changes.
 - Specifically check vanishing points, horizon, origin, reference distance handles, overlay 3D and magnifying glass interactions.
+
+Manual validation result:
+
+- Control point UI validation was confirmed working manually after the React 18/Konva upgrade.
+- Checked vanishing points, horizon, origin, reference distance, overlay 3D and zoom/magnifying glass interactions.
