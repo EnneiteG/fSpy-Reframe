@@ -426,3 +426,34 @@ Results:
 Manual validation still required:
 
 - Re-test UI state changes such as side panel visibility, calibration controls and result updates before proceeding to React 18/19.
+
+## Phase 8 React Redux 8 Palier
+
+React Redux was upgraded to its current React 16/17/18-compatible major version while retaining the existing `connect` API.
+
+Updated packages:
+
+- `react-redux`: `7.2.9` -> `8.1.3`
+- Removed direct `@types/react-redux` because React Redux 8 ships its own TypeScript types.
+
+Notes:
+
+- Existing class components and `connect(...)` usage were retained.
+- React remains on `16.14.0`; React Redux 8 supports React `^16.8 || ^17.0 || ^18.0`, so this remains a bridge step before React 18.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Manual validation still required:
+
+- Re-test UI state changes such as side panel visibility, calibration controls and result updates before proceeding to React 18/19.
