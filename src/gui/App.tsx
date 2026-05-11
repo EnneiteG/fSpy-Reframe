@@ -31,7 +31,6 @@ import { SolverResult } from './solver/solver-result'
 import './types/electron-api'
 import { ExportType } from '../main/ipc-messages'
 import ProjectFile from './io/project-file'
-import { readFileSync } from 'fs'
 import { loadImage } from './io/util'
 import store from './store/store'
 import SplashScreen from './components/splash-screen'
@@ -83,13 +82,14 @@ class App extends React.PureComponent<AppProps> {
         let firstFile = ev.dataTransfer.files[0]
         if (firstFile) {
           let filePath = firstFile.path
-          let isProjectFile = ProjectFile.isProjectFile(filePath)
-          if (isProjectFile) {
-            this.props.onProjectFileDropped(filePath)
-          } else {
-            // try to open the file as an image
-            this.props.onImageFileDropped(filePath)
-          }
+          ProjectFile.isProjectFile(filePath).then((isProject) => {
+            if (isProject) {
+              this.props.onProjectFileDropped(filePath)
+            } else {
+              // try to open the file as an image
+              this.props.onImageFileDropped(filePath)
+            }
+          })
         }
         ev.preventDefault()
         return false
@@ -157,20 +157,20 @@ export function mapStateToProps(state: StoreState) {
 export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
   return {
     onImageFileDropped: (imagePath: string) => {
-      let imageBuffer = readFileSync(imagePath)
-      // TODO: good to do async loading here?
-      loadImage(
-        imageBuffer,
-        (width: number, height: number, url: string) => {
-          dispatch(setImage(url, imageBuffer, width, height))
-        },
-        () => {
-          window.electronAPI.showErrorBox(
-            'Failed to load image data',
-            'Could not load the image data. Is this a valid image file?'
-          )
-        }
-      )
+      window.electronAPI.readFile(imagePath).then((imageBuffer) => {
+        loadImage(
+          imageBuffer,
+          (width: number, height: number, url: string) => {
+            dispatch(setImage(url, imageBuffer, width, height))
+          },
+          () => {
+            window.electronAPI.showErrorBox(
+              'Failed to load image data',
+              'Could not load the image data. Is this a valid image file?'
+            )
+          }
+        )
+      })
     },
     onProjectFileDropped: (projectPath: string) => {
       window.electronAPI.sendOpenDroppedProject(projectPath)
@@ -188,16 +188,17 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       ProjectFile.save(filePath, dispatch)
     },
     onOpenImageIPCMessage: (imagePath: string) => {
-      let imageBuffer = readFileSync(imagePath)
-      loadImage(
-        imageBuffer,
-        (width: number, height: number, url: string) => {
-          dispatch(setImage(url, imageBuffer, width, height))
-        },
-        () => {
-          alert('Failed to load image')
-        }
-      )
+      window.electronAPI.readFile(imagePath).then((imageBuffer) => {
+        loadImage(
+          imageBuffer,
+          (width: number, height: number, url: string) => {
+            dispatch(setImage(url, imageBuffer, width, height))
+          },
+          () => {
+            alert('Failed to load image')
+          }
+        )
+      })
     },
     onOpenExampleProjectIPCMessage: () => {
       ProjectFile.loadExample(dispatch)

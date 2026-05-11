@@ -17,14 +17,18 @@
  */
 
 import React from 'react'
-import { resourceURL } from '../io/util'
 import { Palette } from '../style/palette'
 import '../types/electron-api'
 
-// Fetch version once at module load (app version is constant)
+// Fetch static values once at module load
 let appVersion = ''
-window.electronAPI.getAppVersion().then((version: string) => {
+let iconURL = ''
+Promise.all([
+  window.electronAPI.getAppVersion(),
+  window.electronAPI.getResourceURL('icon.svg')
+]).then(([version, url]) => {
   appVersion = version
+  iconURL = url
 })
 
 interface SplashScreenProps {
@@ -39,7 +43,7 @@ export default function SplashScreen(props: SplashScreenProps) {
         <div style={{ textAlign: 'center', alignSelf: 'center' }}>
           <img
             style={{ width: '100px', marginTop: '100px', marginBottom: '30px', height: '100px' }}
-            src={resourceURL('icon.svg')}
+            src={iconURL}
           />
           <div style={{ color: 'white', opacity: 0.3 }}>Drop an image or project here</div>
         </div>

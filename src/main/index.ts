@@ -25,10 +25,57 @@ import windowStateKeeper from 'electron-window-state'
 import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
 import { basename, join } from 'path'
 import AppMenuManager from './app-menu-manager'
-import ProjectFile from '../gui/io/project-file'
 import { Palette } from '../gui/style/palette'
-import { openSync, writeSync, closeSync } from 'fs'
+import { openSync, writeSync, closeSync, readFileSync, readSync } from 'fs'
 import { CLI } from '../cli/cli'
+
+const PROJECT_FILE_ID = 'fspy'
+const EXAMPLE_PROJECT_FILENAME = 'example.fspy'
+
+function isProjectFile(filePath: string): boolean {
+  let file = 0
+  try {
+    file = openSync(filePath, 'r')
+  } catch {
+    return false
+  }
+
+  const buffer = Buffer.alloc(4)
+  readSync(file, buffer, 0, 4, 0)
+  closeSync(file)
+  for (let i = 0; i < PROJECT_FILE_ID.length; i++) {
+    if (buffer.readUInt8(i) !== PROJECT_FILE_ID.charCodeAt(i)) {
+      return false
+    }
+  }
+  return true
+}
+
+function getResourcePath(fileName: string): string {
+  if (process.resourcesPath != null) {
+    if (process.env.DEV) {
+      return join(process.cwd(), 'assets/electron', fileName)
+    } else {
+      return join(process.resourcesPath, fileName)
+    }
+  }
+  return ''
+}
+
+function getResourceURL(fileName: string): string {
+  if (process.resourcesPath != null) {
+    if (process.env.DEV) {
+      return join(`file://${process.cwd()}`, 'assets/electron', fileName)
+    } else {
+      return join(process.resourcesPath, fileName)
+    }
+  }
+  return ''
+}
+
+function getExampleProjectPath(): string {
+  return getResourcePath(EXAMPLE_PROJECT_FILENAME)
+}
 
 let mainWindow: Electron.BrowserWindow | null = null
 
@@ -103,8 +150,8 @@ function createWindow() {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true,
-      contextIsolation: false
+      nodeIntegration: false,
+      contextIsolation: true
     }
   })
 
@@ -207,7 +254,7 @@ function createWindow() {
       onOpenExampleProject: () => {
         showDiscardChangesDialogIfNeeded(mainWindow, (didCancel: boolean) => {
           if (!didCancel) {
-            let projectPath = ProjectFile.exampleProjectPath
+            let projectPath = getExampleProjectPath()
             if (mainWindow) {
               window.webContents.send(
                 OpenProjectMessage.type,
@@ -291,7 +338,7 @@ function createWindow() {
           const fd = openSync(filePath, 'r')
           closeSync(fd)
 
-          if (ProjectFile.isProjectFile(filePath)) {
+          if (isProjectFile(filePath)) {
             window.webContents.send(
               OpenProjectMessage.type,
               new OpenProjectMessage(filePath, false)
@@ -507,6 +554,29 @@ ipcMain.handle('show-error-box', (_event, title: string, content: string) => {
 
 ipcMain.handle('get-app-version', () => {
   return app.getVersion()
+})
+
+ipcMain.handle('read-file', (_event, filePath: string): Uint8Array => {
+  const buffer = readFileSync(filePath)
+  return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+})
+
+ipcMain.handle('write-file', (_event, filePath: string, data: Uint8Array) => {
+  const file = openSync(filePath, 'w')
+  writeSync(file, Buffer.from(data))
+  closeSync(file)
+})
+
+ipcMain.handle('is-project-file', (_event, filePath: string): boolean => {
+  return isProjectFile(filePath)
+})
+
+ipcMain.handle('get-resource-url', (_event, fileName: string): string => {
+  return getResourceURL(fileName)
+})
+
+ipcMain.handle('get-resource-path', (_event, fileName: string): string => {
+  return getResourcePath(fileName)
 })
 
 app.on('ready', () => {

@@ -116,7 +116,7 @@ Modern Electron requires a preload script to safely expose APIs to the renderer:
 
 Done. Created `src/main/preload.ts` using `contextBridge.exposeInMainWorld('electronAPI', ...)` exposing: `showErrorBox`, `getAppVersion`, `sendSetDocumentState`, `sendSpecifyProjectPath`, `sendOpenDroppedProject`, `sendSpecifyExportPath`, 7 `on*` listener registrations (newProject, openProject, saveProject, saveProjectAs, openImage, export, setSidePanelVisibility), and `writeClipboardText`. Created `src/gui/types/electron-api.ts` with `ElectronAPI` interface and `Window` augmentation. Added `electron-preload` target to webpack.config.js. Wired `preload: path.join(__dirname, 'preload.js')` in BrowserWindow. Migrated all 6 renderer files off direct `electron` imports: App.tsx (ipcRenderer.on/send/invoke → window.electronAPI), splash-screen.tsx (ipcRenderer.invoke → window.electronAPI.getAppVersion), project-file.ts (ipcRenderer.invoke → window.electronAPI.showErrorBox), ui-state.ts (ipcRenderer.send → window.electronAPI.sendSetDocumentState), table-row.tsx (clipboard → window.electronAPI.writeClipboardText), overlay-3d-panel.tsx (Point type → Point2D). Kept `contextIsolation: false` / `nodeIntegration: true` because renderer still uses `fs`/`Buffer`/`process` directly (Stage 2.4 will remove those, then we flip the switches).
 
-### 2.4 Remove Direct Node.js Usage in Renderer
+### 2.4 Remove Direct Node.js Usage in Renderer ✅
 
 **Must be done before enabling `contextIsolation: true` / `nodeIntegration: false`.**
 
@@ -128,6 +128,8 @@ Files using Node.js APIs directly in the renderer process:
 - `src/cli/cli.ts` — uses `fs` APIs (CLI is fine, but review if bundled with renderer).
 
 All file system operations must move to the main process, exposed via IPC through the preload script.
+
+Done. Added 5 new IPC handlers in main: `read-file`, `write-file`, `is-project-file`, `get-resource-url`, `get-resource-path`. Moved `isProjectFile()`, `getResourcePath()`, `getResourceURL()`, `getExampleProjectPath()` functions into main process directly (removed `ProjectFile` import from main). Extended preload.ts and `ElectronAPI` interface with matching methods. Rewrote `project-file.ts`: removed `fs` import, replaced `Buffer` ops with `DataView`/`Uint8Array`/`TextEncoder`/`TextDecoder`, made `save()`, `load()`, `loadExample()`, `isProjectFile()` async using IPC. Rewrote `App.tsx`: removed `readFileSync`, made image handlers async via `window.electronAPI.readFile()`, made drop handler async for `isProjectFile`. Rewrote `util.ts`: removed `path`/`process` imports, `loadImage()` takes `Uint8Array`, `resourceURL`/`resourcePath` now async via IPC. Changed `ImageState.data` from `Buffer|null` to `Uint8Array|null`, `SetImage.data` from `Buffer` to `Uint8Array`. Updated `splash-screen.tsx` to resolve `iconURL` via IPC at module load. Fixed `Uint8Array`→`BlobPart` TS 5.8 strict typing. Enabled `contextIsolation: true`, `nodeIntegration: false`. The gui bundle now has zero `external` Node.js/electron dependencies.
 
 ### 2.5 Electron 12 → 42 (final upgrade)
 

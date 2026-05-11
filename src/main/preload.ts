@@ -8,6 +8,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAppVersion: (): Promise<string> => {
     return ipcRenderer.invoke('get-app-version')
   },
+  readFile: (filePath: string): Promise<Uint8Array> => {
+    return ipcRenderer.invoke('read-file', filePath)
+  },
+  writeFile: (filePath: string, data: Uint8Array): Promise<void> => {
+    return ipcRenderer.invoke('write-file', filePath, data)
+  },
+  isProjectFile: (filePath: string): Promise<boolean> => {
+    return ipcRenderer.invoke('is-project-file', filePath)
+  },
+  getResourceURL: (fileName: string): Promise<string> => {
+    return ipcRenderer.invoke('get-resource-url', fileName)
+  },
+  getResourcePath: (fileName: string): Promise<string> => {
+    return ipcRenderer.invoke('get-resource-path', fileName)
+  },
 
   // Fire-and-forget (renderer → main)
   sendSetDocumentState: (

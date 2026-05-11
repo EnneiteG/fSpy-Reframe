@@ -2,6 +2,11 @@ export interface ElectronAPI {
   // Request-response
   showErrorBox(title: string, content: string): Promise<void>
   getAppVersion(): Promise<string>
+  readFile(filePath: string): Promise<Uint8Array>
+  writeFile(filePath: string, data: Uint8Array): Promise<void>
+  isProjectFile(filePath: string): Promise<boolean>
+  getResourceURL(fileName: string): Promise<string>
+  getResourcePath(fileName: string): Promise<string>
 
   // Fire-and-forget (renderer → main)
   sendSetDocumentState(
