@@ -65,9 +65,9 @@ export default class ProjectFile {
     let stateToSave = this.getStateToSave()
 
     let stateJsonString = JSON.stringify(stateToSave)
-    let stateBuffer = new Buffer(stateJsonString)
+    let stateBuffer = Buffer.from(stateJsonString)
 
-    let headerBuffer = new Buffer(16)
+    let headerBuffer = Buffer.alloc(16)
 
     headerBuffer.writeUInt8(this.PROJECT_FILE_ID.charCodeAt(0), 0)
     headerBuffer.writeUInt8(this.PROJECT_FILE_ID.charCodeAt(1), 1)
@@ -98,7 +98,7 @@ export default class ProjectFile {
         'This does not appear to be a valid project file'
       )
     } else {
-      let buffer = new Buffer(0)
+      let buffer = Buffer.alloc(0)
       try {
         buffer = readFileSync(path)
       } catch {
@@ -219,7 +219,7 @@ export default class ProjectFile {
       return false
     }
 
-    let buffer = new Buffer(4)
+    let buffer = Buffer.alloc(4)
     readSync(file, buffer, 0, 4, 0)
     closeSync(file)
     let fileId = [

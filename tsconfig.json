@@ -1,18 +1,19 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "es2015",
+    "target": "ES2022",
+    "module": "commonjs",
     "moduleResolution": "node",
     "pretty": true,
     "newLine": "LF",
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "sourceMap": true,
     "skipLibCheck": true,
-    "allowJs": true,
-    "jsx": "preserve"
+    "jsx": "react"
   }
 }
