@@ -6,7 +6,7 @@ This document outlines the staged upgrade plan for modernizing the fSpy applicat
 
 | Technology       | Current Version | Target Version |
 |------------------|-----------------|----------------|
-| Electron         | 8.2.1           | 35.x           |
+| Electron         | 8.2.1           | 42.x           |
 | TypeScript       | 2.9.1           | 5.8.x          |
 | React            | 16.4.0          | 19.x           |
 | Redux            | 4.0.0           | 5.x (or Redux Toolkit) |
@@ -74,16 +74,13 @@ This document outlines the staged upgrade plan for modernizing the fSpy applicat
 
 **Priority: Critical — major security and API changes.**
 
-### 2.1 Incremental Electron Upgrade Path
+### 2.1 Electron 8 → 12 (initial upgrade)
 
-Due to massive API changes between Electron 8 and 35, an incremental approach is recommended:
-
-1. **Electron 8 → 12**: Introduces `contextIsolation` default, removes `remote` module to `@electron/remote`.
-2. **Electron 12 → 20**: `contextIsolation: true` and `nodeIntegration: false` become defaults.
-3. **Electron 20 → 28+**: ESM support, updated Chromium/Node.
-4. **Electron 28 → 35**: Latest security model, performance improvements.
+✅ Done. Upgraded Electron to 12.x with explicit `contextIsolation: false` and `enableRemoteModule: true` to maintain backward compat. Removed `app.allowRendererProcessReuse`, fixed nullable `getMenuItemById` types, converted `require()` to ES imports in main process.
 
 ### 2.2 Remove `remote` Module Usage
+
+**Must be done before upgrading past Electron 14** (which removes `enableRemoteModule` entirely).
 
 The `remote` module is removed in modern Electron. All usages must be replaced with IPC:
 
@@ -92,6 +89,8 @@ The `remote` module is removed in modern Electron. All usages must be replaced w
 - **`src/gui/io/project-file.ts`**: Multiple `remote.dialog.showErrorBox()` calls — replace with IPC.
 
 ### 2.3 Implement Preload Script & Context Bridge
+
+**Must be done before upgrading past Electron 20** (which defaults to `contextIsolation: true`).
 
 Modern Electron requires a preload script to safely expose APIs to the renderer:
 
@@ -113,6 +112,8 @@ Modern Electron requires a preload script to safely expose APIs to the renderer:
 
 ### 2.4 Remove Direct Node.js Usage in Renderer
 
+**Must be done before enabling `contextIsolation: true` / `nodeIntegration: false`.**
+
 Files using Node.js APIs directly in the renderer process:
 
 - `src/gui/io/project-file.ts` — uses `fs.readFileSync`, `Buffer`.
@@ -122,15 +123,24 @@ Files using Node.js APIs directly in the renderer process:
 
 All file system operations must move to the main process, exposed via IPC through the preload script.
 
-### 2.5 Remove Deprecated Electron APIs
+### 2.5 Electron 12 → 42 (final upgrade)
 
-- Remove `app.allowRendererProcessReuse = true` (default in modern Electron).
-- Replace `require('url')` with `new URL()` or `pathToFileURL()`.
+**Only after 2.2–2.4 are complete.** With the modern IPC architecture in place, upgrade Electron in hops:
+
+1. **Electron 12 → 20**: Enable `contextIsolation: true`, `nodeIntegration: false`. Remove `enableRemoteModule`.
+2. **Electron 20 → 28**: Updated Chromium/Node. Enable `sandbox: true`.
+3. **Electron 28 → 42**: Latest security model, performance improvements.
+
+Each hop: install, fix any type errors, build, test.
+
+### 2.6 Remove Deprecated Electron APIs
+
+- Replace `require('url')` with `new URL()` or `pathToFileURL()` (if not already done).
 - Update `BrowserWindow.loadURL()` calls if needed.
 - Update `dialog` API calls (some method signatures changed).
 - Review and update `ipcMain`/`ipcRenderer` usage patterns (use `ipcMain.handle`/`ipcRenderer.invoke` for request-response).
 
-### 2.6 Update electron-builder
+### 2.7 Update electron-builder
 
 - Update `electron-builder` to `^25.x`.
 - Update build config: remove `ia32` targets if 32-bit support is not needed.
@@ -263,7 +273,7 @@ This is optional but would significantly improve developer experience.
 ## Execution Notes
 
 - **Test after each stage.** Each stage should result in a buildable, runnable application.
-- **Stage 1 and 2 are tightly coupled** — Webpack 5 + Electron 35 must both understand the new module/target system. It may be practical to combine them.
+- **Stage 1 and 2 are tightly coupled** — Webpack 5 + Electron 42 must both understand the new module/target system. It may be practical to combine them.
 - **Create a branch per stage** for easier rollback.
 - **The `remote` module removal (Stage 2.2–2.4) is the single largest refactor** — it touches the IPC architecture throughout the app.
 - **Konva upgrade (Stage 3.2) is a risk area** — the jump from v2 to v9 is massive and may require significant canvas code rewrites.
