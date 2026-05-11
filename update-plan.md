@@ -186,11 +186,13 @@ These are tightly coupled and must move together:
 
 Done. Installed react 18.3.1, react-dom 18.3.1, @types/react 18.3.28, @types/react-dom 18.3.7, konva 9.3.22, react-konva 18.2.14. Replaced `ReactDOM.render()` with `createRoot()` in index.tsx. Fixed React 18 type breaking changes: (1) added `children?: React.ReactNode` to `CameraPresetFormProps` (children no longer implicit in React 18 types), (2) typed `connect()` exports in settings-container.tsx and result-container.tsx with `as unknown as React.ComponentType<OwnProps>` to preserve the `isVisible` own prop (old @types/react-redux@6 loses prop inference with React 18 types), (3) added explicit type for `measureRef` destructuring in control-points-panel.tsx. No Konva API changes needed — canvas code compiled without modifications.
 
-### 3.2 Upgrade react-measure
+### 3.2 Upgrade react-measure ✅
 
 - `react-measure@2.5.2` is the latest and final version. Verify it works with React 18.
 - Update `@types/react-measure` to `^2.0.12`.
 - If it breaks, replace with native `ResizeObserver` API.
+
+Done. Upgraded react-measure from 2.0.2 to 2.5.2 and @types/react-measure from 2.0.2 to 2.0.12. Works with React 18 without issues.
 
 ---
 
