@@ -123,3 +123,30 @@ Coverage added:
 
 - Invalid `.fspy` state JSON does not dispatch a loaded project state.
 - Invalid CLI state JSON reports a readable error instead of throwing.
+
+## Phase 4 Low-Risk Dependency Updates
+
+Patch/minor runtime dependency updates were applied without changing Electron, React, Webpack, Babel, Jest, TSLint or Konva.
+
+Updated packages:
+
+- `minimist`: `1.2.0` -> `1.2.8`
+- `react-measure`: `2.0.2` -> `2.5.2`
+- `redux`: `4.0.0` -> `4.2.1`
+- `redux-thunk`: `2.3.0` -> `2.4.2`
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+
+Deferred updates:
+
+- Electron, Electron Builder, React, React DOM, React Redux, React Konva, Konva, Webpack, Babel, Jest, TypeScript and TSLint remain pinned for later dedicated migration phases.
