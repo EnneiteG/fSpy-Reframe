@@ -2,8 +2,8 @@
   "compileOnSave": false,
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "pretty": true,
     "newLine": "LF",
     "esModuleInterop": true,
