@@ -18,8 +18,8 @@
 
 import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
-const path = require('path')
-const url = require('url')
+import path from 'path'
+import url from 'url'
 
 import windowStateKeeper from 'electron-window-state'
 import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
@@ -29,8 +29,6 @@ import ProjectFile from '../gui/io/project-file'
 import { Palette } from '../gui/style/palette'
 import { openSync, writeSync, closeSync } from 'fs'
 import { CLI } from '../cli/cli'
-
-app.allowRendererProcessReuse = true
 
 let mainWindow: Electron.BrowserWindow | null = null
 
@@ -104,7 +102,9 @@ function createWindow() {
     webPreferences: {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
     }
   })
 
