@@ -48,16 +48,13 @@ This document outlines the staged upgrade plan for modernizing the fSpy applicat
 - Remove the `tslint-loader` rule from `webpack.config.js`.
 - Add an ESLint webpack plugin or rely on IDE integration.
 
-### 1.3 Upgrade Babel (6 → 7)
+### 1.3 Remove Babel (ts-loader handles transpilation)
 
-- Replace `babel-core` → `@babel/core`.
-- Replace `babel-loader` 7 → `babel-loader` 9.
-- Replace `babel-preset-es2015` → `@babel/preset-env`.
-- Replace `babel-preset-react` → `@babel/preset-react`.
-- Replace `babel-preset-stage-2` → individual `@babel/plugin-*` as needed.
-- Remove `babel-preset-es2015-node`.
-- Create `babel.config.json` (or `.babelrc`) with updated presets.
-- Consider whether Babel is still needed at all (ts-loader or esbuild-loader can handle JSX/TS directly).
+- ~~Upgrade Babel 6 → 7~~ — Babel removed entirely; `ts-loader` with TypeScript 5.8 handles ES downleveling and JSX.
+- Removed `babel-core`, `babel-loader`, `babel-preset-es2015`, `babel-preset-es2015-node`, `babel-preset-react`, `babel-preset-stage-2`.
+- Deleted `.babelrc`.
+- Updated `webpack.config.js`: `.tsx?` rule changed from `['babel-loader', 'ts-loader']` to `'ts-loader'`; removed standalone `.jsx?` → `babel-loader` rule.
+- Lowered `tsconfig.json` target from `ES2022` to `ES2018` — Webpack 4's acorn parser cannot handle ES2019+ syntax (optional catch binding, class fields). Will be bumped back to `ES2022` in Stage 1.4.
 
 ### 1.4 Upgrade Webpack (4 → 5)
 
