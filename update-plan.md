@@ -220,18 +220,20 @@ Optional future work (not part of this upgrade):
 
 ---
 
-## Stage 5: Testing Infrastructure
+## Stage 5: Testing Infrastructure ✅
 
 **Priority: Medium — ensure tests work with new stack.**
 
-### 5.1 Upgrade Jest
+### 5.1 Upgrade Jest ✅
 
 - Update `jest` to `^29.7.0`, `@types/jest` to `^29.5.14`.
 - Update `jest-junit` to `^17.0.0`.
-- Install `ts-jest@^29.4.9` for TypeScript support (replaces webpack-based test compilation).
-- Create `jest.config.ts` configuration file.
+- Install `ts-jest@^29.4.0` for TypeScript support (replaces webpack-based test compilation).
+- Create `jest.config.js` configuration file.
 - Remove `webpack.tests.config.js` (no longer needed with ts-jest).
 - Update test scripts in `package.json`.
+
+Done. Upgraded jest from ^23.1.0 to ^29.7.0, @types/jest from ^23.0.0 to ^29.5.14, jest-junit from ^5.0.0 to ^17.0.0. Installed ts-jest@^29.4.0 as TypeScript transform (replaces the old webpack-based test compilation pipeline). Created `jest.config.js` with `preset: 'ts-jest'`, `testEnvironment: 'node'`, roots pointing to `tests/`, matching `*tests.ts` and `*specs.ts` patterns, and `jest-junit` reporter. Used `.js` config (not `.ts`) to avoid an extra `ts-node` dependency. Removed `webpack.tests.config.js` (no longer needed — ts-jest compiles TypeScript inline). Removed `prebuild-test`, `build-test`, and `pretest` scripts from package.json (the old flow was: trash `__tests__/` → webpack-compile tests → run jest on compiled JS; now jest runs directly on `.ts` source via ts-jest). Removed the inline `"jest"` and `"jest-junit"` config blocks from package.json (moved to `jest.config.js`). Both test files run: `main_tests.ts` passes, `gui_tests.ts` has a pre-existing intentional failure (`PlaceHolderFailingTest` expects `1+2 === 4`).
 
 ---
 

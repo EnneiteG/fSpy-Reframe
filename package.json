@@ -16,7 +16,7 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "@types/electron-window-state": "^2.0.33",
-    "@types/jest": "^23.0.0",
+    "@types/jest": "^29.5.14",
     "@types/minimist": "^1.2.0",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
@@ -28,10 +28,11 @@
     "electron-builder": "^25.1.8",
     "eslint": "^8.57.1",
     "html-webpack-plugin": "^5.6.7",
-    "jest": "^23.1.0",
-    "jest-junit": "^5.0.0",
+    "jest": "^29.7.0",
+    "jest-junit": "^17.0.0",
     "style-loader": "^4.0.0",
     "trash-cli": "^1.4.0",
+    "ts-jest": "^29.4.9",
     "ts-loader": "^9.5.7",
     "typescript": "^5.9.3",
     "webpack": "^5.106.2",
@@ -46,9 +47,6 @@
     "predist": "yarn run build-dist",
     "predist-preview": "yarn run build-dist",
     "dist-preview": "electron-builder --dir",
-    "prebuild-test": "trash __tests__",
-    "build-test": "webpack --config webpack.tests.config.js --mode development",
-    "pretest": "yarn run build-test",
     "dev-server": "webpack-dev-server --config webpack.config.js --content-base build/  --mode development",
     "electron-dev": "DEV=true electron ./build/main.js",
     "dist": "electron-builder -mwl",
@@ -149,16 +147,5 @@
         "role": "Editor"
       }
     ]
-  },
-  "jest": {
-    "testRegex": "/__tests__/.*\\.jsx?",
-    "testResultsProcessor": "jest-junit"
-  },
-  "jest-junit": {
-    "suiteName": "jest tests",
-    "output": "./TEST-jest_junit.xml",
-    "classNameTemplate": "{classname}-{title}",
-    "titleTemplate": "{classname}-{title}",
-    "usePathForSuiteName": "true"
   }
 }
