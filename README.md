@@ -32,7 +32,7 @@ corepack enable
 yarn
 ```
 
-Node.js 16 is the recommended development runtime for this legacy Electron stack. The repository includes an `.nvmrc` file for this purpose. Newer Node.js versions can still be used with the Webpack 5 build pipeline.
+Node.js 22 is the recommended development runtime for the current Electron build stack. The repository includes an `.nvmrc` file for this purpose, and Yarn 1 should be launched through Corepack.
 
 The `src` folder contains two subfolders `main` and `gui`, containing code for the [Electron main and renderer processes](https://electronjs.org/docs/tutorial/application-architecture) respectively.
 

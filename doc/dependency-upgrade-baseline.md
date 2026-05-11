@@ -9,7 +9,7 @@ Baseline captured on `dependencies-update` before dependency upgrades.
 - npm: `11.2.0`
 - Corepack: `0.31.0`
 - Yarn: `1.22.22` via `corepack yarn`
-- Project recommended Node.js: `16.20.2` from `.nvmrc`
+- Project recommended Node.js: `22.14.0` from `.nvmrc`
 
 ## Setup
 
@@ -71,6 +71,7 @@ Observed downloads:
 ## Baseline Notes
 
 - The current dependency set can install, build, test and package on Node.js `22.14.0` when Yarn is launched through Corepack.
+- After upgrading to `electron-builder@26.8.1`, Node.js `22.12.0` or newer is required because the packaging toolchain depends on `@electron/rebuild@4.x`.
 - The stack is operational but contains maintenance risks: Electron 8, Webpack 4, Babel 6, Jest 23, TSLint and deprecated Electron renderer patterns.
 - Future dependency changes should be validated against this baseline with at least `corepack yarn verify` and `corepack yarn dist-preview`.
 
