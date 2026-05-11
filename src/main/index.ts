@@ -30,8 +30,6 @@ import { openSync, writeSync, closeSync, readFileSync, writeFileSync } from 'fs'
 import { CLI } from '../cli/cli'
 import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
 
-app.allowRendererProcessReuse = true
-
 let mainWindow: Electron.BrowserWindow | null = null
 
 export interface DocumentState {
@@ -125,7 +123,8 @@ function createWindow() {
       webSecurity: process.env.DEV === undefined,
       preload: join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      sandbox: false
     }
   })
 

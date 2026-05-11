@@ -255,3 +255,111 @@ Deferred updates:
 
 - IPC file operations are still synchronous to preserve existing renderer control flow during this incremental phase.
 - Electron remains on `8.2.1`; a later phase can now focus on the Electron major-version upgrade with renderer isolation already in place.
+
+## Phase 7 Electron Upgrade, Palier 1
+
+Electron was upgraded to an intermediate major version before attempting a recent supported Electron version.
+
+Updated packages:
+
+- `electron`: `8.2.1` -> `12.2.3`
+
+Code changes:
+
+- Updated Babel Electron target from `8.2` to `12.2`.
+- Adjusted menu item access for Electron 12 typings, where `Menu.getMenuItemById(...)` can return `null`.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- Dev app smoke launch: Electron process stayed running after 5 seconds and was stopped manually.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked` with Electron `12.2.3`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Manual validation still required:
+
+- Open a `.fspy` project file.
+- Export camera JSON and target camera JSON.
+- Confirm splash icon, example project and drag/drop remain functional after the Electron runtime upgrade.
+
+Manual validation result:
+
+- Splash icon, example project, drag/drop image, `.fspy` opening and JSON export were confirmed working manually.
+
+## Phase 7 Electron Upgrade, Palier 2
+
+Electron was upgraded from the intermediate major version to a more recent Electron runtime while keeping `electron-builder` unchanged for the next dedicated palier.
+
+Updated packages:
+
+- `electron`: `12.2.3` -> `22.3.27`
+
+Code changes:
+
+- Updated Babel Electron target from `12.2` to `22.3`.
+- Removed obsolete `app.allowRendererProcessReuse`, which is no longer present in Electron 22.
+- Explicitly kept `sandbox: false` because Electron 20+ sandboxes renderers by default when Node integration is disabled; this app's preload still uses Node-backed APIs for local file/resource bridging. Enabling sandbox remains deferred.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- Dev app smoke launch: Electron process stayed running after 5 seconds and was stopped manually.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked` with Electron `22.3.27`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Manual validation still required:
+
+- Re-test splash icon, example project, drag/drop image, `.fspy` opening and JSON export on Electron `22.3.27` before updating `electron-builder`.
+
+Manual validation result:
+
+- Splash icon, example project, drag/drop image, `.fspy` opening and JSON export were confirmed working manually.
+
+## Phase 7 Electron Upgrade, Palier 3
+
+The packaging toolchain was updated after validating Electron `22.3.27` with the previous builder.
+
+Updated packages:
+
+- `electron-builder`: `22.4.0` -> `26.8.1`
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked` with Electron `22.3.27` and `electron-builder` `26.8.1`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Observed packaging notes:
+
+- `electron-builder` now runs `@electron/rebuild` during packaging.
+- `electron-builder` reports duplicate dependency references from the existing React/Redux dependency tree but still completes successfully.
+- Windows unpacked packaging now reports a `signtool.exe` signing step for the executable.
+
+Manual validation still required:
+
+- Re-test splash icon, example project, drag/drop image, `.fspy` opening and JSON export after the builder update.
+
+Manual validation result:
+
+- Splash icon, example project, drag/drop image, `.fspy` opening and JSON export were confirmed working manually after the builder update.
