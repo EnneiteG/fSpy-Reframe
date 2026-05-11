@@ -55,23 +55,30 @@ function unrealRotationMatrix(pitchDegrees: number, yawDegrees: number, rollDegr
   ]
 }
 
-function cameraParametersWithRotation(rotation: number[][]): CameraParameters {
+function cameraParametersWithRotation(
+  rotation: number[][],
+  location: [number, number, number] = [0, 0, 0],
+  horizontalFieldOfView = 0,
+  verticalFieldOfView = 0,
+  imageWidth = 100,
+  imageHeight = 100
+): CameraParameters {
   return {
     principalPoint: { x: 0, y: 0 },
     viewTransform: new Transform(),
     cameraTransform: Transform.fromMatrix([
-      [rotation[0][0], rotation[0][1], rotation[0][2], 0],
-      [rotation[1][0], rotation[1][1], rotation[1][2], 0],
-      [rotation[2][0], rotation[2][1], rotation[2][2], 0],
+      [rotation[0][0], rotation[0][1], rotation[0][2], location[0]],
+      [rotation[1][0], rotation[1][1], rotation[1][2], location[1]],
+      [rotation[2][0], rotation[2][1], rotation[2][2], location[2]],
       [0, 0, 0, 1]
     ]),
-    horizontalFieldOfView: 0,
-    verticalFieldOfView: 0,
+    horizontalFieldOfView: horizontalFieldOfView,
+    verticalFieldOfView: verticalFieldOfView,
     vanishingPoints: [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }],
     vanishingPointAxes: [Axis.PositiveX, Axis.PositiveY, Axis.PositiveZ],
     relativeFocalLength: 0,
-    imageWidth: 100,
-    imageHeight: 100
+    imageWidth: imageWidth,
+    imageHeight: imageHeight
   }
 }
 
@@ -111,6 +118,89 @@ describe('GUI', () => {
     expect(converted.rotation[0]).toBeCloseTo(-11.6, 5)
     expect(converted.rotation[1]).toBeCloseTo(-21, 5)
     expect(converted.rotation[2]).toBeCloseTo(215, 5)
+  })
+
+  test('creates stable Unreal target camera export payload', () => {
+    const preset = targetPresetForId(TargetPresetId.Unreal)
+    const sceneOrientation = targetSceneOrientationForId(TargetSceneOrientationId.Default)
+    const basisToFSpy = multiply3x3(preset.basisToFSpy, sceneOrientation.basisToTarget)
+    const unrealRotation = unrealRotationMatrix(10, 20, 30)
+    const fSpyRotation = multiply3x3(
+      multiply3x3(basisToFSpy, unrealRotation),
+      transposed3x3(preset.cameraBasisToFSpy)
+    )
+
+    const converted = convertCameraParametersForTarget(
+      cameraParametersWithRotation(
+        fSpyRotation,
+        [1.25, -2, 0.5],
+        degreesToRadians(60),
+        degreesToRadians(40),
+        1920,
+        1080
+      ),
+      calibrationSettings,
+      preset,
+      sceneOrientation
+    )
+
+    expect(converted.presetId).toEqual(TargetPresetId.Unreal)
+    expect(converted.presetName).toEqual('Unreal Engine')
+    expect(converted.sceneOrientationId).toEqual(TargetSceneOrientationId.Default)
+    expect(converted.sceneOrientationName).toEqual('Default (+X)')
+    expect(converted.locationUnit).toEqual('cm')
+    expect(converted.rotationUnit).toEqual('degrees')
+    expect(converted.locationLabels).toEqual(['X', 'Y', 'Z'])
+    expect(converted.rotationLabels).toEqual(['Roll', 'Pitch', 'Yaw', null])
+    expect(converted.location[0]).toBeCloseTo(-200, 5)
+    expect(converted.location[1]).toBeCloseTo(125, 5)
+    expect(converted.location[2]).toBeCloseTo(50, 5)
+    expect(converted.rotation[0]).toBeCloseTo(30, 5)
+    expect(converted.rotation[1]).toBeCloseTo(10, 5)
+    expect(converted.rotation[2]).toBeCloseTo(20, 5)
+    expect(converted.rotation[3]).toBeNull()
+    expect(converted.horizontalFieldOfView).toBeCloseTo(60, 5)
+    expect(converted.verticalFieldOfView).toBeCloseTo(40, 5)
+    expect(converted.imageWidth).toEqual(1920)
+    expect(converted.imageHeight).toEqual(1080)
+  })
+
+  test('scales Unreal target camera locations to centimeters', () => {
+    const preset = targetPresetForId(TargetPresetId.Unreal)
+    const sceneOrientation = targetSceneOrientationForId(TargetSceneOrientationId.Default)
+    const cases = [
+      [ReferenceDistanceUnit.Millimeters, 0.1],
+      [ReferenceDistanceUnit.Centimeters, 1],
+      [ReferenceDistanceUnit.Meters, 100],
+      [ReferenceDistanceUnit.Kilometers, 100000],
+      [ReferenceDistanceUnit.Inches, 2.54],
+      [ReferenceDistanceUnit.Feet, 30.48],
+      [ReferenceDistanceUnit.Miles, 160934.4],
+      [ReferenceDistanceUnit.None, 1]
+    ] as [ReferenceDistanceUnit, number][]
+
+    for (let testCase of cases) {
+      const converted = convertCameraParametersForTarget(
+        cameraParametersWithRotation(
+          [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+          ],
+          [0, 1, 0]
+        ),
+        {
+          ...calibrationSettings,
+          referenceDistanceUnit: testCase[0]
+        },
+        preset,
+        sceneOrientation
+      )
+
+      expect(converted.location[0]).toBeCloseTo(testCase[1], 5)
+      expect(converted.location[1]).toBeCloseTo(0, 5)
+      expect(converted.location[2]).toBeCloseTo(0, 5)
+    }
   })
 
   test('maps reference distance axes through Unreal scene orientations', () => {

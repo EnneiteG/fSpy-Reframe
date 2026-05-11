@@ -65,9 +65,9 @@ export default class ProjectFile {
     let stateToSave = this.getStateToSave()
 
     let stateJsonString = JSON.stringify(stateToSave)
-    let stateBuffer = new Buffer(stateJsonString)
+    let stateBuffer = Buffer.from(stateJsonString)
 
-    let headerBuffer = new Buffer(16)
+    let headerBuffer = Buffer.alloc(16)
 
     headerBuffer.writeUInt8(this.PROJECT_FILE_ID.charCodeAt(0), 0)
     headerBuffer.writeUInt8(this.PROJECT_FILE_ID.charCodeAt(1), 1)
@@ -91,18 +91,24 @@ export default class ProjectFile {
     this.load(this.exampleProjectPath, dispatch, true)
   }
 
+  private static showErrorBox(title: string, message: string) {
+    if (remote && remote.dialog) {
+      remote.dialog.showErrorBox(title, message)
+    }
+  }
+
   static load(path: string, dispatch: Dispatch<AppAction>, isExampleProject: boolean) {
     if (!this.isProjectFile(path)) {
-      remote.dialog.showErrorBox(// TODO: proper modal
+      this.showErrorBox(
         'Failed to load project',
         'This does not appear to be a valid project file'
       )
     } else {
-      let buffer = new Buffer(0)
+      let buffer = Buffer.alloc(0)
       try {
         buffer = readFileSync(path)
       } catch {
-        remote.dialog.showErrorBox(// TODO: proper modal
+        this.showErrorBox(
           'Failed to load image data',
           'Could not load the image data contained in the project file'
         )
@@ -112,7 +118,7 @@ export default class ProjectFile {
       let headerSize = 16
       let projectFileVersion = buffer.readUInt32LE(4)
       if (projectFileVersion != this.PROJECT_FILE_VERSION) {
-        remote.dialog.showErrorBox(// TODO: proper modal
+        this.showErrorBox(
           'Failed to load project',
           'Version ' + projectFileVersion + ' project files are not compatible with this version of fSpy.'
         )
@@ -126,7 +132,16 @@ export default class ProjectFile {
           imageBuffer = buffer.slice(headerSize + stateStringSize)
         }
 
-        let loadedState: SavedState = JSON.parse(stateString)
+        let loadedState: SavedState
+        try {
+          loadedState = JSON.parse(stateString)
+        } catch {
+          this.showErrorBox(
+            'Failed to load project',
+            'Could not parse the project state data contained in the project file.'
+          )
+          return
+        }
         if (loadedState.cameraParameters === undefined) {
           loadedState.cameraParameters = null
         }
@@ -189,7 +204,7 @@ export default class ProjectFile {
               )
             },
             () => {
-              remote.dialog.showErrorBox(
+              this.showErrorBox(
                 'Failed to load image data',
                 'Could not load the image data contained in the project file'
               )
@@ -224,7 +239,7 @@ export default class ProjectFile {
       return false
     }
 
-    let buffer = new Buffer(4)
+    let buffer = Buffer.alloc(4)
     readSync(file, buffer, 0, 4, 0)
     closeSync(file)
     let fileId = [

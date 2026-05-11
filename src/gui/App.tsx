@@ -62,7 +62,7 @@ class App extends React.PureComponent<AppProps> {
     super(props)
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.registerIPCHandlers()
 
     document.ondragover = (ev) => {
