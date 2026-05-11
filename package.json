@@ -69,7 +69,7 @@
     "build-test": "node scripts/run-webpack-tool.js webpack --config webpack.tests.config.js --mode development",
     "pretest": "npm run build-test",
     "dev-server": "node scripts/run-webpack-tool.js webpack-dev-server --config webpack.config.js --content-base build/ --mode development",
-    "electron-dev": "cross-env DEV=true electron .",
+    "electron-dev": "cross-env DEV=true node scripts/run-electron.js .",
     "dist": "electron-builder -mwl",
     "test": "jest",
     "verify": "npm run build-dev && npm test",
