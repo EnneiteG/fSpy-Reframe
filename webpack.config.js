@@ -19,27 +19,25 @@ const commonConfig = {
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json']
-  },
-  node: {
-    __dirname: false
   }
 }
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = [
-  Object.assign(
-    {
-      target: 'electron-main',
-      entry: { main: './src/main/index.ts' }
+  {
+    target: 'electron-main',
+    entry: { main: './src/main/index.ts' },
+    node: {
+      __dirname: false
     },
-    commonConfig),
-  Object.assign(
-    {
-      target: 'electron-renderer',
-      entry: { gui: './src/gui/index.tsx' },
-      plugins: [new HtmlWebpackPlugin({
-        template: 'src/gui/index.html'
-      })]
-    },
-    commonConfig)
+    ...commonConfig
+  },
+  {
+    target: 'electron-renderer',
+    entry: { gui: './src/gui/index.tsx' },
+    plugins: [new HtmlWebpackPlugin({
+      template: 'src/gui/index.html'
+    })],
+    ...commonConfig
+  }
 ]
