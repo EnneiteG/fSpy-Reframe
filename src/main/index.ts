@@ -102,6 +102,7 @@ function createWindow() {
     webPreferences: {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
       contextIsolation: false
     }

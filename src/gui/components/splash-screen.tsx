@@ -19,11 +19,11 @@
 import React from 'react'
 import { resourceURL } from '../io/util'
 import { Palette } from '../style/palette'
-import { ipcRenderer } from 'electron'
+import '../types/electron-api'
 
 // Fetch version once at module load (app version is constant)
 let appVersion = ''
-ipcRenderer.invoke('get-app-version').then((version: string) => {
+window.electronAPI.getAppVersion().then((version: string) => {
   appVersion = version
 })
 

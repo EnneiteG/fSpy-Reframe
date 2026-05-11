@@ -33,6 +33,14 @@ module.exports = [
     ...commonConfig
   },
   {
+    target: 'electron-preload',
+    entry: { preload: './src/main/preload.ts' },
+    node: {
+      __dirname: false
+    },
+    ...commonConfig
+  },
+  {
     target: 'electron-renderer',
     entry: { gui: './src/gui/index.tsx' },
     plugins: [new HtmlWebpackPlugin({

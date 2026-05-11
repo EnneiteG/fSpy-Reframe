@@ -92,7 +92,7 @@ The `remote` module is removed in modern Electron. All usages must be replaced w
 
 Done. Added `ipcMain.handle('show-error-box')` and `ipcMain.handle('get-app-version')` in main process. Replaced all `remote.dialog.showErrorBox` calls in App.tsx (1), project-file.ts (4) with `ipcRenderer.invoke('show-error-box', ...)`. Replaced `remote.app.getVersion()` in splash-screen.tsx with module-level `ipcRenderer.invoke('get-app-version')` (React 16.4 lacks hooks, so used module-scope async pattern). Removed `remote` import from all three files. Removed `enableRemoteModule: true` from BrowserWindow webPreferences.
 
-### 2.3 Implement Preload Script & Context Bridge
+### 2.3 Implement Preload Script & Context Bridge ✅
 
 **Must be done before upgrading past Electron 20** (which defaults to `contextIsolation: true`).
 
@@ -113,6 +113,8 @@ Modern Electron requires a preload script to safely expose APIs to the renderer:
     sandbox: true
   }
   ```
+
+Done. Created `src/main/preload.ts` using `contextBridge.exposeInMainWorld('electronAPI', ...)` exposing: `showErrorBox`, `getAppVersion`, `sendSetDocumentState`, `sendSpecifyProjectPath`, `sendOpenDroppedProject`, `sendSpecifyExportPath`, 7 `on*` listener registrations (newProject, openProject, saveProject, saveProjectAs, openImage, export, setSidePanelVisibility), and `writeClipboardText`. Created `src/gui/types/electron-api.ts` with `ElectronAPI` interface and `Window` augmentation. Added `electron-preload` target to webpack.config.js. Wired `preload: path.join(__dirname, 'preload.js')` in BrowserWindow. Migrated all 6 renderer files off direct `electron` imports: App.tsx (ipcRenderer.on/send/invoke → window.electronAPI), splash-screen.tsx (ipcRenderer.invoke → window.electronAPI.getAppVersion), project-file.ts (ipcRenderer.invoke → window.electronAPI.showErrorBox), ui-state.ts (ipcRenderer.send → window.electronAPI.sendSetDocumentState), table-row.tsx (clipboard → window.electronAPI.writeClipboardText), overlay-3d-panel.tsx (Point type → Point2D). Kept `contextIsolation: false` / `nodeIntegration: true` because renderer still uses `fs`/`Buffer`/`process` directly (Stage 2.4 will remove those, then we flip the switches).
 
 ### 2.4 Remove Direct Node.js Usage in Renderer
 
