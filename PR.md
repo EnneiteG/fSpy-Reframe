@@ -63,5 +63,19 @@ Various minor fixes including clipboard compatibility with sandbox mode, DEV mod
 ## Testing
 
 - All 3 webpack bundles (main, gui, preload) compile cleanly with zero type errors.
-- Existing `.fspy` test data files in `test_data/` load correctly (backward-compatible).
-- Jest test suite runs via `npm test`.
+- **8 test suites, 175 tests** pass via `npm test`.
+
+### Added test coverage
+
+| Area | File | Tests | Covers |
+|---|---|---|---|
+| Vector math | `tests/gui/solver/vector-3d.tests.ts` | 25 | Arithmetic, dot/cross product, normalize, min/max accessors |
+| Math utilities | `tests/gui/solver/math-util.tests.ts` | 17 | Line intersection, triangle orthocenter, line-plane intersection, distance, normalization |
+| Coordinates | `tests/gui/solver/coordinates-util.tests.ts` | 13 | All coordinate frame conversions (Absolute/Relative/ImagePlane), round-trip consistency for wide/tall/square images |
+| Transforms | `tests/gui/solver/transform.tests.ts` | 24 | Identity, translation, scale, rotation, determinant, inverse, transpose, concatenation, equality |
+| Project file I/O | `tests/gui/io/project-file.tests.ts` | 62 | Binary `.fspy` header parsing, state JSON validation, round-trip serialization ± image data; exercises all 14 `test_data/` files |
+| Reducers | `tests/gui/reducers/reducers.tests.ts` | 17 | `globalSettings`, `imageState`, `resultDisplaySettings` — all action types, defaults, unknown-action passthrough |
+
+## AI Disclosure
+
+Claude Opus 4.6 (Anthropic) was used as an AI coding **assistant** during the development of this PR. This includes help with code migration, writing tests, debugging, and drafting documentation.
