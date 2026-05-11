@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
 import path from 'path'
 import { pathToFileURL } from 'url'
@@ -569,6 +569,10 @@ ipcMain.handle('get-resource-url', (_event, fileName: string): string => {
 
 ipcMain.handle('get-resource-path', (_event, fileName: string): string => {
   return getResourcePath(fileName)
+})
+
+ipcMain.handle('write-clipboard-text', (_event, text: string): void => {
+  clipboard.writeText(text)
 })
 
 app.whenReady().then(() => {
