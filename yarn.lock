@@ -766,6 +766,11 @@
   dependencies:
     undici-types "~7.16.0"
 
+"@types/prop-types@*":
+  version "15.7.15"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/prop-types/-/prop-types-15.7.15.tgz"
+  integrity sha1-5uWobWAr6spxzlFj+t9fldcJMcc=
+
 "@types/qs@*":
   version "6.15.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/qs/-/qs-6.15.1.tgz"
@@ -776,13 +781,10 @@
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/range-parser/-/range-parser-1.2.7.tgz"
   integrity sha1-UK5DU+qt3AQEQnmBL1LIxlhX28s=
 
-"@types/react-dom@^16.0.5":
-  version "16.0.5"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react-dom/-/react-dom-16.0.5.tgz"
-  integrity sha1-p1dFdmLjgZQJIp6Phnlf83s3H5Y=
-  dependencies:
-    "@types/node" "*"
-    "@types/react" "*"
+"@types/react-dom@^18.3.7":
+  version "18.3.7"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react-dom/-/react-dom-18.3.7.tgz"
+  integrity sha1-uJ3fLNg7T+r8xOLqQa/fuVoNGU8=
 
 "@types/react-measure@^2.0.2":
   version "2.0.2"
@@ -790,6 +792,11 @@
   integrity sha1-7SMg2Bl5p8A/HtK7pWB1/YxG5Ss=
   dependencies:
     "@types/react" "*"
+
+"@types/react-reconciler@^0.28.0", "@types/react-reconciler@^0.28.2":
+  version "0.28.9"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react-reconciler/-/react-reconciler-0.28.9.tgz"
+  integrity sha1-0ktIZMOE53DIMnWz/nP7oAJpyDs=
 
 "@types/react-redux@^6.0.1":
   version "6.0.1"
@@ -799,12 +806,13 @@
     "@types/react" "*"
     redux "^4.0.0"
 
-"@types/react@*", "@types/react@^16.3.16":
-  version "16.3.16"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react/-/react-16.3.16.tgz"
-  integrity sha1-ePxEqQtFcB9QyKcAj3M2gLpR/IY=
+"@types/react@*", "@types/react@^18.3.28":
+  version "18.3.28"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react/-/react-18.3.28.tgz"
+  integrity sha1-CoWxpyQ7QljZ9ib0N5e6GOtfh4E=
   dependencies:
-    csstype "^2.2.0"
+    "@types/prop-types" "*"
+    csstype "^3.2.2"
 
 "@types/responselike@^1.0.0":
   version "1.0.3"
@@ -2668,10 +2676,10 @@ cssesc@^3.0.0:
   dependencies:
     cssom "0.3.x"
 
-csstype@^2.2.0:
-  version "2.5.3"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/csstype/-/csstype-2.5.3.tgz"
-  integrity sha1-JQQVLm4cxZsyCYt/XWpj8WKUwfc=
+csstype@^3.2.2:
+  version "3.2.3"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/csstype/-/csstype-3.2.3.tgz"
+  integrity sha1-7EjA8+mT5QZIyG2lWeJhCZXPmJo=
 
 currently-unhandled@^0.4.1:
   version "0.4.1"
@@ -5128,6 +5136,13 @@ istanbul-reports@^1.3.0:
   dependencies:
     handlebars "^4.0.3"
 
+its-fine@^1.1.1:
+  version "1.2.5"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/its-fine/-/its-fine-1.2.5.tgz"
+  integrity sha1-VGbCh/hqCnPncsjY1RVibJcZXck=
+  dependencies:
+    "@types/react-reconciler" "^0.28.0"
+
 jackspeak@^3.1.2:
   version "3.4.3"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/jackspeak/-/jackspeak-3.4.3.tgz"
@@ -5650,10 +5665,10 @@ klaw@^1.0.0:
   optionalDependencies:
     graceful-fs "^4.1.9"
 
-konva@^2.1.3:
-  version "2.1.3"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/konva/-/konva-2.1.3.tgz"
-  integrity sha1-9fkdEor2uT1S2wPWSND8QQaAvco=
+konva@^9.3.22:
+  version "9.3.22"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/konva/-/konva-9.3.22.tgz"
+  integrity sha1-qpecQQEn3aIL8HiKtwpBRkjCWpE=
 
 latest-version@^2.0.0:
   version "2.0.0"
@@ -7268,23 +7283,23 @@ rc@^1.0.1, rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@^16.4.0:
-  version "16.4.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-dom/-/react-dom-16.4.0.tgz"
-  integrity sha1-CZ8GfdWCfONqKer5ps3Hy/Yhax4=
+react-dom@^18.3.1:
+  version "18.3.1"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-dom/-/react-dom-18.3.1.tgz"
+  integrity sha1-wiZdeVEbV9R5s90/36UVNklMXLQ=
   dependencies:
-    fbjs "^0.8.16"
     loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.0"
+    scheduler "^0.23.2"
 
-react-konva@^1.7.4:
-  version "1.7.4"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-konva/-/react-konva-1.7.4.tgz"
-  integrity sha1-sUSew2ZH+MApak4kalbU2UbqbB4=
+react-konva@^18.2.14:
+  version "18.2.14"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-konva/-/react-konva-18.2.14.tgz"
+  integrity sha1-jMG1mczBIp3JPJwAC4LjQka0hRg=
   dependencies:
-    fbjs "^0.8.16"
-    react-reconciler "^0.11.0"
+    "@types/react-reconciler" "^0.28.2"
+    its-fine "^1.1.1"
+    react-reconciler "~0.29.0"
+    scheduler "^0.23.0"
 
 react-measure@^2.0.2:
   version "2.0.2"
@@ -7295,15 +7310,13 @@ react-measure@^2.0.2:
     prop-types "^15.5.10"
     resize-observer-polyfill "^1.4.2"
 
-react-reconciler@^0.11.0:
-  version "0.11.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-reconciler/-/react-reconciler-0.11.0.tgz"
-  integrity sha1-sHK1qHvuhaBxb5zg2Lx1nBKMQKw=
+react-reconciler@~0.29.0:
+  version "0.29.2"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-reconciler/-/react-reconciler-0.29.2.tgz"
+  integrity sha1-js+vymNUmk9PPkweBJ3VrZrDpU8=
   dependencies:
-    fbjs "^0.8.16"
     loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.0"
+    scheduler "^0.23.2"
 
 react-redux@^5.0.7:
   version "5.0.7"
@@ -7317,15 +7330,12 @@ react-redux@^5.0.7:
     loose-envify "^1.1.0"
     prop-types "^15.6.0"
 
-react@^16.4.0:
-  version "16.4.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react/-/react-16.4.0.tgz"
-  integrity sha1-QCwtuDM1M2+6GWLAi5jGJyYX1YU=
+react@^18.3.1:
+  version "18.3.1"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react/-/react-18.3.1.tgz"
+  integrity sha1-SauJIAnFOTNiW9FrJTP8dUyrKJE=
   dependencies:
-    fbjs "^0.8.16"
     loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.0"
 
 read-all-stream@^3.0.0:
   version "3.1.0"
@@ -7783,6 +7793,13 @@ sax@^1.2.4:
   version "1.2.4"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/sax/-/sax-1.2.4.tgz"
   integrity sha1-KBYjTiN4vdxOU1T6tcqold9xANk=
+
+scheduler@^0.23.0, scheduler@^0.23.2:
+  version "0.23.2"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/scheduler/-/scheduler-0.23.2.tgz"
+  integrity sha1-QUumSjsoKJLpRM8hCOzAeNEVzcM=
+  dependencies:
+    loose-envify "^1.1.0"
 
 schema-utils@^4.0.0, schema-utils@^4.2.0, schema-utils@^4.3.0, schema-utils@^4.3.3:
   version "4.3.3"

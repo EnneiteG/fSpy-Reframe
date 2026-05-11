@@ -169,7 +169,7 @@ Done. Upgraded `electron-builder` from ^22.4.0 to 25.1.8. Removed Windows `ia32`
 
 React and react-konva are peer-coupled. react-konva@18 requires React >=18 and konva >=7.2.5. They must be upgraded together.
 
-### 3.1 Upgrade React 16 → 18 + Konva 2 → 9 + react-konva 1.7 → 18
+### 3.1 Upgrade React 16 → 18 + Konva 2 → 9 + react-konva 1.7 → 18 ✅
 
 These are tightly coupled and must move together:
 - Update `react` and `react-dom` to `^18.3.1`.
@@ -183,6 +183,8 @@ These are tightly coupled and must move together:
 - Update `konva` to `^9.3.22` and `react-konva` to `^18.2.14`.
 - Review Konva API changes (v2 → v9 is a major jump). Test all canvas-based UI (control points, viewport rendering).
 - Address any `StrictMode` double-render issues if present.
+
+Done. Installed react 18.3.1, react-dom 18.3.1, @types/react 18.3.28, @types/react-dom 18.3.7, konva 9.3.22, react-konva 18.2.14. Replaced `ReactDOM.render()` with `createRoot()` in index.tsx. Fixed React 18 type breaking changes: (1) added `children?: React.ReactNode` to `CameraPresetFormProps` (children no longer implicit in React 18 types), (2) typed `connect()` exports in settings-container.tsx and result-container.tsx with `as unknown as React.ComponentType<OwnProps>` to preserve the `isVisible` own prop (old @types/react-redux@6 loses prop inference with React 18 types), (3) added explicit type for `measureRef` destructuring in control-points-panel.tsx. No Konva API changes needed — canvas code compiled without modifications.
 
 ### 3.2 Upgrade react-measure
 
