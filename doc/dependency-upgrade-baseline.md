@@ -363,3 +363,35 @@ Manual validation still required:
 Manual validation result:
 
 - Splash icon, example project, drag/drop image, `.fspy` opening and JSON export were confirmed working manually after the builder update.
+
+## Phase 8 React 16 Compatibility Palier
+
+The first UI dependency palier updated React within the React 16 line before attempting React 18/19.
+
+Updated packages:
+
+- `react`: `16.4.0` -> `16.14.0`
+- `react-dom`: `16.4.0` -> `16.14.0`
+- `react-konva`: `1.7.4` -> `1.7.16`
+
+Notes:
+
+- `react-konva` was kept on the `1.7.x` line to avoid combining this React compatibility step with a major Konva renderer migration.
+- `react-konva@1.7.16` relaxes the React peer dependency to `^16.0.0`, avoiding the invalid dependency tree reported by `electron-builder` when using `react@16.14.0` with `react-konva@1.7.4`.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Manual validation still required:
+
+- Re-test the control point UI before proceeding to React 18/19 or a major Konva/react-konva upgrade.
