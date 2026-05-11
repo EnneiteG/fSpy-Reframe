@@ -15,6 +15,7 @@ See [update-plan.md](update-plan.md) for the staged upgrade plan with version ta
 - **Keep the GPL-3.0 license.** Do not introduce dependencies with incompatible licenses (e.g., SSPL, proprietary, AGPL in some contexts). Prefer MIT/Apache-2.0/BSD/ISC licensed packages.
 - **Test after every stage.** Each stage in the upgrade plan must result in a buildable, runnable application. Do not move to the next stage until the current one is verified.
 - **One stage at a time.** Do not combine stages unless explicitly told to. Each stage should be a separate commit or set of commits.
+- **Keep the plan up to date.** After completing each stage, update `update-plan.md` to reflect the actual work done. If unplanned actions were taken (workarounds, scope changes, extra fixes), add them to the relevant stage. Mark completed stages with ✅.
 - **Preserve the project file format.** The `.fspy` binary format (documented in `project_file_format.md`) must remain backward-compatible. Existing `.fspy` files in `test_data/` must load correctly after upgrades.
 
 ## Code Style & Patterns
