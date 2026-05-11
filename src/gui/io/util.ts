@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { join } from 'path'
+import { electronAPI } from '../electron-api'
 
 export function loadImage(
-  imageBuffer: Buffer,
+  imageBuffer: Uint8Array,
   onLoad: (width: number, height: number, url: string) => void,
   onError: () => void
 ) {
@@ -36,25 +36,9 @@ export function loadImage(
 }
 
 export function resourceURL(fileName: string): string {
-  if (process.resourcesPath != null) {
-    if (process.env.DEV) {
-      return join(`file://${process.cwd()}`, 'assets/electron', fileName)
-    } else {
-      return join(process.resourcesPath, fileName)
-    }
-  }
-
-  return ''
+  return electronAPI().resourceURL(fileName)
 }
 
 export function resourcePath(fileName: string): string {
-  if (process.resourcesPath != null) {
-    if (process.env.DEV) {
-      return join(process.cwd(), 'assets/electron', fileName)
-    } else {
-      return join(process.resourcesPath, fileName)
-    }
-  }
-
-  return ''
+  return electronAPI().resourcePath(fileName)
 }

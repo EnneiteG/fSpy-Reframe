@@ -32,7 +32,7 @@ corepack enable
 yarn
 ```
 
-Node.js 16 is the recommended development runtime for this legacy Electron/Webpack stack. The repository includes an `.nvmrc` file for this purpose. Newer Node.js versions can still be used; the build scripts automatically enable Webpack 4's required legacy OpenSSL provider when needed.
+Node.js 22 is the recommended development runtime for the current Electron build stack. The repository includes an `.nvmrc` file for this purpose, and Yarn 1 should be launched through Corepack.
 
 The `src` folder contains two subfolders `main` and `gui`, containing code for the [Electron main and renderer processes](https://electronjs.org/docs/tutorial/application-architecture) respectively.
 
@@ -49,6 +49,12 @@ yarn dist-preview
 ```
 
 On Windows, this creates an unpacked app in `dist/win-unpacked`.
+
+When launching the unpacked app from a terminal, make sure `ELECTRON_RUN_AS_NODE` is not set. That variable is used by Electron tooling to run Electron as a Node.js binary; if it leaks into the app launch environment, the app exits immediately instead of opening a window. In PowerShell, clear it for the current session with:
+
+```powershell
+Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+```
 
 ⚠️ The current build process is not ideal. For example, it lacks support for live reloading on main process code changes. Changes to main process code require a manual rebuild, i.e steps 2-3, in order to show up in the app.
 

@@ -57,3 +57,47 @@ export class SetDocumentStateMessage {
     this.isExampleProject = isExampleProject
   }
 }
+
+export class GetAppVersionMessage {
+  static readonly type = 'GetAppVersionMessage'
+}
+
+export class ShowErrorBoxMessage {
+  static readonly type = 'ShowErrorBoxMessage'
+  readonly title: string
+  readonly message: string
+
+  constructor(title: string, message: string) {
+    this.title = title
+    this.message = message
+  }
+}
+
+export class ReadFileMessage {
+  static readonly type = 'ReadFileMessage'
+  readonly filePath: string
+
+  constructor(filePath: string) {
+    this.filePath = filePath
+  }
+}
+
+export class WriteFileMessage {
+  static readonly type = 'WriteFileMessage'
+  readonly filePath: string
+  readonly data: Uint8Array
+
+  constructor(filePath: string, data: Uint8Array) {
+    this.filePath = filePath
+    this.data = data
+  }
+}
+
+export class IsProjectFileMessage {
+  static readonly type = 'IsProjectFileMessage'
+  readonly filePath: string
+
+  constructor(filePath: string) {
+    this.filePath = filePath
+  }
+}

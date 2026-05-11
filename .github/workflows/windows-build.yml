@@ -1,16 +1,20 @@
-name: Windows Build
+name: Windows CI
 
 on:
   push:
     branches:
-      - develop
+      - "**"
   pull_request:
-    branches:
-      - develop
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
 
 jobs:
   build:
-    name: Build and test Windows package
+    name: Verify Windows package
     runs-on: windows-latest
 
     steps:
@@ -30,13 +34,25 @@ jobs:
           yarn --version
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: corepack yarn install --frozen-lockfile
 
-      - name: Verify build and tests
-        run: npm run verify
+      - name: Lint
+        run: corepack yarn lint
+
+      - name: Build development bundles
+        run: corepack yarn build-dev
+
+      - name: Build test bundles
+        run: corepack yarn build-test
+
+      - name: Run unit tests
+        run: corepack yarn test:unit
+
+      - name: Run export and project tests
+        run: corepack yarn test:export-project
 
       - name: Build unpacked Windows package
-        run: npm run dist-preview
+        run: corepack yarn dist-preview
 
       - name: Upload unpacked app
         uses: actions/upload-artifact@v4

@@ -1,3 +1,14 @@
 {
-  "presets": ["es2015-node", "react"]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "electron": "22.3"
+        },
+        "modules": false
+      }
+    ],
+    "@babel/preset-react"
+  ]
 }

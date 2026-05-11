@@ -25,6 +25,7 @@ import strings from '../../strings/strings'
 import { cameraPresets } from '../../solver/camera-presets'
 
 export interface CameraPresetFormProps {
+  children?: React.ReactNode
   absoluteFocalLength: number
   cameraData: CameraData
   onCameraPresetChange(cameraPreset: string | null): void

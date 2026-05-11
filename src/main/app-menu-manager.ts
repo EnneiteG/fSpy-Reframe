@@ -193,22 +193,22 @@ export default class AppMenuManager {
   }
 
   setOpenImageItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('open-image').enabled = enabled
+    this.menu.getMenuItemById('open-image')!.enabled = enabled
   }
 
   setSaveItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('save').enabled = enabled
+    this.menu.getMenuItemById('save')!.enabled = enabled
   }
 
   setSaveAsItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('save-as').enabled = enabled
+    this.menu.getMenuItemById('save-as')!.enabled = enabled
   }
 
   setEnterFullScreenItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('enter-full-screen').enabled = enabled
+    this.menu.getMenuItemById('enter-full-screen')!.enabled = enabled
   }
 
   setExitFullScreenItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('exit-full-screen').enabled = enabled
+    this.menu.getMenuItemById('exit-full-screen')!.enabled = enabled
   }
 }

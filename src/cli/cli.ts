@@ -86,7 +86,14 @@ export class CLI {
       data: null
     }
 
-    const projectState: SavedState = JSON.parse(readFileSync(statePath).toString())
+    let projectState: SavedState
+    try {
+      projectState = JSON.parse(readFileSync(statePath).toString())
+    } catch {
+      console.log('Error: failed to read project state file ' + statePath)
+      return
+    }
+
     const is1VPMode = projectState.globalSettings.calibrationMode == CalibrationMode.OneVanishingPoint
     let solverResult: SolverResult
     if (is1VPMode) {

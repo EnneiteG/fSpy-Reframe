@@ -1,0 +1,73 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    versioning-strategy: increase-if-necessary
+    groups:
+      security-patch:
+        applies-to: security-updates
+        update-types:
+          - patch
+      build-tooling:
+        patterns:
+          - "@babel/*"
+          - babel-loader
+          - webpack
+          - webpack-cli
+          - webpack-dev-server
+          - html-webpack-plugin
+          - css-loader
+          - style-loader
+          - ts-loader
+          - typescript
+          - trash-cli
+        update-types:
+          - minor
+          - patch
+      electron:
+        patterns:
+          - electron
+          - electron-builder
+          - electron-window-state
+          - "@types/electron-window-state"
+        update-types:
+          - minor
+          - patch
+      react-ui:
+        patterns:
+          - react
+          - react-dom
+          - react-redux
+          - react-measure
+          - react-konva
+          - konva
+          - redux
+          - redux-thunk
+          - "@types/react"
+          - "@types/react-dom"
+          - "@types/react-measure"
+        update-types:
+          - minor
+          - patch
+      tests-lint:
+        patterns:
+          - jest
+          - jest-junit
+          - tslint
+          - tslint-config-standard
+          - tslint-loader
+          - standard
+          - "@types/jest"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
