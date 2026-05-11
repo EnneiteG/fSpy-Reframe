@@ -457,3 +457,40 @@ Results:
 Manual validation still required:
 
 - Re-test UI state changes such as side panel visibility, calibration controls and result updates before proceeding to React 18/19.
+
+## Phase 8 React 18 and Konva Palier
+
+React and the Konva renderer stack were upgraded to React 18-compatible versions after validating React Redux 8.
+
+Updated packages:
+
+- `react`: `16.14.0` -> `18.2.0`
+- `react-dom`: `16.14.0` -> `18.2.0`
+- `@types/react`: `16.14.69` -> `18.2.79`
+- `@types/react-dom`: `16.9.25` -> `18.2.25`
+- `konva`: `2.1.3` -> `8.4.3`
+- `react-konva`: `1.7.16` -> `18.2.14`
+
+Code changes:
+
+- Replaced `ReactDOM.render(...)` with `createRoot(...).render(...)` in the GUI entrypoint.
+- Made `CameraPresetFormProps.children` explicit because React 18 types no longer add implicit `children` props.
+- Added a `react-reconciler@0.29.0` Yarn resolution so `react-konva@18.2.14` uses the React 18.2-compatible reconciler patch instead of a newer patch that peers on React 18.3.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Manual validation still required:
+
+- Re-test the control point UI before proceeding to React 19 or any further Konva changes.
+- Specifically check vanishing points, horizon, origin, reference distance handles, overlay 3D and magnifying glass interactions.

@@ -17,15 +17,14 @@
  */
 
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import App from './App'
 import store from './store/store'
 import { Provider } from 'react-redux'
 import './index.css'
 
-ReactDOM.render(
+createRoot(document.getElementById('root') as HTMLElement).render(
   <Provider store={store}>
     <App />
-  </Provider>,
-  document.getElementById('root') as HTMLElement
+  </Provider>
 )
