@@ -23,10 +23,10 @@ import SavedState from './saved-state'
 import { AppAction, loadState, setProjectFilePath } from '../actions'
 import { Dispatch } from 'redux'
 import { loadImage, resourcePath } from './util'
-import { remote } from 'electron'
 import { defaultResultDisplaySettings } from '../defaults/result-display-settings'
 import { cameraPresets } from '../solver/camera-presets'
 import { ReferenceDistanceUnit } from '../types/calibration-settings'
+import { electronAPI } from '../electron-api'
 
 export default class ProjectFile {
   static readonly EXAMPLE_PROJECT_FILENAME = 'example.fspy'
@@ -92,9 +92,7 @@ export default class ProjectFile {
   }
 
   private static showErrorBox(title: string, message: string) {
-    if (remote && remote.dialog) {
-      remote.dialog.showErrorBox(title, message)
-    }
+    electronAPI().showErrorBox(title, message)
   }
 
   static load(path: string, dispatch: Dispatch<AppAction>, isExampleProject: boolean) {

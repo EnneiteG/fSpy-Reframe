@@ -22,7 +22,7 @@ const path = require('path')
 const url = require('url')
 
 import windowStateKeeper from 'electron-window-state'
-import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
+import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage, GetAppVersionMessage, ShowErrorBoxMessage } from '../gui/ipc-messages'
 import { basename, join } from 'path'
 import AppMenuManager from './app-menu-manager'
 import ProjectFile from '../gui/io/project-file'
@@ -104,6 +104,8 @@ function createWindow() {
     webPreferences: {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
+      preload: join(__dirname, 'preload.js'),
+      contextIsolation: false,
       nodeIntegration: true
     }
   })
@@ -422,6 +424,14 @@ function createWindow() {
         openProject(message.filePath, window)
       }
     })
+  })
+
+  ipcMain.on(GetAppVersionMessage.type, (event: Electron.IpcMainEvent) => {
+    event.returnValue = app.getVersion()
+  })
+
+  ipcMain.on(ShowErrorBoxMessage.type, (_: any, message: ShowErrorBoxMessage) => {
+    dialog.showErrorBox(message.title, message.message)
   })
 
   function refreshTitle(window: BrowserWindow) {

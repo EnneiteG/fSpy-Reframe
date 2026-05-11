@@ -194,3 +194,33 @@ Deferred updates:
 
 - Jest still uses version `23.6.0`; its transform pipeline is disabled for bundled test files and should be modernized in a dedicated test-tooling phase.
 - TSLint and `tslint-loader` remain in place and continue to emit legacy warnings; ESLint migration remains a separate phase.
+
+## Phase 6 Preload Bridge Preparation
+
+Electron renderer access was moved toward a preload/contextBridge API without yet disabling renderer Node integration. This keeps the migration incremental while preparing for a later Electron major upgrade.
+
+Changes applied:
+
+- Added a dedicated `preload` Webpack entry that emits `build/preload.js`.
+- Added `src/preload/index.ts` to expose a minimal `window.fSpyElectron` API.
+- Routed renderer app-version, error-box and document-state operations through the preload API instead of importing `ipcRenderer`/`remote` directly from renderer modules.
+- Added typed renderer-side access through `src/gui/electron-api.ts`, with a test fallback for non-Electron test execution.
+- Configured `BrowserWindow` with the preload script while temporarily keeping `nodeIntegration: true` and `contextIsolation: false` until project file IO is moved out of the renderer.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, `preload.js` emitted and Windows x64 unpacked app generated in `dist/win-unpacked`.
+
+Deferred updates:
+
+- `nodeIntegration: false` is deferred until renderer `fs` access for project open/save/export is moved behind IPC.
+- `contextIsolation: true` is deferred to the same follow-up so the renderer no longer depends on direct Node globals.
+- Electron remains on `8.2.1`; the preload bridge is a preparation step, not the Electron major-version upgrade itself.

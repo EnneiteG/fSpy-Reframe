@@ -54,6 +54,12 @@ module.exports = [
     commonConfig),
   Object.assign(
     {
+      target: 'electron-preload',
+      entry: { preload: './src/preload/index.ts' }
+    },
+    commonConfig),
+  Object.assign(
+    {
       target: 'electron-renderer',
       entry: { gui: './src/gui/index.tsx' },
       devServer: {

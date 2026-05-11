@@ -57,3 +57,18 @@ export class SetDocumentStateMessage {
     this.isExampleProject = isExampleProject
   }
 }
+
+export class GetAppVersionMessage {
+  static readonly type = 'GetAppVersionMessage'
+}
+
+export class ShowErrorBoxMessage {
+  static readonly type = 'ShowErrorBoxMessage'
+  readonly title: string
+  readonly message: string
+
+  constructor(title: string, message: string) {
+    this.title = title
+    this.message = message
+  }
+}

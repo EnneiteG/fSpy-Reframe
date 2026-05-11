@@ -28,16 +28,15 @@ import { GlobalSettings } from './types/global-settings'
 import { UIState } from './types/ui-state'
 import { ImageState } from './types/image-state'
 import { SolverResult } from './solver/solver-result'
-import { ipcRenderer, remote } from 'electron'
-import { NewProjectMessage, OpenProjectMessage, SaveProjectMessage, SaveProjectAsMessage, OpenImageMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from '../main/ipc-messages'
+import { ExportType } from '../main/ipc-messages'
 import ProjectFile from './io/project-file'
 import { readFileSync } from 'fs'
-import { SpecifyProjectPathMessage, OpenDroppedProjectMessage, SpecifyExportPathMessage } from './ipc-messages'
 import { loadImage } from './io/util'
 import store from './store/store'
 import SplashScreen from './components/splash-screen'
 import { Dispatch } from 'redux'
 import { convertCameraParametersForTarget, targetPresetForId, targetSceneOrientationForId } from './solver/target-presets'
+import { electronAPI, Unsubscribe } from './electron-api'
 
 interface AppProps {
   uiState: UIState,
@@ -57,6 +56,7 @@ interface AppProps {
 }
 
 class App extends React.PureComponent<AppProps> {
+  private unsubscribeIPCHandlers: Unsubscribe[] = []
 
   constructor(props: AppProps) {
     super(props)
@@ -100,6 +100,13 @@ class App extends React.PureComponent<AppProps> {
     }
   }
 
+  componentWillUnmount() {
+    for (let unsubscribe of this.unsubscribeIPCHandlers) {
+      unsubscribe()
+    }
+    this.unsubscribeIPCHandlers = []
+  }
+
   render() {
     const hasImage = this.props.image.data !== null
     return (
@@ -113,37 +120,38 @@ class App extends React.PureComponent<AppProps> {
   }
 
   private registerIPCHandlers() {
-    ipcRenderer.on(NewProjectMessage.type, (_: any, __: NewProjectMessage) => {
+    const api = electronAPI()
+    this.unsubscribeIPCHandlers.push(api.onNewProject(() => {
       this.props.onNewProjectIPCMessage()
-    })
+    }))
 
-    ipcRenderer.on(OpenProjectMessage.type, (_: any, message: OpenProjectMessage) => {
-      this.props.onOpenProjectIPCMessage(message.filePath, message.isExampleProject)
-    })
+    this.unsubscribeIPCHandlers.push(api.onOpenProject((filePath, isExampleProject) => {
+      this.props.onOpenProjectIPCMessage(filePath, isExampleProject)
+    }))
 
-    ipcRenderer.on(SaveProjectMessage.type, (_: any, __: SaveProjectMessage) => {
+    this.unsubscribeIPCHandlers.push(api.onSaveProject(() => {
       if (this.props.uiState.projectFilePath) {
         this.props.onSaveProjectAsIPCMessage(this.props.uiState.projectFilePath)
       } else {
-        ipcRenderer.send(SpecifyProjectPathMessage.type, new SpecifyProjectPathMessage())
+        api.specifyProjectPath()
       }
-    })
+    }))
 
-    ipcRenderer.on(SaveProjectAsMessage.type, (_: any, message: SaveProjectAsMessage) => {
-      this.props.onSaveProjectAsIPCMessage(message.filePath)
-    })
+    this.unsubscribeIPCHandlers.push(api.onSaveProjectAs((filePath) => {
+      this.props.onSaveProjectAsIPCMessage(filePath)
+    }))
 
-    ipcRenderer.on(OpenImageMessage.type, (_: any, message: OpenImageMessage) => {
-      this.props.onOpenImageIPCMessage(message.filePath)
-    })
+    this.unsubscribeIPCHandlers.push(api.onOpenImage((filePath) => {
+      this.props.onOpenImageIPCMessage(filePath)
+    }))
 
-    ipcRenderer.on(ExportMessage.type, (_: any, message: ExportMessage) => {
-      this.props.onExportIPCMessage(message.exportType)
-    })
+    this.unsubscribeIPCHandlers.push(api.onExport((exportType) => {
+      this.props.onExportIPCMessage(exportType)
+    }))
 
-    ipcRenderer.on(SetSidePanelVisibilityMessage.type, (_: any, message: SetSidePanelVisibilityMessage) => {
-      this.props.onSetSidePanelVisibilityIPCMessage(message.panelsAreVisible)
-    })
+    this.unsubscribeIPCHandlers.push(api.onSetSidePanelVisibility((panelsAreVisible) => {
+      this.props.onSetSidePanelVisibilityIPCMessage(panelsAreVisible)
+    }))
   }
 }
 
@@ -167,7 +175,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
           dispatch(setImage(url, imageBuffer, width, height))
         },
         () => {
-          remote.dialog.showErrorBox(
+          electronAPI().showErrorBox(
             'Failed to load image data',
             'Could not load the image data. Is this a valid image file?'
           )
@@ -175,10 +183,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       )
     },
     onProjectFileDropped: (projectPath: string) => {
-      ipcRenderer.send(
-        OpenDroppedProjectMessage.type,
-        new OpenDroppedProjectMessage(projectPath)
-      )
+      electronAPI().openDroppedProject(projectPath)
     },
     onOpenExampleProjectPressed: () => {
       ProjectFile.loadExample(dispatch)
@@ -238,10 +243,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       }
 
       if (dataToExport) {
-        ipcRenderer.send(
-          SpecifyExportPathMessage.type,
-          new SpecifyExportPathMessage(exportType, dataToExport)
-        )
+        electronAPI().specifyExportPath(exportType, dataToExport)
       }
     },
     onSetSidePanelVisibilityIPCMessage: (panelsAreVisible: boolean) => {
