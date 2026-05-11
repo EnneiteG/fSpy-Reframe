@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, clipboard } from 'electron'
+import { contextBridge, ipcRenderer, clipboard, webUtils } from 'electron'
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // Request-response (invoke)
@@ -76,5 +76,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Clipboard
   writeClipboardText: (text: string): void => {
     clipboard.writeText(text)
+  },
+
+  // File utilities
+  getPathForFile: (file: File): string => {
+    return webUtils.getPathForFile(file)
   }
 })

@@ -19,7 +19,6 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
 import path from 'path'
-import url from 'url'
 
 import windowStateKeeper from 'electron-window-state'
 import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
@@ -91,7 +90,7 @@ let initialOpenMessage: OpenProjectMessage | null = null
 let windowHasAppeared = false
 
 // macOS only
-app.on('open-file', (event: Event, filePath: string) => {
+app.on('open-file', (event, filePath) => {
   if (mainWindow === null) {
     initialOpenMessage = new OpenProjectMessage(filePath, false)
     if (windowHasAppeared) {
@@ -151,7 +150,8 @@ function createWindow() {
       webSecurity: process.env.DEV === undefined,
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      sandbox: true
     }
   })
 
@@ -368,11 +368,7 @@ function createWindow() {
     }
   })
 
-  const startUrl = url.format({
-    pathname: path.join(__dirname, '../build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  })
+  const startUrl = `file://${path.join(__dirname, '../build/index.html')}`
 
   const devUrl = 'http://localhost:8080'
 
@@ -387,7 +383,7 @@ function createWindow() {
   Menu.setApplicationMenu(appMenuManager.menu)
   appMenuManager.setExitFullScreenItemEnabled(false)
 
-  window.on('close', (event: Event) => {
+  window.on('close', (event) => {
     showDiscardChangesDialogIfNeeded(window, (didCancel: boolean) => {
       if (didCancel) {
         event.preventDefault()
@@ -408,13 +404,13 @@ function createWindow() {
     })
   })
 
-  window.on('enter-full-screen', (_: Event) => {
+  window.on('enter-full-screen', () => {
     appMenuManager.setEnterFullScreenItemEnabled(false)
     appMenuManager.setExitFullScreenItemEnabled(true)
     window.setMenuBarVisibility(false)
   })
 
-  window.on('leave-full-screen', (_: Event) => {
+  window.on('leave-full-screen', () => {
     window.webContents.send(
       SetSidePanelVisibilityMessage.type,
       new SetSidePanelVisibilityMessage(true)

@@ -131,7 +131,7 @@ All file system operations must move to the main process, exposed via IPC throug
 
 Done. Added 5 new IPC handlers in main: `read-file`, `write-file`, `is-project-file`, `get-resource-url`, `get-resource-path`. Moved `isProjectFile()`, `getResourcePath()`, `getResourceURL()`, `getExampleProjectPath()` functions into main process directly (removed `ProjectFile` import from main). Extended preload.ts and `ElectronAPI` interface with matching methods. Rewrote `project-file.ts`: removed `fs` import, replaced `Buffer` ops with `DataView`/`Uint8Array`/`TextEncoder`/`TextDecoder`, made `save()`, `load()`, `loadExample()`, `isProjectFile()` async using IPC. Rewrote `App.tsx`: removed `readFileSync`, made image handlers async via `window.electronAPI.readFile()`, made drop handler async for `isProjectFile`. Rewrote `util.ts`: removed `path`/`process` imports, `loadImage()` takes `Uint8Array`, `resourceURL`/`resourcePath` now async via IPC. Changed `ImageState.data` from `Buffer|null` to `Uint8Array|null`, `SetImage.data` from `Buffer` to `Uint8Array`. Updated `splash-screen.tsx` to resolve `iconURL` via IPC at module load. Fixed `Uint8Array`→`BlobPart` TS 5.8 strict typing. Enabled `contextIsolation: true`, `nodeIntegration: false`. The gui bundle now has zero `external` Node.js/electron dependencies.
 
-### 2.5 Electron 12 → 42 (final upgrade)
+### 2.5 Electron 12 → 42 (final upgrade) ✅
 
 **Only after 2.2–2.4 are complete.** With the modern IPC architecture in place, upgrade Electron in hops:
 
@@ -140,6 +140,8 @@ Done. Added 5 new IPC handlers in main: `read-file`, `write-file`, `is-project-f
 3. **Electron 28 → 42**: Latest security model, performance improvements.
 
 Each hop: install, fix any type errors, build, test.
+
+Done. Upgraded in 4 hops: 12→20 (no fixes needed), 20→28 (fixed `Event` type annotations on `app.on('open-file')` and `window.on('close')` — removed explicit `: Event` parameter types that conflicted with stricter Electron overloads, enabled `sandbox: true`), 28→35 (fixed `Event` type on `enter-full-screen`/`leave-full-screen` handlers), 35→42 (fixed `File.path` — no longer available as a property in sandboxed renderer; added `webUtils.getPathForFile` to preload via `window.electronAPI.getPathForFile(file)` as the modern Electron replacement). Also replaced deprecated `url.format()` with template literal `file://` URL, removed `url` import.
 
 ### 2.6 Remove Deprecated Electron APIs
 

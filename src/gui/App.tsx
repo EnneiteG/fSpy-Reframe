@@ -81,7 +81,7 @@ class App extends React.PureComponent<AppProps> {
       if (ev.dataTransfer != null) {
         let firstFile = ev.dataTransfer.files[0]
         if (firstFile) {
-          let filePath = firstFile.path
+          let filePath = window.electronAPI.getPathForFile(firstFile)
           ProjectFile.isProjectFile(filePath).then((isProject) => {
             if (isProject) {
               this.props.onProjectFileDropped(filePath)

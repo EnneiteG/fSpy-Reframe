@@ -29,6 +29,9 @@ export interface ElectronAPI {
 
   // Clipboard
   writeClipboardText(text: string): void
+
+  // File utilities
+  getPathForFile(file: File): string
 }
 
 declare global {
