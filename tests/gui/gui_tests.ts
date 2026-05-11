@@ -4,7 +4,11 @@ import { CameraParameters } from '../../src/gui/solver/solver-result'
 import { Axis, CalibrationSettingsBase, ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
 import {
   convertCameraParametersForTarget,
+  fSpyAxisToTargetAxis,
+  fSpyReferenceAxisToTargetAxis,
   targetPresetForId,
+  targetAxisToFSpyAxis,
+  targetAxisToFSpyReferenceAxis,
   TargetPresetId,
   targetSceneOrientationForId,
   TargetSceneOrientationId
@@ -107,5 +111,47 @@ describe('GUI', () => {
     expect(converted.rotation[0]).toBeCloseTo(-11.6, 5)
     expect(converted.rotation[1]).toBeCloseTo(-21, 5)
     expect(converted.rotation[2]).toBeCloseTo(215, 5)
+  })
+
+  test('maps reference distance axes through Unreal scene orientations', () => {
+    const preset = targetPresetForId(TargetPresetId.Unreal)
+    const cases = [
+      [TargetSceneOrientationId.Default, Axis.PositiveY, Axis.PositiveX],
+      [TargetSceneOrientationId.Rotate90, Axis.PositiveX, Axis.PositiveY],
+      [TargetSceneOrientationId.Rotate180, Axis.PositiveY, Axis.PositiveX],
+      [TargetSceneOrientationId.Rotate270, Axis.PositiveX, Axis.PositiveY]
+    ] as [TargetSceneOrientationId, Axis, Axis][]
+
+    for (let testCase of cases) {
+      const sceneOrientation = targetSceneOrientationForId(testCase[0])
+      expect(fSpyReferenceAxisToTargetAxis(Axis.PositiveX, preset, sceneOrientation)).toEqual(testCase[1])
+      expect(fSpyReferenceAxisToTargetAxis(Axis.PositiveY, preset, sceneOrientation)).toEqual(testCase[2])
+      expect(fSpyReferenceAxisToTargetAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
+
+      expect(targetAxisToFSpyReferenceAxis(testCase[1], preset, sceneOrientation)).toEqual(Axis.PositiveX)
+      expect(targetAxisToFSpyReferenceAxis(testCase[2], preset, sceneOrientation)).toEqual(Axis.PositiveY)
+      expect(targetAxisToFSpyReferenceAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
+    }
+  })
+
+  test('maps signed vanishing point axes through Unreal scene orientations', () => {
+    const preset = targetPresetForId(TargetPresetId.Unreal)
+    const cases = [
+      [TargetSceneOrientationId.Default, Axis.PositiveY, Axis.PositiveX],
+      [TargetSceneOrientationId.Rotate90, Axis.PositiveX, Axis.NegativeY],
+      [TargetSceneOrientationId.Rotate180, Axis.NegativeY, Axis.NegativeX],
+      [TargetSceneOrientationId.Rotate270, Axis.NegativeX, Axis.PositiveY]
+    ] as [TargetSceneOrientationId, Axis, Axis][]
+
+    for (let testCase of cases) {
+      const sceneOrientation = targetSceneOrientationForId(testCase[0])
+      expect(fSpyAxisToTargetAxis(Axis.PositiveX, preset, sceneOrientation)).toEqual(testCase[1])
+      expect(fSpyAxisToTargetAxis(Axis.PositiveY, preset, sceneOrientation)).toEqual(testCase[2])
+      expect(fSpyAxisToTargetAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
+
+      expect(targetAxisToFSpyAxis(testCase[1], preset, sceneOrientation)).toEqual(Axis.PositiveX)
+      expect(targetAxisToFSpyAxis(testCase[2], preset, sceneOrientation)).toEqual(Axis.PositiveY)
+      expect(targetAxisToFSpyAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
+    }
   })
 })

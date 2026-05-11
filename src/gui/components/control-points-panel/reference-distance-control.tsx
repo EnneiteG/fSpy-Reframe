@@ -31,6 +31,7 @@ export const dashedRulerStyle = { stroke: Palette.gray, opacity: 0.5, strokeDash
 
 interface ReferenceDistanceControlProps {
   referenceAxis: Axis
+  displayAxis: Axis
   anchorPosition: Point2D
   handlePositions: [Point2D, Point2D]
   horizonVanishingPoints: [Point2D, Point2D]
@@ -104,14 +105,14 @@ export default class ReferenceDistanceControl extends React.PureComponent<Refere
       y: -this.props.anchorPosition.x + this.props.handlePositions[0].x
     }
 
-    let axisColor = Palette.colorForAxis(this.props.referenceAxis)
+    let axisColor = Palette.colorForAxis(this.props.displayAxis)
 
     return (
       <Group>
         <ControlPolyline
           dimmed={true}
           dashed={true}
-          color={Palette.colorForAxis(this.props.referenceAxis)}
+          color={axisColor}
           points={[this.props.anchorPosition, this.props.handlePositions[1]]}
         />
         <ControlPolyline

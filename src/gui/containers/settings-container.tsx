@@ -24,6 +24,7 @@ import SettingsPanel from '../components/settings-panel/settings-panel'
 import { CalibrationMode, GlobalSettings, Overlay3DGuide } from '../types/global-settings'
 import { StoreState } from '../types/store-state'
 import { CalibrationSettings1VP, CalibrationSettings2VP, PrincipalPointMode1VP, PrincipalPointMode2VP, Axis, ReferenceDistanceUnit, CalibrationSettingsBase } from '../types/calibration-settings'
+import { ResultDisplaySettings } from '../types/result-display-settings'
 
 export interface SettingsContainerProps {
   isVisible: boolean
@@ -31,6 +32,7 @@ export interface SettingsContainerProps {
   calibrationSettingsBase: CalibrationSettingsBase
   calibrationSettings1VP: CalibrationSettings1VP
   calibrationSettings2VP: CalibrationSettings2VP
+  resultDisplaySettings: ResultDisplaySettings
   onCalibrationModeChange(calibrationMode: CalibrationMode): void
   onImageOpacityChange(opacity: number): void
   onOverlay3DGuideChange(overlay3DGuide: Overlay3DGuide): void
@@ -63,7 +65,8 @@ export function mapStateToProps(state: StoreState) {
     globalSettings: state.globalSettings,
     calibrationSettingsBase: state.calibrationSettingsBase,
     calibrationSettings1VP: state.calibrationSettings1VP,
-    calibrationSettings2VP: state.calibrationSettings2VP
+    calibrationSettings2VP: state.calibrationSettings2VP,
+    resultDisplaySettings: state.resultDisplaySettings
   }
 }
 

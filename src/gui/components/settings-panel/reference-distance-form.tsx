@@ -22,11 +22,15 @@ import ReferenceDistanceUnitDropdown from './reference-distance-unit-dropdown'
 import NumericInputField from './../common/numeric-input-field'
 import PanelSpacer from './../common/panel-spacer'
 import { Axis, ReferenceDistanceUnit } from '../../types/calibration-settings'
+import { Palette } from '../../style/palette'
+import { targetPresetForId, TargetPresetId } from '../../solver/target-presets'
 
 interface ReferenceDistanceFormProps {
   referenceAxis: Axis | null
   referenceDistance: number
   referenceDistanceUnit: ReferenceDistanceUnit
+  targetPresetId: string
+  targetSceneOrientationId: string
   onReferenceAxisChange(axis: Axis | null): void
   onReferenceDistanceChange(distance: number): void
   onReferenceDistanceUnitChange(unit: ReferenceDistanceUnit): void
@@ -39,11 +43,27 @@ export default class ReferenceDistanceForm extends React.PureComponent<Reference
       <div className='panelSection'>
           <ReferenceDistanceAxisDropdown
             selectedAxis={this.props.referenceAxis}
+            targetPresetId={this.props.targetPresetId}
+            targetSceneOrientationId={this.props.targetSceneOrientationId}
             onChange={(axis: Axis | null) => {
               this.props.onReferenceAxisChange(axis)
             }}
           />
+          { this.renderTargetAxisHint() }
           { this.renderDistanceInputField() }
+      </div>
+    )
+  }
+
+  private renderTargetAxisHint() {
+    const preset = targetPresetForId(this.props.targetPresetId)
+    if (preset.id == TargetPresetId.FSpy) {
+      return null
+    }
+
+    return (
+      <div style={{ color: Palette.disabledTextColor, fontSize: '11px', lineHeight: '14px', marginTop: '6px' }}>
+        Axis shown in {preset.displayName}; solver scale remains internal.
       </div>
     )
   }

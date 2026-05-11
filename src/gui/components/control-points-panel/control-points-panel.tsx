@@ -40,6 +40,7 @@ import MathUtil from '../../solver/math-util'
 import AABBOps from '../../solver/aabb-ops'
 import MagnifyingGlass from './magnifying-glass'
 import { ResultDisplaySettings } from '../../types/result-display-settings'
+import { fSpyAxisToTargetAxis, fSpyReferenceAxisToTargetAxis, targetPresetForId, targetSceneOrientationForId } from '../../solver/target-presets'
 
 interface ControlPointsPanelState {
   width: number | undefined
@@ -389,6 +390,11 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
     return (
       <ReferenceDistanceControl
         referenceAxis={referenceAxis}
+        displayAxis={fSpyReferenceAxisToTargetAxis(
+          referenceAxis,
+          targetPresetForId(this.props.resultDisplaySettings.targetPresetId),
+          targetSceneOrientationForId(this.props.resultDisplaySettings.targetSceneOrientationId)
+        )}
         origin={originAbs}
         horizonVanishingPoints={[
           this.imagePlane2Abs(cameraParameters.vanishingPoints[uIndex]),
@@ -699,17 +705,17 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
   }
 
   private vanishingPointColor(vanishingPointIndex: number): string {
-    let firstAxisColor = Palette.colorForAxis(
-      this.props.calibrationSettingsBase.firstVanishingPointAxis
-    )
-    let secondAxisColor = Palette.colorForAxis(
-      this.props.calibrationSettingsBase.secondVanishingPointAxis
-    )
+    let firstAxisColor = this.axisColorInTarget(this.props.calibrationSettingsBase.firstVanishingPointAxis)
+    let secondAxisColor = this.axisColorInTarget(this.props.calibrationSettingsBase.secondVanishingPointAxis)
     switch (vanishingPointIndex) {
       case 0:
         return firstAxisColor
       case 1:
         return secondAxisColor
+      case 2:
+        if (this.props.solverResult.cameraParameters) {
+          return this.axisColorInTarget(this.props.solverResult.cameraParameters.vanishingPointAxes[2])
+        }
     }
 
     let axisColors = [
@@ -726,5 +732,14 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
 
     // should't end up here
     return firstAxisColor
+  }
+
+  private axisColorInTarget(axis: Axis): string {
+    const targetAxis = fSpyAxisToTargetAxis(
+      axis,
+      targetPresetForId(this.props.resultDisplaySettings.targetPresetId),
+      targetSceneOrientationForId(this.props.resultDisplaySettings.targetSceneOrientationId)
+    )
+    return Palette.colorForAxis(targetAxis)
   }
 }

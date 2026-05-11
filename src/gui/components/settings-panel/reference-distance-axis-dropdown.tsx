@@ -21,50 +21,69 @@ import { Axis } from '../../types/calibration-settings'
 import Dropdown from '../common/dropdown'
 import { Palette } from '../../style/palette'
 import Constants from '../../constants'
+import {
+  fSpyReferenceAxisToTargetAxis,
+  targetAxisLabel,
+  targetAxisToFSpyReferenceAxis,
+  targetPresetForId,
+  targetSceneOrientationForId,
+  TargetPreset,
+  TargetPresetId
+} from '../../solver/target-presets'
 
 interface ReferenceDistanceAxisDropdownProps {
   selectedAxis: Axis | null
+  targetPresetId: string
+  targetSceneOrientationId: string
   onChange(axis: Axis | null): void
 }
 
-const options = [
-  {
-    value: null,
-    id: 'null',
-    title: 'Default'
-  },
-  {
-    value: Axis.PositiveX,
-    id: Axis.PositiveX,
-    title: Constants.referenceDistanceAnchorEnabled ? 'In the x direction' : 'Along the x axis',
-    circleColor: Palette.red
-  },
-  {
-    value: Axis.PositiveY,
-    id: Axis.PositiveY,
-    title: Constants.referenceDistanceAnchorEnabled ? 'In the y direction' : 'Along the y axis',
-    circleColor: Palette.green
-  },
-  {
-    value: Axis.PositiveZ,
-    id: Axis.PositiveZ,
-    title: Constants.referenceDistanceAnchorEnabled ? 'In the z direction' : 'Along the z axis',
-    circleColor: Palette.blue
-  }
-]
-
 export default function ReferenceDistanceAxisDropdown(props: ReferenceDistanceAxisDropdownProps) {
+  const preset = targetPresetForId(props.targetPresetId)
+  const sceneOrientation = targetSceneOrientationForId(props.targetSceneOrientationId)
+  const selectedTargetAxis = props.selectedAxis == null
+    ? null
+    : fSpyReferenceAxisToTargetAxis(props.selectedAxis, preset, sceneOrientation)
+
   return (
     <Dropdown
       options={
-        options
+        [
+          {
+            value: null,
+            id: 'null',
+            title: 'Default'
+          },
+          referenceAxisOption(Axis.PositiveX, preset),
+          referenceAxisOption(Axis.PositiveY, preset),
+          referenceAxisOption(Axis.PositiveZ, preset)
+        ]
       }
       selectedOptionId={
-        props.selectedAxis ? props.selectedAxis : 'null'
+        selectedTargetAxis ? selectedTargetAxis : 'null'
       }
       onOptionSelected={(selectedValue: Axis | null) => {
-        props.onChange(selectedValue)
+        props.onChange(selectedValue == null ? null : targetAxisToFSpyReferenceAxis(selectedValue, preset, sceneOrientation))
       }}
     />
   )
+}
+
+function referenceAxisOption(axis: Axis, preset: TargetPreset) {
+  return {
+    value: axis,
+    id: axis,
+    title: referenceAxisTitle(axis, preset),
+    circleColor: Palette.colorForAxis(axis)
+  }
+}
+
+function referenceAxisTitle(axis: Axis, preset: TargetPreset): string {
+  const prefix = Constants.referenceDistanceAnchorEnabled ? 'In the' : 'Along the'
+  const suffix = Constants.referenceDistanceAnchorEnabled ? 'direction' : 'axis'
+  const label = targetAxisLabel(axis, preset)
+  if (preset.id == TargetPresetId.FSpy) {
+    return prefix + ' ' + label + ' ' + suffix
+  }
+  return prefix + ' ' + preset.displayName + ' ' + label + ' ' + suffix
 }

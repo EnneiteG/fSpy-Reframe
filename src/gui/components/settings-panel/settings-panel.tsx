@@ -66,6 +66,8 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
               <div style={{ display: 'flex' }}>
                 <span style={{ alignSelf: 'center', paddingRight: 6, paddingLeft: 4 }}>1</span><AxisDropdown
                   selectedAxis={this.props.calibrationSettingsBase.firstVanishingPointAxis}
+                  targetPresetId={this.props.resultDisplaySettings.targetPresetId}
+                  targetSceneOrientationId={this.props.resultDisplaySettings.targetSceneOrientationId}
                   onChange={this.props.onFirstVanishingPointAxisChange}
                 />
               </div>
@@ -73,6 +75,8 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
               <div style={{ display: 'flex' }}>
                 <span style={{ alignSelf: 'center', paddingRight: 6, paddingLeft: 4 }}>2</span><AxisDropdown
                   selectedAxis={this.props.calibrationSettingsBase.secondVanishingPointAxis}
+                  targetPresetId={this.props.resultDisplaySettings.targetPresetId}
+                  targetSceneOrientationId={this.props.resultDisplaySettings.targetSceneOrientationId}
                   onChange={this.props.onSecondVanishingPointAxisChange}
                 />
               </div>
@@ -86,6 +90,8 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
                 referenceAxis={this.props.calibrationSettingsBase.referenceDistanceAxis}
                 referenceDistance={this.props.calibrationSettingsBase.referenceDistance}
                 referenceDistanceUnit={this.props.calibrationSettingsBase.referenceDistanceUnit}
+                targetPresetId={this.props.resultDisplaySettings.targetPresetId}
+                targetSceneOrientationId={this.props.resultDisplaySettings.targetSceneOrientationId}
                 onReferenceAxisChange={this.props.onReferenceDistanceAxisChange}
                 onReferenceDistanceChange={this.props.onReferenceDistanceChange}
                 onReferenceDistanceUnitChange={this.props.onReferenceDistanceUnitChange}

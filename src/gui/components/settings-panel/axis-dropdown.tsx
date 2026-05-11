@@ -20,61 +20,45 @@ import React from 'react'
 import { Axis } from '../../types/calibration-settings'
 import Dropdown from '../common/dropdown'
 import { Palette } from '../../style/palette'
+import { fSpyAxisToTargetAxis, targetAxisLabel, targetAxisToFSpyAxis, targetPresetForId, targetSceneOrientationForId, TargetPreset } from '../../solver/target-presets'
 
 interface AxisDropdownProps {
   selectedAxis: Axis
+  targetPresetId: string
+  targetSceneOrientationId: string
   onChange(axis: Axis): void
 }
 
-const options = [
-  {
-    value: Axis.NegativeX,
-    id: Axis.NegativeX,
-    title: '-x',
-    circleColor: Palette.red
-  },
-  {
-    value: Axis.PositiveX,
-    id: Axis.PositiveX,
-    title: 'x',
-    circleColor: Palette.red
-  },
-  {
-    value: Axis.NegativeY,
-    id: Axis.NegativeY,
-    title: '-y',
-    circleColor: Palette.green
-  },
-  {
-    value: Axis.PositiveY,
-    id: Axis.PositiveY,
-    title: 'y',
-    circleColor: Palette.green
-  },
-  {
-    value: Axis.NegativeZ,
-    id: Axis.NegativeZ,
-    title: '-z',
-    circleColor: Palette.blue
-  },
-  {
-    value: Axis.PositiveZ,
-    id: Axis.PositiveZ,
-    title: 'z',
-    circleColor: Palette.blue
-  }
-]
-
 export default function AxisDropdown(props: AxisDropdownProps) {
+  const preset = targetPresetForId(props.targetPresetId)
+  const sceneOrientation = targetSceneOrientationForId(props.targetSceneOrientationId)
+  const selectedTargetAxis = fSpyAxisToTargetAxis(props.selectedAxis, preset, sceneOrientation)
+
   return (
     <Dropdown
       options={
-        options
+        [
+          axisOption(Axis.NegativeX, preset),
+          axisOption(Axis.PositiveX, preset),
+          axisOption(Axis.NegativeY, preset),
+          axisOption(Axis.PositiveY, preset),
+          axisOption(Axis.NegativeZ, preset),
+          axisOption(Axis.PositiveZ, preset)
+        ]
       }
-      selectedOptionId={props.selectedAxis}
+      selectedOptionId={selectedTargetAxis}
       onOptionSelected={(selectedValue: Axis) => {
-        props.onChange(selectedValue)
+        props.onChange(targetAxisToFSpyAxis(selectedValue, preset, sceneOrientation))
       }}
     />
   )
+}
+
+function axisOption(axis: Axis, preset: TargetPreset) {
+  return {
+    value: axis,
+    id: axis,
+    title: targetAxisLabel(axis, preset),
+    circleColor: Palette.colorForAxis(axis)
+  }
 }

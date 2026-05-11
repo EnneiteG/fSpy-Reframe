@@ -30,7 +30,7 @@ import AABB from '../../solver/aabb'
 import AABBOps from '../../solver/aabb-ops'
 import { Point } from 'electron'
 import { axisGlyph } from './glyph-paths'
-import { targetPointToFSpy, targetPresetForId, targetSceneOrientationForId } from '../../solver/target-presets'
+import { fSpyReferenceAxisToTargetAxis, targetPointToFSpy, targetPresetForId, targetSceneOrientationForId } from '../../solver/target-presets'
 
 interface GridLineProps {
   points: Point2D[]
@@ -211,6 +211,7 @@ export default class Overlay3DPanel extends React.PureComponent<Overlay3DPanelPr
     // Compute a scale factor so the axes have the same length
     // regardless of camera translation and field of view
     let axisLength = 0.3 * this.normalizationFactor
+    let referenceDistanceAxis = this.referenceDistanceAxisInTarget()
 
     return (
       <Group>
@@ -218,21 +219,32 @@ export default class Overlay3DPanel extends React.PureComponent<Overlay3DPanelPr
           Axis.PositiveX,
           axisLength,
           Palette.red,
-          this.props.referenceDistanceAxis == Axis.PositiveX || this.props.referenceDistanceAxis == Axis.NegativeX
+          referenceDistanceAxis == Axis.PositiveX
         )}
         {this.renderAxis(
           Axis.PositiveY,
           axisLength,
           Palette.green,
-          this.props.referenceDistanceAxis == Axis.PositiveY || this.props.referenceDistanceAxis == Axis.NegativeY
+          referenceDistanceAxis == Axis.PositiveY
         )}
         {this.renderAxis(
           Axis.PositiveZ,
           axisLength,
           Palette.blue,
-          this.props.referenceDistanceAxis == Axis.PositiveZ || this.props.referenceDistanceAxis == Axis.NegativeZ
+          referenceDistanceAxis == Axis.PositiveZ
         )}
       </Group>
+    )
+  }
+
+  private referenceDistanceAxisInTarget(): Axis | null {
+    if (this.props.referenceDistanceAxis == null) {
+      return null
+    }
+    return fSpyReferenceAxisToTargetAxis(
+      this.props.referenceDistanceAxis,
+      targetPresetForId(this.props.targetPresetId),
+      targetSceneOrientationForId(this.props.targetSceneOrientationId)
     )
   }
 

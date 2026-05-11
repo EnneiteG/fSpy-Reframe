@@ -19,7 +19,7 @@
 import Transform from './transform'
 import Vector3D from './vector-3d'
 import { CameraParameters } from './solver-result'
-import { CalibrationSettingsBase, ReferenceDistanceUnit } from '../types/calibration-settings'
+import { Axis, CalibrationSettingsBase, ReferenceDistanceUnit } from '../types/calibration-settings'
 
 export enum TargetPresetId {
   FSpy = 'fspy',
@@ -170,6 +170,47 @@ export function targetPointToFSpy(point: Vector3D, preset: TargetPreset, sceneOr
   return transformPoint(point, orientedBasisToFSpy(preset, sceneOrientation))
 }
 
+export function targetAxisToFSpyAxis(axis: Axis, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): Axis {
+  return axisFromVector(transformPoint(axisVector(axis), orientedBasisToFSpy(preset, sceneOrientation)))
+}
+
+export function fSpyAxisToTargetAxis(axis: Axis, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): Axis {
+  return axisFromVector(transformPoint(axisVector(axis), transposed3x3(orientedBasisToFSpy(preset, sceneOrientation))))
+}
+
+export function targetAxisToFSpyReferenceAxis(axis: Axis, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): Axis {
+  return positiveAxis(targetAxisToFSpyAxis(axis, preset, sceneOrientation))
+}
+
+export function fSpyReferenceAxisToTargetAxis(axis: Axis, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): Axis {
+  return positiveAxis(fSpyAxisToTargetAxis(axis, preset, sceneOrientation))
+}
+
+export function positiveAxis(axis: Axis): Axis {
+  switch (axis) {
+    case Axis.NegativeX:
+      return Axis.PositiveX
+    case Axis.NegativeY:
+      return Axis.PositiveY
+    case Axis.NegativeZ:
+      return Axis.PositiveZ
+    default:
+      return axis
+  }
+}
+
+export function targetAxisLabel(axis: Axis, preset: TargetPreset): string {
+  let label = preset.locationLabels[axisIndex(axis)]
+  switch (axis) {
+    case Axis.NegativeX:
+    case Axis.NegativeY:
+    case Axis.NegativeZ:
+      return '-' + label
+    default:
+      return label
+  }
+}
+
 export function convertCameraParametersForTarget(
   cameraParameters: CameraParameters,
   calibrationSettings: CalibrationSettingsBase,
@@ -286,6 +327,45 @@ function locationScale(settings: CalibrationSettingsBase, preset: TargetPreset):
     case ReferenceDistanceUnit.None:
       return 1
   }
+}
+
+function axisVector(axis: Axis): Vector3D {
+  switch (axis) {
+    case Axis.NegativeX:
+      return new Vector3D(-1, 0, 0)
+    case Axis.PositiveX:
+      return new Vector3D(1, 0, 0)
+    case Axis.NegativeY:
+      return new Vector3D(0, -1, 0)
+    case Axis.PositiveY:
+      return new Vector3D(0, 1, 0)
+    case Axis.NegativeZ:
+      return new Vector3D(0, 0, -1)
+    case Axis.PositiveZ:
+      return new Vector3D(0, 0, 1)
+  }
+}
+
+function axisFromVector(vector: Vector3D): Axis {
+  if (Math.abs(vector.x) >= Math.abs(vector.y) && Math.abs(vector.x) >= Math.abs(vector.z)) {
+    return vector.x < 0 ? Axis.NegativeX : Axis.PositiveX
+  }
+  if (Math.abs(vector.y) >= Math.abs(vector.z)) {
+    return vector.y < 0 ? Axis.NegativeY : Axis.PositiveY
+  }
+  return vector.z < 0 ? Axis.NegativeZ : Axis.PositiveZ
+}
+
+function axisIndex(axis: Axis): number {
+  switch (positiveAxis(axis)) {
+    case Axis.PositiveX:
+      return 0
+    case Axis.PositiveY:
+      return 1
+    case Axis.PositiveZ:
+      return 2
+  }
+  return 0
 }
 
 function rotation3x3(transform: Transform): number[][] {
