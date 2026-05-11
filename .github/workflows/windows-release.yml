@@ -31,13 +31,13 @@ jobs:
           yarn --version
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: corepack yarn install --frozen-lockfile
 
       - name: Verify build and tests
-        run: npm run verify
+        run: corepack yarn verify
 
       - name: Build Windows installer
-        run: npm run dist-win
+        run: corepack yarn dist-win
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4

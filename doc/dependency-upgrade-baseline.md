@@ -499,3 +499,48 @@ Manual validation result:
 
 - Control point UI validation was confirmed working manually after the React 18/Konva upgrade.
 - Checked vanishing points, horizon, origin, reference distance, overlay 3D and zoom/magnifying glass interactions.
+
+## Phase 9 Maintenance CI
+
+Maintenance guardrails were added so future dependency updates run through explicit Windows CI checks and update grouping.
+
+CI changes:
+
+- Kept mandatory Windows CI on push, pull request, manual dispatch and weekly Monday schedule.
+- Kept frozen lockfile install with `corepack yarn install --frozen-lockfile`.
+- Added explicit `lint`, development build, test bundle build, unit tests, export/project tests and package preview steps.
+- Kept uploading the unpacked Windows app artifact from `dist/win-unpacked`.
+- Updated the Windows release workflow to use `corepack yarn` consistently.
+
+Dependency automation:
+
+- Added Dependabot weekly npm updates.
+- Grouped patch/minor updates into security patch, build tooling, Electron, React UI and tests/lint groups.
+- Ignored semver-major updates so majors cannot be auto-merged through grouped dependency automation.
+
+Review checklist:
+
+- Added a pull request template requiring validation commands and dependency update checks.
+- Added explicit Electron validation coverage for app launch, menus, dialogs, drag/drop, resources, `.fspy` open/save and JSON export.
+- Added explicit React/Konva visual validation coverage for vanishing points, horizon, origin, reference distance, overlay 3D and zoom/magnifying glass.
+
+Validation commands:
+
+```powershell
+corepack yarn install --frozen-lockfile
+corepack yarn lint
+corepack yarn build-dev
+corepack yarn build-test
+corepack yarn test:unit
+corepack yarn test:export-project
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- All validation commands completed successfully.
+- `test:unit`: `1` suite passed, `4` tests passed.
+- `test:export-project`: `2` suites passed, `8` tests passed.
+- `verify`: `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
