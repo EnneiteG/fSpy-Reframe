@@ -167,37 +167,28 @@ Done. Upgraded `electron-builder` from ^22.4.0 to 25.1.8. Removed Windows `ia32`
 
 **Priority: High — required for modern component patterns.**
 
-### 3.1 Upgrade React (16 → 19)
+React and react-konva are peer-coupled. react-konva@18 requires React >=18 and konva >=7.2.5. They must be upgraded together.
 
-Recommended incremental path: 16 → 18 → 19.
+### 3.1 Upgrade React 16 → 18 + Konva 2 → 9 + react-konva 1.7 → 18
 
-**React 16 → 18:**
-- Update `react` and `react-dom` to `^18.x`.
+These are tightly coupled and must move together:
+- Update `react` and `react-dom` to `^18.3.1`.
+- Update `@types/react` to `^18.3.28` and `@types/react-dom` to `^18.3.7`.
 - Replace `ReactDOM.render()` with `createRoot()` in `src/gui/index.tsx`:
   ```tsx
   import { createRoot } from 'react-dom/client'
   const root = createRoot(document.getElementById('root')!)
   root.render(<Provider store={store}><App /></Provider>)
   ```
-- Update `@types/react` and `@types/react-dom` to `^18.x`.
-- Address any `StrictMode` double-render issues.
+- Update `konva` to `^9.3.22` and `react-konva` to `^18.2.14`.
+- Review Konva API changes (v2 → v9 is a major jump). Test all canvas-based UI (control points, viewport rendering).
+- Address any `StrictMode` double-render issues if present.
 
-**React 18 → 19:**
-- Update to `react` and `react-dom` `^19.x`.
-- Update type packages to `^19.x`.
-- Review and address any deprecation warnings.
+### 3.2 Upgrade react-measure
 
-### 3.2 Upgrade Konva & react-konva
-
-- Update `konva` to `^9.x` and `react-konva` to `^18.x`.
-- Review API changes — Konva 9 has significant changes from v2.
-- Test all canvas-based UI (control points, viewport rendering).
-- `react-konva` 18 is designed for React 18 — align these upgrades.
-
-### 3.3 Upgrade react-measure
-
-- Update `react-measure` to latest or evaluate alternatives (e.g., `ResizeObserver` API directly, `@react-hook/resize-observer`).
-- `react-measure` may be unmaintained — consider replacing with native `ResizeObserver`.
+- `react-measure@2.5.2` is the latest and final version. Verify it works with React 18.
+- Update `@types/react-measure` to `^2.0.12`.
+- If it breaks, replace with native `ResizeObserver` API.
 
 ---
 
@@ -207,22 +198,14 @@ Recommended incremental path: 16 → 18 → 19.
 
 ### 4.1 Upgrade Redux Stack
 
-Option A — **Minimal upgrade** (keep current Redux patterns):
-- Update `redux` to `^5.x`, `react-redux` to `^9.x`, `redux-thunk` to `^3.x`.
+Minimal upgrade (keep current Redux patterns):
+- Update `redux` to `^5.0.1`, `react-redux` to `^9.2.0`, `redux-thunk` to `^3.1.0`.
+- Remove `@types/react-redux` (types are bundled in react-redux@9).
 - Fix breaking type changes.
 
-Option B — **Migrate to Redux Toolkit** (recommended):
-- Install `@reduxjs/toolkit`.
-- Convert reducers to use `createSlice()`.
-- Replace manual store creation with `configureStore()` (thunk middleware included by default).
-- Convert thunks to `createAsyncThunk()`.
-- Remove `redux-thunk` as a separate dependency.
-
-### 4.2 Type-Safe Store
-
-- Define `RootState` and `AppDispatch` types from the store.
-- Use typed hooks (`useAppSelector`, `useAppDispatch`) instead of untyped `connect()`.
-- Gradually migrate class components using `connect()` to function components with hooks.
+Optional future work (not part of this upgrade):
+- Migrate to Redux Toolkit (`@reduxjs/toolkit` with `configureStore`, `createSlice`).
+- Convert `connect()` components to function components with typed hooks.
 
 ---
 
@@ -230,19 +213,14 @@ Option B — **Migrate to Redux Toolkit** (recommended):
 
 **Priority: Medium — ensure tests work with new stack.**
 
-### 5.1 Upgrade Jest (23 → 29)
+### 5.1 Upgrade Jest
 
-- Update `jest` to `^29.x`, `@types/jest` to `^29.x`.
-- Replace `jest-junit` with latest version.
-- Install `ts-jest` for TypeScript support (replaces webpack-based test compilation).
+- Update `jest` to `^29.7.0`, `@types/jest` to `^29.5.14`.
+- Update `jest-junit` to `^17.0.0`.
+- Install `ts-jest@^29.4.9` for TypeScript support (replaces webpack-based test compilation).
 - Create `jest.config.ts` configuration file.
 - Remove `webpack.tests.config.js` (no longer needed with ts-jest).
 - Update test scripts in `package.json`.
-
-### 5.2 Add Testing Library
-
-- Consider adding `@testing-library/react` for component tests.
-- Add `@testing-library/jest-dom` for DOM matchers.
 
 ---
 
@@ -252,42 +230,32 @@ Option B — **Migrate to Redux Toolkit** (recommended):
 
 ### 6.1 Modernize Package Scripts
 
-- Replace `trash-cli` with `rimraf` or `del-cli` (or use `rm -rf` with cross-platform support).
+- Replace `trash-cli` with `rimraf@^6.1.3` (cross-platform, well-maintained).
 - Simplify `pre*` scripts.
 - Add a `start` script for development.
-- Consider using `concurrently` to run Electron + webpack-dev-server together.
-- Add `electron-dev` script that works cross-platform (current uses `DEV=true` which is Unix-only).
+- Add cross-platform `electron-dev` script (current uses `DEV=true` which is Unix-only).
 
-### 6.2 Consider Build Tool Migration
+### 6.2 Dependency Audit
+
+- Update `minimist` to `^1.2.8` (already at latest).
+- Update `electron-window-state` to `^5.0.3` and `@types/electron-window-state` to `^5.0.2`.
+- Remove `trash-cli` after replacing with `rimraf`.
+- Run `npm audit` and fix vulnerabilities.
+
+### 6.3 Consider Build Tool Migration (optional)
 
 Webpack 5 works but is heavy. Evaluate alternatives:
 - **Vite + vite-plugin-electron**: Much faster dev experience, HMR support.
 - **electron-vite**: Purpose-built for Electron + Vite.
 - **esbuild-loader** for webpack: Keep webpack but use esbuild for faster transpilation.
 
-This is optional but would significantly improve developer experience.
-
-### 6.3 Dependency Audit
-
-- Update `minimist` to latest.
-- Update `electron-window-state` to latest.
-- Remove `standard` and `standard-loader` (replaced by ESLint).
-- Review all `@types/*` packages — some may be unnecessary with modern versions that bundle types.
-- Run `npm audit` and fix vulnerabilities.
-
-### 6.4 Add Modern Tooling
-
-- Add `.nvmrc` or `.node-version` specifying Node.js 20+.
-- Add `prettier` for code formatting.
-- Add `husky` + `lint-staged` for pre-commit hooks (optional).
-- Update `.gitignore` if needed.
+This is optional and would be a separate effort.
 
 ---
 
 ## Execution Notes
 
 - **Test after each stage.** Each stage should result in a buildable, runnable application.
-- **Stage 1 and 2 are tightly coupled** — Webpack 5 + Electron 42 must both understand the new module/target system. It may be practical to combine them.
 - **Create a branch per stage** for easier rollback.
-- **The `remote` module removal (Stage 2.2–2.4) is the single largest refactor** — it touches the IPC architecture throughout the app.
-- **Konva upgrade (Stage 3.2) is a risk area** — the jump from v2 to v9 is massive and may require significant canvas code rewrites.
+- **Konva upgrade (Stage 3.1) is a risk area** — the jump from v2 to v9 is massive and may require significant canvas code rewrites.
+- **react-redux@9 drops `connect()` support for class components** — this may require converting container components to function components with hooks during Stage 4.
