@@ -693,7 +693,7 @@
     "@types/range-parser" "*"
     "@types/send" "*"
 
-"@types/express@*", "@types/express@^4.17.25":
+"@types/express@*", "@types/express@^4.17.13", "@types/express@^4.17.25":
   version "4.17.25"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/express/-/express-4.17.25.tgz"
   integrity sha1-BwyMc6b+5pNtZcGV27+32lAmZJs=
@@ -803,15 +803,7 @@
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react-reconciler/-/react-reconciler-0.28.9.tgz"
   integrity sha1-0ktIZMOE53DIMnWz/nP7oAJpyDs=
 
-"@types/react-redux@^6.0.1":
-  version "6.0.1"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react-redux/-/react-redux-6.0.1.tgz"
-  integrity sha1-u49swZ0AqZn52TKreWISrTkhmUs=
-  dependencies:
-    "@types/react" "*"
-    redux "^4.0.0"
-
-"@types/react@*", "@types/react@^18.3.28":
+"@types/react@*", "@types/react@^18.0.0", "@types/react@^18.2.25 || ^19", "@types/react@^18.3.28":
   version "18.3.28"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/react/-/react-18.3.28.tgz"
   integrity sha1-CoWxpyQ7QljZ9ib0N5e6GOtfh4E=
@@ -869,6 +861,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/use-sync-external-store@^0.0.6":
+  version "0.0.6"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/use-sync-external-store/-/use-sync-external-store-0.0.6.tgz"
+  integrity sha1-YL6NIbqrjDBRMuucuRLtSXhSqtw=
+
 "@types/ws@^8.5.10":
   version "8.18.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@types/ws/-/ws-8.18.1.tgz"
@@ -898,7 +895,7 @@
     natural-compare "^1.4.0"
     ts-api-utils "^1.3.0"
 
-"@typescript-eslint/parser@^7.18.0":
+"@typescript-eslint/parser@^7.0.0", "@typescript-eslint/parser@^7.18.0":
   version "7.18.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/@typescript-eslint/parser/-/parser-7.18.0.tgz"
   integrity sha1-g5KNDxt/SvqXQJjGS1zm+QUflqA=
@@ -1160,22 +1157,17 @@ acorn-jsx@^5.3.2:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn-jsx/-/acorn-jsx-5.3.2.tgz"
   integrity sha1-ftW7VZCLOy8bxVxq8WU7rafweTc=
 
-acorn@^5.0.0, acorn@^5.3.0:
-  version "5.6.1"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn/-/acorn-5.6.1.tgz"
-  integrity sha1-yeUMPjcXz4l/Gwcc6tu1Q7vAqNQ=
+acorn@^5.0.0:
+  version "5.7.4"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn/-/acorn-5.7.4.tgz"
+  integrity sha1-Po2KmUfQWZoXltECJddDL0pKz14=
 
-acorn@^8.15.0:
-  version "8.16.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn/-/acorn-8.16.0.tgz"
-  integrity sha1-TOecib5Ar+ev6POtuQKh8c6awIo=
+acorn@^5.3.0:
+  version "5.7.4"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn/-/acorn-5.7.4.tgz"
+  integrity sha1-Po2KmUfQWZoXltECJddDL0pKz14=
 
-acorn@^8.16.0:
-  version "8.16.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn/-/acorn-8.16.0.tgz"
-  integrity sha1-TOecib5Ar+ev6POtuQKh8c6awIo=
-
-acorn@^8.9.0:
+"acorn@^6.0.0 || ^7.0.0 || ^8.0.0", acorn@^8.14.0, acorn@^8.15.0, acorn@^8.16.0, acorn@^8.9.0:
   version "8.16.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/acorn/-/acorn-8.16.0.tgz"
   integrity sha1-TOecib5Ar+ev6POtuQKh8c6awIo=
@@ -1243,7 +1235,7 @@ ajv@^5.1.0:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.3.0"
 
-ajv@^6.12.0, ajv@^6.12.4:
+ajv@^6.12.0, ajv@^6.12.4, ajv@^6.9.1:
   version "6.15.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/ajv/-/ajv-6.15.0.tgz"
   integrity sha1-B+mCx0YmFnqnoklcU4F4ktcTlJI=
@@ -1263,7 +1255,7 @@ ajv@^8.0.0:
     json-schema-traverse "^1.0.0"
     require-from-string "^2.0.2"
 
-ajv@^8.9.0:
+ajv@^8.8.2, ajv@^8.9.0:
   version "8.20.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/ajv/-/ajv-8.20.0.tgz"
   integrity sha1-MEs2Nq3Yi6fZNnYN1Q7OAG3qlfk=
@@ -1433,6 +1425,51 @@ append-transform@^0.4.0:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/aproba/-/aproba-2.1.0.tgz"
   integrity sha1-dVAKGQMT2Vxk6HHn5ChMasIZ8LE=
 
+archiver-utils@^2.1.0:
+  version "2.1.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/archiver-utils/-/archiver-utils-2.1.0.tgz"
+  integrity sha1-6KRg6UtpPD49oYKgmMpihbqSSeI=
+  dependencies:
+    glob "^7.1.4"
+    graceful-fs "^4.2.0"
+    lazystream "^1.0.0"
+    lodash.defaults "^4.2.0"
+    lodash.difference "^4.5.0"
+    lodash.flatten "^4.4.0"
+    lodash.isplainobject "^4.0.6"
+    lodash.union "^4.6.0"
+    normalize-path "^3.0.0"
+    readable-stream "^2.0.0"
+
+archiver-utils@^3.0.4:
+  version "3.0.4"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/archiver-utils/-/archiver-utils-3.0.4.tgz"
+  integrity sha1-oNIB8c+PznrztaBa6gozcynpbsc=
+  dependencies:
+    glob "^7.2.3"
+    graceful-fs "^4.2.0"
+    lazystream "^1.0.0"
+    lodash.defaults "^4.2.0"
+    lodash.difference "^4.5.0"
+    lodash.flatten "^4.4.0"
+    lodash.isplainobject "^4.0.6"
+    lodash.union "^4.6.0"
+    normalize-path "^3.0.0"
+    readable-stream "^3.6.0"
+
+archiver@^5.3.1:
+  version "5.3.2"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/archiver/-/archiver-5.3.2.tgz"
+  integrity sha1-mZkdWVflO9AwOjkpeSdqxN3M87A=
+  dependencies:
+    archiver-utils "^2.1.0"
+    async "^3.2.4"
+    buffer-crc32 "^0.2.1"
+    readable-stream "^3.6.0"
+    readdir-glob "^1.1.2"
+    tar-stream "^2.2.0"
+    zip-stream "^4.1.0"
+
 are-we-there-yet@^3.0.0:
   version "3.0.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/are-we-there-yet/-/are-we-there-yet-3.0.1.tgz"
@@ -1573,6 +1610,11 @@ async@^2.1.4:
   dependencies:
     lodash "^4.17.10"
 
+async@^3.2.4:
+  version "3.2.6"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/async/-/async-3.2.6.tgz"
+  integrity sha1-Gwco4Ukp1RuFtEm38G4nwRReOM4=
+
 async@^3.2.6:
   version "3.2.6"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/async/-/async-3.2.6.tgz"
@@ -1612,7 +1654,7 @@ babel-code-frame@^6.26.0:
     esutils "^2.0.2"
     js-tokens "^3.0.2"
 
-babel-core@^6.0.0, babel-core@^6.26.0:
+babel-core@^6.0.0, "babel-core@^6.0.0 || ^7.0.0-0", babel-core@^6.26.0:
   version "6.26.3"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/babel-core/-/babel-core-6.26.3.tgz"
   integrity sha1-suLwnjQtDwyI4vAuBneUEl51wgc=
@@ -1814,7 +1856,7 @@ binary-extensions@^2.0.0:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/binary-extensions/-/binary-extensions-2.3.0.tgz"
   integrity sha1-9uFKl4WNMnJSIAJC1Mz+UixEVSI=
 
-bl@^4.1.0:
+bl@^4.0.3, bl@^4.1.0:
   version "4.1.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/bl/-/bl-4.1.0.tgz"
   integrity sha1-RRU1JkGCvsL7vIOmKrmM8R2fezo=
@@ -1961,7 +2003,7 @@ browser-resolve@^1.11.2:
   dependencies:
     resolve "1.1.7"
 
-browserslist@^4.28.1:
+browserslist@^4.28.1, "browserslist@>= 4.21.0":
   version "4.28.2"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/browserslist/-/browserslist-4.28.2.tgz"
   integrity sha1-9QtlNi70iXTKn1CzaAVm14a4EdI=
@@ -1979,7 +2021,7 @@ bser@^2.0.0:
   dependencies:
     node-int64 "^0.4.0"
 
-buffer-crc32@~0.2.3:
+buffer-crc32@^0.2.1, buffer-crc32@^0.2.13, buffer-crc32@~0.2.3:
   version "0.2.13"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/buffer-crc32/-/buffer-crc32-0.2.13.tgz"
   integrity sha1-DTM+PwDqxQqhRUq9MO+MKl2ackI=
@@ -2464,6 +2506,16 @@ component-emitter@^1.2.1:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/component-emitter/-/component-emitter-1.2.1.tgz"
   integrity sha1-E3kY1teCg/ffemt8WmPhQOaUJeY=
 
+compress-commons@^4.1.2:
+  version "4.1.2"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/compress-commons/-/compress-commons-4.1.2.tgz"
+  integrity sha1-ZULlnLY+H0aoshsOBvmjLkyLBt8=
+  dependencies:
+    buffer-crc32 "^0.2.13"
+    crc32-stream "^4.0.2"
+    normalize-path "^3.0.0"
+    readable-stream "^3.6.0"
+
 compressible@~2.0.18:
   version "2.0.18"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/compressible/-/compressible-2.0.18.tgz"
@@ -2563,6 +2615,19 @@ core-util-is@~1.0.0, core-util-is@1.0.2:
   version "1.0.2"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/core-util-is/-/core-util-is-1.0.2.tgz"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
+
+crc-32@^1.2.0:
+  version "1.2.2"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/crc-32/-/crc-32-1.2.2.tgz"
+  integrity sha1-PK01qTS4v3HyXKUkttpR+36s4v8=
+
+crc32-stream@^4.0.2:
+  version "4.0.3"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/crc32-stream/-/crc32-stream-4.0.3.tgz"
+  integrity sha1-hd1nfrePp8rRuhfMUGpZfUH8bzM=
+  dependencies:
+    crc-32 "^1.2.0"
+    readable-stream "^3.4.0"
 
 create-error-class@^3.0.1:
   version "3.0.2"
@@ -3078,6 +3143,16 @@ ejs@^3.1.8:
   dependencies:
     jake "^10.8.5"
 
+electron-builder-squirrel-windows@25.1.8:
+  version "25.1.8"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/electron-builder-squirrel-windows/-/electron-builder-squirrel-windows-25.1.8.tgz"
+  integrity sha1-vEL42jqqeQB/muw40IeY4egzZv4=
+  dependencies:
+    app-builder-lib "25.1.8"
+    archiver "^5.3.1"
+    builder-util "25.1.7"
+    fs-extra "^10.1.0"
+
 electron-builder@^25.1.8:
   version "25.1.8"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/electron-builder/-/electron-builder-25.1.8.tgz"
@@ -3152,7 +3227,7 @@ encoding@^0.1.13:
   dependencies:
     iconv-lite "^0.6.2"
 
-end-of-stream@^1.1.0:
+end-of-stream@^1.1.0, end-of-stream@^1.4.1:
   version "1.4.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/end-of-stream/-/end-of-stream-1.4.1.tgz"
   integrity sha1-7SljTRm6ukY7bOa4CjchPqtx7EM=
@@ -3309,7 +3384,7 @@ eslint-visitor-keys@^3.4.1, eslint-visitor-keys@^3.4.3:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/eslint-visitor-keys/-/eslint-visitor-keys-3.4.3.tgz"
   integrity sha1-DNcv6FUOPC6uFWqWpN3c0cisWAA=
 
-eslint@^8.57.1:
+"eslint@^6.0.0 || ^7.0.0 || >=8.0.0", eslint@^8.56.0, eslint@^8.57.1:
   version "8.57.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/eslint/-/eslint-8.57.1.tgz"
   integrity sha1-ffEJZUq6fju+XI6uUzxeRh08bKk=
@@ -3867,6 +3942,11 @@ fresh@~0.5.2:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/fresh/-/fresh-0.5.2.tgz"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
+fs-constants@^1.0.0:
+  version "1.0.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/fs-constants/-/fs-constants-1.0.0.tgz"
+  integrity sha1-a+Dem+mYzhavivwkSXue6bfM2a0=
+
 fs-extra@^0.30.0:
   version "0.30.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/fs-extra/-/fs-extra-0.30.0.tgz"
@@ -4073,7 +4153,7 @@ glob@^10.3.12:
     package-json-from-dist "^1.0.0"
     path-scurry "^1.11.1"
 
-glob@^7.0.3, glob@^7.0.5, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
+glob@^7.0.3, glob@^7.0.5, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@^7.2.3:
   version "7.2.3"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/glob/-/glob-7.2.3.tgz"
   integrity sha1-uN8PuAK7+o6JvR2Ti04WV47UTys=
@@ -4314,11 +4394,6 @@ he@^1.2.0:
   version "1.2.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/he/-/he-1.2.0.tgz"
   integrity sha1-hK5l+n6vsWX922FWauFLrwVmTw8=
-
-hoist-non-react-statics@^2.5.0:
-  version "2.5.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/hoist-non-react-statics/-/hoist-non-react-statics-2.5.0.tgz"
-  integrity sha1-0sot/BnFqRxaZhXOjlZO8DR+KkA=
 
 home-or-tmp@^2.0.0:
   version "2.0.0"
@@ -4643,7 +4718,7 @@ interpret@^3.1.1:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/interpret/-/interpret-3.1.1.tgz"
   integrity sha1-W+DO7WfKecbEvFzw1+6EPc6hEMQ=
 
-invariant@^2.0.0, invariant@^2.2.2:
+invariant@^2.2.2:
   version "2.2.4"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/invariant/-/invariant-2.2.4.tgz"
   integrity sha1-YQ88ksk1nOHbYW5TgAjSP/NRWOY=
@@ -5639,7 +5714,7 @@ klaw@^1.0.0:
   optionalDependencies:
     graceful-fs "^4.1.9"
 
-konva@^9.3.22:
+"konva@^8.0.1 || ^7.2.5 || ^9.0.0 || ^10.0.0", konva@^9.3.22:
   version "9.3.22"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/konva/-/konva-9.3.22.tgz"
   integrity sha1-qpecQQEn3aIL8HiKtwpBRkjCWpE=
@@ -5673,6 +5748,13 @@ lazy-val@^1.0.5:
   version "1.0.5"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lazy-val/-/lazy-val-1.0.5.tgz"
   integrity sha1-bPO59bwxzufuPjacCDK3WD3Nkj0=
+
+lazystream@^1.0.0:
+  version "1.0.1"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lazystream/-/lazystream-1.0.1.tgz"
+  integrity sha1-SUyDEGLx+UCCUexE2xy6KSQqJjg=
+  dependencies:
+    readable-stream "^2.0.5"
 
 lcid@^1.0.0:
   version "1.0.0"
@@ -5745,10 +5827,25 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
-lodash-es@^4.17.5:
-  version "4.17.10"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash-es/-/lodash-es-4.17.10.tgz"
-  integrity sha1-Ys1xBM313YfyNag38O3g6OURfgU=
+lodash.defaults@^4.2.0:
+  version "4.2.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash.defaults/-/lodash.defaults-4.2.0.tgz"
+  integrity sha1-0JF4cW/+pN3p5ft7N/bwgCJ0WAw=
+
+lodash.difference@^4.5.0:
+  version "4.5.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash.difference/-/lodash.difference-4.5.0.tgz"
+  integrity sha1-nMtOUF1Ia5FlE0V3KIWi3yf9AXw=
+
+lodash.flatten@^4.4.0:
+  version "4.4.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash.flatten/-/lodash.flatten-4.4.0.tgz"
+  integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
+
+lodash.isplainobject@^4.0.6:
+  version "4.0.6"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz"
+  integrity sha1-fFJqUtibRcRcxpC4gWO+BJf1UMs=
 
 lodash.merge@^4.6.2:
   version "4.6.2"
@@ -5760,7 +5857,12 @@ lodash.sortby@^4.7.0:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash.sortby/-/lodash.sortby-4.7.0.tgz"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
-lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.17.5:
+lodash.union@^4.6.0:
+  version "4.6.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash.union/-/lodash.union-4.6.0.tgz"
+  integrity sha1-SLtQiECfFvGCFmZkHETdGqrjzYg=
+
+lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4:
   version "4.18.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/lodash/-/lodash-4.18.1.tgz"
   integrity sha1-/ytmwfYybVlRPeJAe/iBQ5gSdxw=
@@ -6158,6 +6260,13 @@ minimatch@^3.0.3, minimatch@^3.0.4, minimatch@^3.0.5, minimatch@^3.1.1, minimatc
     brace-expansion "^1.1.7"
 
 minimatch@^5.0.1:
+  version "5.1.9"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/minimatch/-/minimatch-5.1.9.tgz"
+  integrity sha1-EpPvFdsAmLOUVA6Pn3RPn9qN7ks=
+  dependencies:
+    brace-expansion "^2.0.1"
+
+minimatch@^5.1.0:
   version "5.1.9"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/minimatch/-/minimatch-5.1.9.tgz"
   integrity sha1-EpPvFdsAmLOUVA6Pn3RPn9qN7ks=
@@ -7054,7 +7163,7 @@ postcss-value-parser@^4.1.0, postcss-value-parser@^4.2.0:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz"
   integrity sha1-cjwJkgg2um0+WvAZ+SvAlxwC5RQ=
 
-postcss@^8.4.40:
+postcss@^8.1.0, postcss@^8.4.40:
   version "8.5.14"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/postcss/-/postcss-8.5.14.tgz"
   integrity sha1-pmwteAj632nrtbhKA/i6/XbEkZw=
@@ -7127,7 +7236,7 @@ promise-retry@^2.0.1:
     err-code "^2.0.2"
     retry "^0.12.0"
 
-prop-types@^15.6.0, prop-types@^15.6.2:
+prop-types@^15.6.2:
   version "15.8.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/prop-types/-/prop-types-15.8.1.tgz"
   integrity sha1-Z9h78aaU9IQ1zzMsJK8QIUoxQLU=
@@ -7242,7 +7351,7 @@ rc@^1.0.1, rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@^18.3.1:
+react-dom@^18.3.1, react-dom@>=18.0.0, react-dom@>0.13.0:
   version "18.3.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-dom/-/react-dom-18.3.1.tgz"
   integrity sha1-wiZdeVEbV9R5s90/36UVNklMXLQ=
@@ -7283,19 +7392,15 @@ react-reconciler@~0.29.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
 
-react-redux@^5.0.7:
-  version "5.0.7"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-redux/-/react-redux-5.0.7.tgz"
-  integrity sha1-DcEHbZr7RnD5k/+u9EuPjBFVpMg=
+react-redux@^9.2.0:
+  version "9.2.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react-redux/-/react-redux-9.2.0.tgz"
+  integrity sha1-lsOrI/uaOvLLRlS+S1HJieMjZvU=
   dependencies:
-    hoist-non-react-statics "^2.5.0"
-    invariant "^2.0.0"
-    lodash "^4.17.5"
-    lodash-es "^4.17.5"
-    loose-envify "^1.1.0"
-    prop-types "^15.6.0"
+    "@types/use-sync-external-store" "^0.0.6"
+    use-sync-external-store "^1.4.0"
 
-react@^18.3.1:
+"react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^18.0 || ^19", react@^18.3.1, react@>=18.0, react@>=18.0.0, react@>0.13.0:
   version "18.3.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/react/-/react-18.3.1.tgz"
   integrity sha1-SauJIAnFOTNiW9FrJTP8dUyrKJE=
@@ -7356,6 +7461,15 @@ readable-stream@^3.0.6:
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
+readable-stream@^3.1.1:
+  version "3.6.2"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/readable-stream/-/readable-stream-3.6.2.tgz"
+  integrity sha1-VqmzbqllwAxak+8x6xEaDxEFaWc=
+  dependencies:
+    inherits "^2.0.3"
+    string_decoder "^1.1.1"
+    util-deprecate "^1.0.1"
+
 readable-stream@^3.4.0:
   version "3.6.2"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/readable-stream/-/readable-stream-3.6.2.tgz"
@@ -7373,6 +7487,13 @@ readable-stream@^3.6.0:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
+
+readdir-glob@^1.1.2:
+  version "1.1.3"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/readdir-glob/-/readdir-glob-1.1.3.tgz"
+  integrity sha1-w9gx9R9ee/pi+i/75LUIxkDwlYQ=
+  dependencies:
+    minimatch "^5.1.0"
 
 readdirp@~3.6.0:
   version "3.6.0"
@@ -7403,18 +7524,15 @@ redent@^1.0.0:
     indent-string "^2.1.0"
     strip-indent "^1.0.1"
 
-redux-thunk@^2.3.0:
-  version "2.3.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/redux-thunk/-/redux-thunk-2.3.0.tgz"
-  integrity sha1-UcLBmhhe1Rh6qpotCLZm0NZGdiI=
+redux-thunk@^3.1.0:
+  version "3.1.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/redux-thunk/-/redux-thunk-3.1.0.tgz"
+  integrity sha1-lKpuBJd8MOFOiS6uhJeMGvYFj/M=
 
-redux@^4.0.0:
-  version "4.0.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/redux/-/redux-4.0.0.tgz"
-  integrity sha1-qmmKkrcpMV0is0oFU9fmUzVVzAM=
-  dependencies:
-    loose-envify "^1.1.0"
-    symbol-observable "^1.2.0"
+redux@^5.0.0, redux@^5.0.1:
+  version "5.0.1"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/redux/-/redux-5.0.1.tgz"
+  integrity sha1-l/omiBzldGUAElWF1WQsd7bpRHs=
 
 reflect-metadata@^0.2.2:
   version "0.2.2"
@@ -7510,7 +7628,7 @@ request-promise-native@^1.0.5:
     stealthy-require "^1.1.0"
     tough-cookie ">=2.3.3"
 
-request@^2.83.0:
+request@^2.34, request@^2.83.0:
   version "2.87.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/request/-/request-2.87.0.tgz"
   integrity sha1-MvACNc0I1IK00NaNuTqCnA7VdW4=
@@ -8483,11 +8601,6 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   integrity sha1-btpL00SjyUrqN21MwxvHcxEDngk=
 
-symbol-observable@^1.2.0:
-  version "1.2.0"
-  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/symbol-observable/-/symbol-observable-1.2.0.tgz"
-  integrity sha1-wiaIrtTqs83C3+rLtWFmBWCgCAQ=
-
 symbol-tree@^3.2.2:
   version "3.2.2"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/symbol-tree/-/symbol-tree-3.2.2.tgz"
@@ -8497,6 +8610,17 @@ tapable@^2.0.0, tapable@^2.3.0, tapable@^2.3.3:
   version "2.3.3"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/tapable/-/tapable-2.3.3.tgz"
   integrity sha1-XafJmSxGA4IhJnmFqyhCGoh58WA=
+
+tar-stream@^2.2.0:
+  version "2.2.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/tar-stream/-/tar-stream-2.2.0.tgz"
+  integrity sha1-rK2EwoQTawYNw/qmRHSqmuvXcoc=
+  dependencies:
+    bl "^4.0.3"
+    end-of-stream "^1.4.1"
+    fs-constants "^1.0.0"
+    inherits "^2.0.3"
+    readable-stream "^3.1.1"
 
 tar@^6.0.5, tar@^6.1.11, tar@^6.1.12, tar@^6.1.2:
   version "6.2.1"
@@ -8714,7 +8838,7 @@ tslib@^1.9.3:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/tslib/-/tslib-1.14.1.tgz"
   integrity sha1-zy04vcNKE0vK8QkcQfZhni9nLQA=
 
-tslib@^2.0.0, tslib@^2.0.3, tslib@^2.8.1:
+tslib@^2, tslib@^2.0.0, tslib@^2.0.3, tslib@^2.8.1, tslib@2:
   version "2.8.1"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/tslib/-/tslib-2.8.1.tgz"
   integrity sha1-YS7+TtI11Wfoq6Xypfq3AoCt6D8=
@@ -8765,7 +8889,7 @@ type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typescript@^5.4.3, typescript@^5.9.3:
+typescript@*, typescript@^5.4.3, typescript@^5.9.3, typescript@>=4.2.0:
   version "5.9.3"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/typescript/-/typescript-5.9.3.tgz"
   integrity sha1-W09Z4VMQqxeiFvXWz1PuR27eZw8=
@@ -8882,6 +9006,11 @@ url-parse-lax@^1.0.0:
   integrity sha1-evjzA2Rem9eaJy56FKxovAYJ2nM=
   dependencies:
     prepend-http "^1.0.1"
+
+use-sync-external-store@^1.4.0:
+  version "1.6.0"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/use-sync-external-store/-/use-sync-external-store-1.6.0.tgz"
+  integrity sha1-sXS/plyytSZzLZ8qwKQIAnh28y0=
 
 use@^3.1.0:
   version "3.1.0"
@@ -9011,7 +9140,7 @@ webidl-conversions@^4.0.2:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/webidl-conversions/-/webidl-conversions-4.0.2.tgz"
   integrity sha1-qFWYCx8LazWbodXZ+zmulB+qY60=
 
-webpack-cli@^5.1.4:
+webpack-cli@^5.1.4, webpack-cli@5.x.x:
   version "5.1.4"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/webpack-cli/-/webpack-cli-5.1.4.tgz"
   integrity sha1-yOBGun6q5JEdfnHislt3b8w1dZs=
@@ -9090,7 +9219,7 @@ webpack-sources@^3.3.4:
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/webpack-sources/-/webpack-sources-3.4.1.tgz"
   integrity sha1-AJ0RCZnr2fs6b6jTLuxvhNlA5l0=
 
-webpack@^5.106.2:
+webpack@^5.0.0, webpack@^5.1.0, webpack@^5.106.2, webpack@^5.20.0, webpack@^5.27.0, webpack@5.x.x:
   version "5.106.2"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/webpack/-/webpack-5.106.2.tgz"
   integrity sha1-yoF0tP2A8FXMWkX8xVd9bbdsisU=
@@ -9421,3 +9550,12 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha1-ApTrPe4FAo0x7hpfosVWpqrxChs=
+
+zip-stream@^4.1.0:
+  version "4.1.1"
+  resolved "https://pkgs.dev.azure.com/RDW/_packaging/RDW/npm/registry/zip-stream/-/zip-stream-4.1.1.tgz"
+  integrity sha1-Ezf+l026/9L6mhuglmKmaTK9cTU=
+  dependencies:
+    archiver-utils "^3.0.4"
+    compress-commons "^4.1.2"
+    readable-stream "^3.6.0"

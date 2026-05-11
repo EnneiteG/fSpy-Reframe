@@ -196,16 +196,23 @@ Done. Upgraded react-measure from 2.0.2 to 2.5.2 and @types/react-measure from 2
 
 ---
 
-## Stage 4: State Management
+## Stage 4: State Management ✅
 
 **Priority: Medium — modernize Redux usage.**
 
-### 4.1 Upgrade Redux Stack
+### 4.1 Upgrade Redux Stack ✅
 
 Minimal upgrade (keep current Redux patterns):
 - Update `redux` to `^5.0.1`, `react-redux` to `^9.2.0`, `redux-thunk` to `^3.1.0`.
 - Remove `@types/react-redux` (types are bundled in react-redux@9).
 - Fix breaking type changes.
+
+Done. Upgraded redux from ^4.0.0 to ^5.0.1, react-redux from ^5.0.7 to ^9.2.0, redux-thunk from ^2.3.0 to ^3.1.0. Removed `@types/react-redux` (types now bundled in react-redux@9). Fixed breaking changes:
+- `store.ts`: Changed `import thunk from 'redux-thunk'` to named import `import { thunk } from 'redux-thunk'` (default export removed in v3). Replaced `createStore` with `legacy_createStore as createStore` to suppress Redux 5 deprecation warning. Removed unused `AnyAction`, `Store`, `StoreState` imports; simplified generic type parameters (4-param generic removed in Redux 5).
+- `root.ts`: Removed explicit `<StoreState>` generic from `combineReducers` (signature changed in Redux 5 — generic is now the reducers map `M`, not the state type). Added `as unknown as Reducer<StoreState>` export cast to maintain correct store typing (Redux 5's `PreloadedState` inference fails with custom action union types that lack index signatures).
+- `app-middleware.ts`: Typed `action` parameter as `unknown` (Redux 5 `Middleware` type change). Destructured `type` with `ActionTypes` cast for `indexOf` compatibility. Used `as any` on both `store.dispatch` calls (custom action interfaces don't satisfy `UnknownAction`'s index signature requirement).
+- `solver-result.ts`: Replaced deprecated `AnyAction` import with `AppAction` from actions for consistency with all other reducers.
+- All existing `connect()` calls, `Dispatch<AppAction>`, `ThunkAction`, `ThunkDispatch`, and `Provider` usage work without changes. All 3 webpack bundles (main, gui, preload) compile cleanly.
 
 Optional future work (not part of this upgrade):
 - Migrate to Redux Toolkit (`@reduxjs/toolkit` with `configureStore`, `createSlice`).
