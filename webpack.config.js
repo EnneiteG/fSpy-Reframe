@@ -9,30 +9,7 @@ const commonConfig = {
     rules: [
       {
         test: /\.tsx?$/,
-        enforce: 'pre',
-        use: [
-          {
-            loader: 'tslint-loader',
-            options: {
-              typeCheck: false,
-              emitErrors: true,
-              configFile: 'tslint.json'
-            }
-          }
-        ]
-      },
-      {
-        test: /\.tsx?$/,
         loader: ['babel-loader', 'ts-loader']
-      },
-      {
-        test: /\.js$/,
-        enforce: 'pre',
-        loader: 'standard-loader',
-        options: {
-          typeCheck: true,
-          emitErrors: true
-        }
       },
       {
         test: /\.jsx?$/,
