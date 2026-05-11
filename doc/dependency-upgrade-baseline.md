@@ -224,3 +224,34 @@ Deferred updates:
 - `nodeIntegration: false` is deferred until renderer `fs` access for project open/save/export is moved behind IPC.
 - `contextIsolation: true` is deferred to the same follow-up so the renderer no longer depends on direct Node globals.
 - Electron remains on `8.2.1`; the preload bridge is a preparation step, not the Electron major-version upgrade itself.
+
+## Phase 7 Renderer Isolation
+
+Renderer Node integration was disabled after moving the remaining file, resource and clipboard operations behind the preload bridge.
+
+Changes applied:
+
+- Enabled `nodeIntegration: false` and `contextIsolation: true` for the main `BrowserWindow`.
+- Removed direct renderer imports of `fs`, `path` and `electron`.
+- Moved project file parsing and serialization into `src/gui/io/project-file-format.ts`, which uses browser-compatible `Uint8Array`, `DataView`, `TextEncoder` and `TextDecoder` APIs.
+- Routed project/image file reads, project file writes, dropped project validation, resource path lookup and clipboard writes through `window.fSpyElectron`.
+- Kept main-process startup/open-file behavior on the same `.fspy` format helpers so command-line file opening and macOS `open-file` handling continue to use the same validation logic.
+- Updated project file tests to run against the preload API surface instead of renderer Node APIs.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Deferred updates:
+
+- IPC file operations are still synchronous to preserve existing renderer control flow during this incremental phase.
+- Electron remains on `8.2.1`; a later phase can now focus on the Electron major-version upgrade with renderer isolation already in place.

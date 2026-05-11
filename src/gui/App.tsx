@@ -30,7 +30,6 @@ import { ImageState } from './types/image-state'
 import { SolverResult } from './solver/solver-result'
 import { ExportType } from '../main/ipc-messages'
 import ProjectFile from './io/project-file'
-import { readFileSync } from 'fs'
 import { loadImage } from './io/util'
 import store from './store/store'
 import SplashScreen from './components/splash-screen'
@@ -65,38 +64,9 @@ class App extends React.PureComponent<AppProps> {
   componentDidMount() {
     this.registerIPCHandlers()
 
-    document.ondragover = (ev) => {
-      ev.preventDefault()
-      return false
-    }
-
-    document.ondragenter = (ev) => {
-      ev.preventDefault()
-      return false
-    }
-
     document.ondragleave = (ev) => {
       ev.preventDefault()
       return false
-    }
-
-    document.ondrop = (ev) => {
-      if (ev.dataTransfer != null) {
-        let firstFile = ev.dataTransfer.files[0]
-        if (firstFile) {
-          let filePath = firstFile.path
-          let isProjectFile = ProjectFile.isProjectFile(filePath)
-          if (isProjectFile) {
-            this.props.onProjectFileDropped(filePath)
-          } else {
-            // try to open the file as an image
-            this.props.onImageFileDropped(filePath)
-          }
-        }
-        ev.preventDefault()
-        return false
-      }
-      return true
     }
   }
 
@@ -152,6 +122,16 @@ class App extends React.PureComponent<AppProps> {
     this.unsubscribeIPCHandlers.push(api.onSetSidePanelVisibility((panelsAreVisible) => {
       this.props.onSetSidePanelVisibilityIPCMessage(panelsAreVisible)
     }))
+
+    this.unsubscribeIPCHandlers.push(api.onFileDrop((filePath) => {
+      let isProjectFile = api.isProjectFile(filePath)
+      if (isProjectFile) {
+        this.props.onProjectFileDropped(filePath)
+      } else {
+        // try to open the file as an image
+        this.props.onImageFileDropped(filePath)
+      }
+    }))
   }
 }
 
@@ -167,7 +147,7 @@ export function mapStateToProps(state: StoreState) {
 export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
   return {
     onImageFileDropped: (imagePath: string) => {
-      let imageBuffer = readFileSync(imagePath)
+      let imageBuffer = electronAPI().readFile(imagePath)
       // TODO: good to do async loading here?
       loadImage(
         imageBuffer,
@@ -198,7 +178,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       ProjectFile.save(filePath, dispatch)
     },
     onOpenImageIPCMessage: (imagePath: string) => {
-      let imageBuffer = readFileSync(imagePath)
+      let imageBuffer = electronAPI().readFile(imagePath)
       loadImage(
         imageBuffer,
         (width: number, height: number, url: string) => {

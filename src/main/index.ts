@@ -22,13 +22,13 @@ const path = require('path')
 const url = require('url')
 
 import windowStateKeeper from 'electron-window-state'
-import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage, GetAppVersionMessage, ShowErrorBoxMessage } from '../gui/ipc-messages'
+import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage, GetAppVersionMessage, ShowErrorBoxMessage, ReadFileMessage, WriteFileMessage, IsProjectFileMessage } from '../gui/ipc-messages'
 import { basename, join } from 'path'
 import AppMenuManager from './app-menu-manager'
-import ProjectFile from '../gui/io/project-file'
 import { Palette } from '../gui/style/palette'
-import { openSync, writeSync, closeSync } from 'fs'
+import { openSync, writeSync, closeSync, readFileSync, writeFileSync } from 'fs'
 import { CLI } from '../cli/cli'
+import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
 
 app.allowRendererProcessReuse = true
 
@@ -72,6 +72,25 @@ function openProject(path: string, window: BrowserWindow) {
   )
 }
 
+function appResourcePath(fileName: string): string {
+  if (process.resourcesPath != null) {
+    if (process.env.DEV) {
+      return join(process.cwd(), 'assets/electron', fileName)
+    }
+    return join(process.resourcesPath, fileName)
+  }
+
+  return ''
+}
+
+function isProjectFilePath(filePath: string): boolean {
+  try {
+    return isProjectFileData(readFileSync(filePath).slice(0, 4))
+  } catch {
+    return false
+  }
+}
+
 function createWindow() {
   const minWidth = 800
   const minHeight = 768
@@ -105,8 +124,8 @@ function createWindow() {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
       preload: join(__dirname, 'preload.js'),
-      contextIsolation: false,
-      nodeIntegration: true
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
@@ -209,7 +228,7 @@ function createWindow() {
       onOpenExampleProject: () => {
         showDiscardChangesDialogIfNeeded(mainWindow, (didCancel: boolean) => {
           if (!didCancel) {
-            let projectPath = ProjectFile.exampleProjectPath
+            let projectPath = appResourcePath(EXAMPLE_PROJECT_FILENAME)
             if (mainWindow) {
               window.webContents.send(
                 OpenProjectMessage.type,
@@ -299,7 +318,7 @@ function createWindow() {
           const fd = openSync(filePath, 'r')
           closeSync(fd)
 
-          if (ProjectFile.isProjectFile(filePath)) {
+          if (isProjectFilePath(filePath)) {
             window.webContents.send(
               OpenProjectMessage.type,
               new OpenProjectMessage(filePath, false)
@@ -357,6 +376,11 @@ function createWindow() {
         ipcMain.removeAllListeners(SpecifyProjectPathMessage.type)
         ipcMain.removeAllListeners(SpecifyExportPathMessage.type)
         ipcMain.removeAllListeners(OpenDroppedProjectMessage.type)
+        ipcMain.removeAllListeners(GetAppVersionMessage.type)
+        ipcMain.removeAllListeners(ShowErrorBoxMessage.type)
+        ipcMain.removeAllListeners(ReadFileMessage.type)
+        ipcMain.removeAllListeners(WriteFileMessage.type)
+        ipcMain.removeAllListeners(IsProjectFileMessage.type)
         appMenuManager.setOpenImageItemEnabled(false)
         appMenuManager.setSaveAsItemEnabled(false)
         appMenuManager.setSaveItemEnabled(false)
@@ -432,6 +456,28 @@ function createWindow() {
 
   ipcMain.on(ShowErrorBoxMessage.type, (_: any, message: ShowErrorBoxMessage) => {
     dialog.showErrorBox(message.title, message.message)
+  })
+
+  ipcMain.on(ReadFileMessage.type, (event: Electron.IpcMainEvent, message: ReadFileMessage) => {
+    try {
+      const fileData = readFileSync(message.filePath)
+      event.returnValue = { data: fileData.buffer.slice(fileData.byteOffset, fileData.byteOffset + fileData.byteLength) }
+    } catch (error) {
+      event.returnValue = { error: (error as Error).message }
+    }
+  })
+
+  ipcMain.on(WriteFileMessage.type, (event: Electron.IpcMainEvent, message: WriteFileMessage) => {
+    try {
+      writeFileSync(message.filePath, Buffer.from(message.data))
+      event.returnValue = { data: undefined }
+    } catch (error) {
+      event.returnValue = { error: (error as Error).message }
+    }
+  })
+
+  ipcMain.on(IsProjectFileMessage.type, (event: Electron.IpcMainEvent, message: IsProjectFileMessage) => {
+    event.returnValue = isProjectFilePath(message.filePath)
   })
 
   function refreshTitle(window: BrowserWindow) {

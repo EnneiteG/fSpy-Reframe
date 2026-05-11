@@ -1,7 +1,8 @@
 /// <reference types="jest" />
-import { mkdtempSync, writeFileSync } from 'fs'
+import { mkdtempSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import { TextDecoder, TextEncoder } from 'util'
 import ProjectFile from '../../src/gui/io/project-file'
 import { ActionTypes, AppAction, LoadState } from '../../src/gui/actions'
 import { defaultGlobalSettings } from '../../src/gui/defaults/global-settings'
@@ -11,6 +12,49 @@ import { defaultResultDisplaySettings } from '../../src/gui/defaults/result-disp
 import { ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
 import { TargetPresetId, TargetSceneOrientationId } from '../../src/gui/solver/target-presets'
 import { cameraPresets } from '../../src/gui/solver/camera-presets'
+import { FSpyElectronAPI } from '../../src/gui/electron-api'
+import { isProjectFileData } from '../../src/gui/io/project-file-format'
+
+;(global as any).TextDecoder = TextDecoder
+;(global as any).TextEncoder = TextEncoder
+
+const noop = () => {
+  // test fallback
+}
+
+function installElectronAPIFallback() {
+  const api: FSpyElectronAPI = {
+    getAppVersion: () => '',
+    showErrorBox: noop,
+    readFile: (filePath: string) => new Uint8Array(readFileSync(filePath)),
+    writeFile: (filePath: string, data: Uint8Array) => {
+      writeFileSync(filePath, Buffer.from(data))
+    },
+    isProjectFile: (filePath: string) => {
+      try {
+        return isProjectFileData(readFileSync(filePath).slice(0, 4))
+      } catch {
+        return false
+      }
+    },
+    resourcePath: () => '',
+    resourceURL: () => '',
+    copyText: noop,
+    onFileDrop: () => noop,
+    specifyProjectPath: noop,
+    specifyExportPath: noop,
+    openDroppedProject: noop,
+    setDocumentState: noop,
+    onNewProject: () => noop,
+    onOpenProject: () => noop,
+    onSaveProject: () => noop,
+    onSaveProjectAs: () => noop,
+    onOpenImage: () => noop,
+    onExport: () => noop,
+    onSetSidePanelVisibility: () => noop
+  }
+  window.fSpyElectron = api
+}
 
 function writeProjectFileBuffer(stateBuffer: Buffer): string {
   const directory = mkdtempSync(join(tmpdir(), 'fspy-project-file-test-'))
@@ -64,6 +108,10 @@ function savedState(overrides: any = {}): any {
 }
 
 describe('Project file compatibility', () => {
+  beforeEach(() => {
+    installElectronAPIFallback()
+  })
+
   test('loads old project files without saved Unreal display settings', () => {
     const state = savedState({
       cameraParameters: undefined,

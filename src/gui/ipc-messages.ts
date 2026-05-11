@@ -72,3 +72,32 @@ export class ShowErrorBoxMessage {
     this.message = message
   }
 }
+
+export class ReadFileMessage {
+  static readonly type = 'ReadFileMessage'
+  readonly filePath: string
+
+  constructor(filePath: string) {
+    this.filePath = filePath
+  }
+}
+
+export class WriteFileMessage {
+  static readonly type = 'WriteFileMessage'
+  readonly filePath: string
+  readonly data: Uint8Array
+
+  constructor(filePath: string, data: Uint8Array) {
+    this.filePath = filePath
+    this.data = data
+  }
+}
+
+export class IsProjectFileMessage {
+  static readonly type = 'IsProjectFileMessage'
+  readonly filePath: string
+
+  constructor(filePath: string) {
+    this.filePath = filePath
+  }
+}
