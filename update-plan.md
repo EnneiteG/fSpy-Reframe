@@ -27,28 +27,30 @@ This document outlines the staged upgrade plan for modernizing the fSpy applicat
 
 **Priority: Critical — everything else depends on this.**
 
-### 1.1 Upgrade TypeScript (2.9 → 5.8)
+### 1.1 Upgrade TypeScript (2.9 → 5.8) ✅
 
-- Update `typescript` dependency to `^5.8.0`.
-- Update `tsconfig.json`:
-  - Set `"target": "ES2022"`.
-  - Set `"module": "commonjs"` (or `"ES2022"` if switching to ESM later).
-  - Add `"esModuleInterop": true` (replaces `allowSyntheticDefaultImports`).
-  - Add `"forceConsistentCasingInFileNames": true`.
-  - Remove `"allowJs": true` if no `.js` source files exist.
-  - Set `"jsx": "react-jsx"` (once React 17+ is in place).
-- Fix any new type errors introduced by stricter type checking.
+- Updated `typescript` to `^5.8.0`.
+- Updated `tsconfig.json`:
+  - Set `"target": "ES2022"` (temporarily lowered to `ES2018` in 1.3, restored in 1.4).
+  - Set `"module": "commonjs"`.
+  - Replaced `"allowSyntheticDefaultImports"` with `"esModuleInterop": true`.
+  - Added `"forceConsistentCasingInFileNames": true`.
+  - Removed `"allowJs": true` (no `.js` source files exist).
+  - Kept `"jsx": "react"` (will switch to `"react-jsx"` after React 17+ upgrade in Stage 3).
+- Fixed 3 deprecated `new Buffer()` calls in `src/gui/io/project-file.ts` → `Buffer.from()` / `Buffer.alloc()`.
+- Zero type errors — clean compilation with `tsc --noEmit`.
 
-### 1.2 Migrate TSLint → ESLint
+### 1.2 Migrate TSLint → ESLint ✅
 
-- Remove `tslint`, `tslint-config-standard`, `tslint-loader`.
-- Remove `tslint.json`.
-- Install `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`.
-- Create `.eslintrc.json` with rules approximating the current TSLint config.
-- Remove the `tslint-loader` rule from `webpack.config.js`.
-- Add an ESLint webpack plugin or rely on IDE integration.
+- Removed `tslint`, `tslint-config-standard`, `tslint-loader`, `standard`, `standard-loader`.
+- Deleted `tslint.json`.
+- Installed `eslint@^8.57.0`, `@typescript-eslint/parser@^7.0.0`, `@typescript-eslint/eslint-plugin@^7.0.0`.
+- Created `.eslintrc.json` mapping old TSLint rules (indent, eqeqeq off, space-before-function-paren). Permissive rules (`no-explicit-any`, `prefer-const`, `ban-types`) turned off to match existing codebase.
+- Removed `tslint-loader` and `standard-loader` rules from `webpack.config.js`.
+- Relying on IDE integration for ESLint (no webpack plugin added).
+- Result: 0 errors, 92 indent warnings (existing code style).
 
-### 1.3 Remove Babel (ts-loader handles transpilation)
+### 1.3 Remove Babel (ts-loader handles transpilation) ✅
 
 - ~~Upgrade Babel 6 → 7~~ — Babel removed entirely; `ts-loader` with TypeScript 5.8 handles ES downleveling and JSX.
 - Removed `babel-core`, `babel-loader`, `babel-preset-es2015`, `babel-preset-es2015-node`, `babel-preset-react`, `babel-preset-stage-2`.
@@ -56,17 +58,17 @@ This document outlines the staged upgrade plan for modernizing the fSpy applicat
 - Updated `webpack.config.js`: `.tsx?` rule changed from `['babel-loader', 'ts-loader']` to `'ts-loader'`; removed standalone `.jsx?` → `babel-loader` rule.
 - Lowered `tsconfig.json` target from `ES2022` to `ES2018` — Webpack 4's acorn parser cannot handle ES2019+ syntax (optional catch binding, class fields). Will be bumped back to `ES2022` in Stage 1.4.
 
-### 1.4 Upgrade Webpack (4 → 5)
+### 1.4 Upgrade Webpack (4 → 5) ✅
 
-- Update `webpack` to `^5.x`, `webpack-cli` to `^5.x`, `webpack-dev-server` to `^5.x`.
-- Update `html-webpack-plugin` to `^5.x`.
-- Update `css-loader` to `^7.x`, `style-loader` to `^4.x`.
-- Update `ts-loader` to `^9.x`.
-- Remove `standard-loader` (deprecated).
-- Address Webpack 5 breaking changes:
-  - `node: { __dirname: false }` is no longer valid; use `node: false` or configure `resolve.fallback`.
-  - Adjust `output` and `target` settings for Electron.
-  - Review polyfill changes (Webpack 5 no longer polyfills Node.js core modules by default).
+- Updated `webpack` to `^5.98.0`, `webpack-cli` to `^5.1.4`, `webpack-dev-server` to `^5.2.0`.
+- Updated `html-webpack-plugin` to `^5.6.3`, `css-loader` to `^7.1.2`, `style-loader` to `^4.0.0`, `ts-loader` to `^9.5.2`.
+- `standard-loader` already removed in 1.2.
+- Webpack 5 breaking changes addressed:
+  - Removed `node: { __dirname: false }` from shared config; moved to `electron-main` config only.
+  - Replaced `Object.assign` with spread syntax for config composition.
+  - No polyfill issues — Electron targets handle Node.js modules natively.
+- Bumped `tsconfig.json` target back to `ES2022` (Webpack 5's parser supports it).
+- No `--openssl-legacy-provider` workaround needed (was a Webpack 4 + Node 17+ issue).
 
 ---
 
