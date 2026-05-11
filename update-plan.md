@@ -259,9 +259,9 @@ Done. Uninstalled `trash-cli`; installed `rimraf@^6.0.0` and `cross-env@^7.0.3`.
 
 Done. Upgraded `minimist` from ^1.2.0 to ^1.2.8 (was already installed at 1.2.8, pinned range updated). Upgraded `electron-window-state` from ^4.1.1 to ^5.0.3. Removed `@types/electron-window-state` — v5 bundles its own type definitions (the @types stub package is deprecated). `trash-cli` was already removed in 6.1. Ran `npm audit fix` which resolved `ansi-regex`, `brace-expansion`, and transitive `minimist` vulnerabilities. Remaining 11 vulns were all in `electron-builder@25.1.8` transitive deps (`tar`, `@tootallnate/once`, `node-gyp`, `cacache`); fixed by upgrading `electron-builder` from ^25.1.8 to ^26.8.1. Final result: **0 vulnerabilities**. Zero type errors, all 3 webpack bundles compile.
 
-### 6.3 Consider Build Tool Migration (optional)
+### 6.3 Consider Build Tool Migration (deferred)
 
-Webpack 5 works but is heavy. Evaluate alternatives:
+Webpack 5 works but is heavy. Evaluate alternatives if active development resumes and rebuild cycle becomes painful:
 - **Vite + vite-plugin-electron**: Much faster dev experience, HMR support.
 - **electron-vite**: Purpose-built for Electron + Vite.
 - **esbuild-loader** for webpack: Keep webpack but use esbuild for faster transpilation.
