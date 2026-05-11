@@ -23,7 +23,7 @@ import SavedState from './saved-state'
 import { AppAction, loadState, setProjectFilePath } from '../actions'
 import { Dispatch } from 'redux'
 import { loadImage, resourcePath } from './util'
-import { remote } from 'electron'
+import { ipcRenderer } from 'electron'
 import { defaultResultDisplaySettings } from '../defaults/result-display-settings'
 import { cameraPresets } from '../solver/camera-presets'
 import { ReferenceDistanceUnit } from '../types/calibration-settings'
@@ -93,7 +93,7 @@ export default class ProjectFile {
 
   static load(path: string, dispatch: Dispatch<AppAction>, isExampleProject: boolean) {
     if (!this.isProjectFile(path)) {
-      remote.dialog.showErrorBox(// TODO: proper modal
+      ipcRenderer.invoke('show-error-box',
         'Failed to load project',
         'This does not appear to be a valid project file'
       )
@@ -102,7 +102,7 @@ export default class ProjectFile {
       try {
         buffer = readFileSync(path)
       } catch {
-        remote.dialog.showErrorBox(// TODO: proper modal
+        ipcRenderer.invoke('show-error-box',
           'Failed to load image data',
           'Could not load the image data contained in the project file'
         )
@@ -112,7 +112,7 @@ export default class ProjectFile {
       let headerSize = 16
       let projectFileVersion = buffer.readUInt32LE(4)
       if (projectFileVersion != this.PROJECT_FILE_VERSION) {
-        remote.dialog.showErrorBox(// TODO: proper modal
+        ipcRenderer.invoke('show-error-box',
           'Failed to load project',
           'Version ' + projectFileVersion + ' project files are not compatible with this version of fSpy.'
         )
@@ -184,7 +184,7 @@ export default class ProjectFile {
               )
             },
             () => {
-              remote.dialog.showErrorBox(
+              ipcRenderer.invoke('show-error-box',
                 'Failed to load image data',
                 'Could not load the image data contained in the project file'
               )

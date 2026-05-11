@@ -80,7 +80,7 @@ This document outlines the staged upgrade plan for modernizing the fSpy applicat
 
 ✅ Done. Upgraded Electron to 12.x with explicit `contextIsolation: false` and `enableRemoteModule: true` to maintain backward compat. Removed `app.allowRendererProcessReuse`, fixed nullable `getMenuItemById` types, converted `require()` to ES imports in main process.
 
-### 2.2 Remove `remote` Module Usage
+### 2.2 Remove `remote` Module Usage ✅
 
 **Must be done before upgrading past Electron 14** (which removes `enableRemoteModule` entirely).
 
@@ -89,6 +89,8 @@ The `remote` module is removed in modern Electron. All usages must be replaced w
 - **`src/gui/App.tsx`**: Uses `remote.dialog.showErrorBox()` — replace with IPC call to main process.
 - **`src/gui/components/splash-screen.tsx`**: Uses `remote.app.getVersion()` — pass version via preload script or IPC.
 - **`src/gui/io/project-file.ts`**: Multiple `remote.dialog.showErrorBox()` calls — replace with IPC.
+
+Done. Added `ipcMain.handle('show-error-box')` and `ipcMain.handle('get-app-version')` in main process. Replaced all `remote.dialog.showErrorBox` calls in App.tsx (1), project-file.ts (4) with `ipcRenderer.invoke('show-error-box', ...)`. Replaced `remote.app.getVersion()` in splash-screen.tsx with module-level `ipcRenderer.invoke('get-app-version')` (React 16.4 lacks hooks, so used module-scope async pattern). Removed `remote` import from all three files. Removed `enableRemoteModule: true` from BrowserWindow webPreferences.
 
 ### 2.3 Implement Preload Script & Context Bridge
 

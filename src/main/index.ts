@@ -103,8 +103,7 @@ function createWindow() {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
       nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
+      contextIsolation: false
     }
   })
 
@@ -499,6 +498,15 @@ function showDiscardChangesDialogIfNeeded(
     callback(false)
   }
 }
+
+// IPC handlers for renderer requests (replacing remote module usage)
+ipcMain.handle('show-error-box', (_event, title: string, content: string) => {
+  dialog.showErrorBox(title, content)
+})
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion()
+})
 
 app.on('ready', () => {
   // Assume we're in CLI mode if any argument starts

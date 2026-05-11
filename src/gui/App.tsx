@@ -28,7 +28,7 @@ import { GlobalSettings } from './types/global-settings'
 import { UIState } from './types/ui-state'
 import { ImageState } from './types/image-state'
 import { SolverResult } from './solver/solver-result'
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
 import { NewProjectMessage, OpenProjectMessage, SaveProjectMessage, SaveProjectAsMessage, OpenImageMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from '../main/ipc-messages'
 import ProjectFile from './io/project-file'
 import { readFileSync } from 'fs'
@@ -166,7 +166,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
           dispatch(setImage(url, imageBuffer, width, height))
         },
         () => {
-          remote.dialog.showErrorBox(
+          ipcRenderer.invoke('show-error-box',
             'Failed to load image data',
             'Could not load the image data. Is this a valid image file?'
           )
