@@ -395,3 +395,34 @@ Results:
 Manual validation still required:
 
 - Re-test the control point UI before proceeding to React 18/19 or a major Konva/react-konva upgrade.
+
+## Phase 8 React Redux Palier
+
+React Redux was upgraded without migrating away from the existing `connect` API.
+
+Updated packages:
+
+- `react-redux`: `5.0.7` -> `7.2.9`
+- `@types/react-redux`: `6.0.28` -> `7.1.34`
+
+Notes:
+
+- Existing class components and `connect(...)` usage were retained.
+- Redux and Redux Thunk were already on modern 4.x/2.x versions from the runtime dependency phase.
+
+Validation commands:
+
+```powershell
+corepack yarn verify
+corepack yarn dist-preview
+```
+
+Results:
+
+- `verify`: success, `3` suites passed, `12` tests passed.
+- `dist-preview`: success, Windows x64 unpacked app generated in `dist/win-unpacked`.
+- Packaged Windows app smoke launch: process stayed running after 5 seconds and was stopped manually.
+
+Manual validation still required:
+
+- Re-test UI state changes such as side panel visibility, calibration controls and result updates before proceeding to React 18/19.
