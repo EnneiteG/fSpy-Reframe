@@ -143,12 +143,14 @@ Each hop: install, fix any type errors, build, test.
 
 Done. Upgraded in 4 hops: 12→20 (no fixes needed), 20→28 (fixed `Event` type annotations on `app.on('open-file')` and `window.on('close')` — removed explicit `: Event` parameter types that conflicted with stricter Electron overloads, enabled `sandbox: true`), 28→35 (fixed `Event` type on `enter-full-screen`/`leave-full-screen` handlers), 35→42 (fixed `File.path` — no longer available as a property in sandboxed renderer; added `webUtils.getPathForFile` to preload via `window.electronAPI.getPathForFile(file)` as the modern Electron replacement). Also replaced deprecated `url.format()` with template literal `file://` URL, removed `url` import.
 
-### 2.6 Remove Deprecated Electron APIs
+### 2.6 Remove Deprecated Electron APIs ✅
 
 - Replace `require('url')` with `new URL()` or `pathToFileURL()` (if not already done).
 - Update `BrowserWindow.loadURL()` calls if needed.
 - Update `dialog` API calls (some method signatures changed).
 - Review and update `ipcMain`/`ipcRenderer` usage patterns (use `ipcMain.handle`/`ipcRenderer.invoke` for request-response).
+
+Done. Replaced `app.on('ready')` with `app.whenReady().then()`. Fixed `getResourceURL()` — was incorrectly using `path.join()` with `file://` prefix (produces backslash paths on Windows); now uses `pathToFileURL().href` for correct cross-platform file URLs. Replaced `startUrl` template literal with `pathToFileURL().href`. Cleaned up duplicate `path` import (was importing both `path` default and `{ basename, join }` destructured); now uses `path.join()`, `path.basename()` consistently. Verified dialog APIs (already promise-based), IPC patterns (already using `handle`/`invoke` for request-response, `on`/`send` for fire-and-forget).
 
 ### 2.7 Update electron-builder
 

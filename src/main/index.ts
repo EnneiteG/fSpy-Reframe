@@ -19,10 +19,10 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
 import path from 'path'
+import { pathToFileURL } from 'url'
 
 import windowStateKeeper from 'electron-window-state'
 import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
-import { basename, join } from 'path'
 import AppMenuManager from './app-menu-manager'
 import { Palette } from '../gui/style/palette'
 import { openSync, writeSync, closeSync, readFileSync, readSync } from 'fs'
@@ -53,21 +53,18 @@ function isProjectFile(filePath: string): boolean {
 function getResourcePath(fileName: string): string {
   if (process.resourcesPath != null) {
     if (process.env.DEV) {
-      return join(process.cwd(), 'assets/electron', fileName)
+      return path.join(process.cwd(), 'assets/electron', fileName)
     } else {
-      return join(process.resourcesPath, fileName)
+      return path.join(process.resourcesPath, fileName)
     }
   }
   return ''
 }
 
 function getResourceURL(fileName: string): string {
-  if (process.resourcesPath != null) {
-    if (process.env.DEV) {
-      return join(`file://${process.cwd()}`, 'assets/electron', fileName)
-    } else {
-      return join(process.resourcesPath, fileName)
-    }
+  const resourcePath = getResourcePath(fileName)
+  if (resourcePath) {
+    return pathToFileURL(resourcePath).href
   }
   return ''
 }
@@ -129,9 +126,9 @@ function createWindow() {
     if (process.platform == 'darwin') {
       //
     } else if (process.platform == 'win32') {
-      windowIconPath = join(process.resourcesPath, 'icon.ico')
+      windowIconPath = path.join(process.resourcesPath, 'icon.ico')
     } else {
-      windowIconPath = join(process.resourcesPath, 'icon.png')
+      windowIconPath = path.join(process.resourcesPath, 'icon.png')
     }
   }
 
@@ -368,7 +365,7 @@ function createWindow() {
     }
   })
 
-  const startUrl = `file://${path.join(__dirname, '../build/index.html')}`
+  const startUrl = pathToFileURL(path.join(__dirname, '../build/index.html')).href
 
   const devUrl = 'http://localhost:8080'
 
@@ -468,7 +465,7 @@ function createWindow() {
       if (documentState.isExampleProject) {
         title = 'Example project'
       } else if (documentState.filePath !== null) {
-        title = basename(documentState.filePath)
+        title = path.basename(documentState.filePath)
       }
 
       if (documentState.hasUnsavedChanges) {
@@ -575,7 +572,7 @@ ipcMain.handle('get-resource-path', (_event, fileName: string): string => {
   return getResourcePath(fileName)
 })
 
-app.on('ready', () => {
+app.whenReady().then(() => {
   // Assume we're in CLI mode if any argument starts
   // with '-' or equals 'help'
   let isCli = false
