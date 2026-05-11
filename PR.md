@@ -50,43 +50,15 @@ Complete modernization of the fSpy desktop application, upgrading every major de
 
 ### UX: Image Opacity Slider
 
-Replaced the binary **"Dim image" checkbox** (which toggled between 100% and 20% opacity) with a **continuous slider control**. Users can now set image opacity to any value between 0% and 100% for finer control when overlaying calibration geometry.
+Replaced the binary **"Dim image" checkbox** (which toggled between 100% and 20% opacity) with a **continuous slider control**, allowing any opacity value between 0% and 100%.
 
 ### Bug Fix: Control Points Stuck After Dragging Outside Canvas
 
-Fixed a bug where dragging a control point and releasing the mouse button outside the Konva stage (e.g. over a side panel) caused the control point to become permanently unresponsive.
-
-**Root cause:** During a drag, Konva internally moves the `Circle` node to follow the pointer. When the mouse is released outside the stage, two problems occur:
-
-1. The node's internal position ends up far off-screen, but `react-konva` skips updating it because the clamped props haven't changed — leaving the hit area desynchronized from the visual position.
-2. Konva's internal drag state (`DD._dragElements`) may not get cleaned up, leaving `isDragging()` stuck as `true`.
-
-**Fix** (in `control-point.tsx`):
-
-1. Added a `ref` to the Konva `Circle` and in `onDragEnd`, explicitly reset the node's position to `this.props.absolutePosition` so the hit area always matches the rendered position.
-2. Added a `window`-level `mouseup` listener that calls `node.stopDrag()` if the component is still in a dragging state, ensuring Konva's internal drag tracking is properly cleaned up even when the release happens outside the stage.
+Fixed a bug where dragging a control point and releasing the mouse button outside the Konva stage (e.g. over a side panel) caused the control point to become permanently unresponsive. The Konva node's internal position and drag state could get out of sync when the `mouseup` event didn't reach the stage. The fix ensures the node position and drag state are always properly reset on drag end.
 
 ### Other Fixes
 
-- **Clipboard copy in sandbox mode**: Moved `clipboard.writeText()` from the preload script to the main process via a `write-clipboard-text` IPC handler. The `clipboard` module is not available in sandboxed preload scripts.
-- **DEV mode resource loading**: Fixed `getResourcePath()` to use `app.isPackaged` instead of checking `process.env.DEV` inside a `process.resourcesPath` guard, which could fail when `resourcesPath` was set in dev.
-- **TypeScript module settings**: Updated `tsconfig.json` to `"module": "node16"` / `"moduleResolution": "node16"` for proper ESM/CJS interop.
-- **Updated `README.md`** and added `AUTHORS.md`.
-
-## Files Changed
-
-38 files changed across the codebase. Key files:
-
-- `src/main/preload.ts` — new preload script
-- `src/gui/types/electron-api.ts` — new typed API interface
-- `src/main/index.ts` — IPC handlers, Electron lifecycle modernization
-- `src/gui/App.tsx` — removed Node.js/Electron imports, async file handling
-- `src/gui/io/project-file.ts` — rewritten to use `DataView`/`Uint8Array` instead of `Buffer`/`fs`
-- `src/gui/components/control-points-panel/control-point.tsx` — drag bug fix
-- `src/gui/components/settings-panel/settings-panel.tsx` — opacity slider
-- `webpack.config.js` — Webpack 5 config with 3 targets (main, gui, preload)
-- `package.json` — all dependency upgrades
-- `jest.config.js` — new Jest 29 config (replaces `webpack.tests.config.js`)
+Various minor fixes including clipboard compatibility with sandbox mode, DEV mode resource path resolution, and TypeScript module settings.
 
 ## Testing
 
