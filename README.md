@@ -12,6 +12,21 @@ This fork currently adds an Unreal Engine target preset, scene orientation optio
 
 ![fSpy screenshot](screenshot.jpg)
 
+## Release notes
+
+### v0.4.0-ue
+
+This release modernizes the app stack while preserving the fSpy-UE Unreal workflow.
+
+- Upgraded the desktop stack to Electron 42, React 18, Redux 5, Webpack 5, TypeScript 5.9 and Jest 29.
+- Migrated the fork from Yarn to npm with `package-lock.json` as the canonical lockfile.
+- Replaced legacy renderer access to Electron/Node APIs with a sandboxed preload bridge exposed as `window.electronAPI`.
+- Added and retained tests for project-file compatibility, solver math utilities, reducers and Unreal target camera conversions.
+- Kept fSpy-UE identity, Windows setup/zip packaging, Unreal target presets, target axis mapping and target JSON export.
+- Fixed drag and drop image/project loading after the Electron security migration.
+- Fixed fullscreen menu restoration and changed the fullscreen shortcut to `F11`.
+- Included upstream fixes for sandbox clipboard copy, development resource loading and control points getting stuck after dragging outside the canvas.
+
 ## Using the computed camera parameters in other applications
 
 In theory, camera parameters computed by fSpy could be used in any application that has a notion of a 3D camera and provides some way of setting the camera parameters. If you're a Blender user, have a look at the [offical fSpy importer add-on](https://github.com/stuffmatic/fSpy-Blender). If you're using an application without a dedicated importer, you may still be able to manually copy the camera parameters from fSpy.
@@ -70,4 +85,4 @@ To create a Windows installer locally, run:
 npm run dist-win
 ```
 
-On Windows, this creates an x64 NSIS setup executable in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer. Pushing a tag such as `v0.3.0-ue` creates a GitHub Release and attaches the generated installer. The generated file names use the version from `package.json`.
+On Windows, this creates an x64 NSIS setup executable in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer. Pushing a tag such as `v0.4.0-ue` creates a GitHub Release and attaches the generated installer. The generated file names use the version from `package.json`.
