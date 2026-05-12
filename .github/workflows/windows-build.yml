@@ -26,33 +26,23 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Enable Yarn 1
-        shell: pwsh
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
-          yarn --version
-
       - name: Install dependencies
-        run: corepack yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: corepack yarn lint
+        run: npm run lint
 
       - name: Build development bundles
-        run: corepack yarn build-dev
-
-      - name: Build test bundles
-        run: corepack yarn build-test
+        run: npm run build-dev
 
       - name: Run unit tests
-        run: corepack yarn test:unit
+        run: npm run test:unit
 
       - name: Run export and project tests
-        run: corepack yarn test:export-project
+        run: npm run test:export-project
 
       - name: Build unpacked Windows package
-        run: corepack yarn dist-preview
+        run: npm run dist-preview
 
       - name: Upload unpacked app
         uses: actions/upload-artifact@v4

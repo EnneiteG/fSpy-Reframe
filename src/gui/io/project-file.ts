@@ -21,11 +21,11 @@ import { StoreState } from '../types/store-state'
 import SavedState from './saved-state'
 import { AppAction, loadState, setProjectFilePath } from '../actions'
 import { Dispatch } from 'redux'
-import { loadImage, resourcePath } from './util'
+import { loadImage } from './util'
+import '../types/electron-api'
 import { defaultResultDisplaySettings } from '../defaults/result-display-settings'
 import { cameraPresets } from '../solver/camera-presets'
 import { ReferenceDistanceUnit } from '../types/calibration-settings'
-import { electronAPI } from '../electron-api'
 import { EXAMPLE_PROJECT_FILENAME as EXAMPLE_PROJECT_FILE_NAME, parseProjectFileData, PROJECT_FILE_EXTENSION as PROJECT_EXTENSION, PROJECT_FILE_ID as PROJECT_ID, PROJECT_FILE_VERSION as PROJECT_VERSION, ProjectFileData, serializeProjectFileData } from './project-file-format'
 
 export default class ProjectFile {
@@ -33,10 +33,6 @@ export default class ProjectFile {
   static readonly PROJECT_FILE_EXTENSION = PROJECT_EXTENSION
   static readonly PROJECT_FILE_ID = PROJECT_ID
   static readonly PROJECT_FILE_VERSION = PROJECT_VERSION
-
-  static get exampleProjectPath() {
-    return resourcePath(this.EXAMPLE_PROJECT_FILENAME)
-  }
 
   static getStateToSave(): SavedState {
     let storeState: StoreState = store.getState()
@@ -53,7 +49,7 @@ export default class ProjectFile {
     }
   }
 
-  static save(path: string, dispatch: Dispatch<AppAction>) {
+  static async save(path: string, dispatch: Dispatch<AppAction>) {
 
     if (!path.endsWith('.' + this.PROJECT_FILE_EXTENSION)) {
       path += '.' + this.PROJECT_FILE_EXTENSION
@@ -61,30 +57,28 @@ export default class ProjectFile {
 
     const storeState: StoreState = store.getState()
     const fileData = serializeProjectFileData(this.getStateToSave(), storeState.image.data)
-    electronAPI().writeFile(path, fileData)
+    await window.electronAPI.writeFile(path, fileData)
     dispatch(setProjectFilePath(path))
   }
 
-  static loadExample(dispatch: Dispatch<AppAction>) {
-    this.load(this.exampleProjectPath, dispatch, true)
+  static async loadExample(dispatch: Dispatch<AppAction>) {
+    let examplePath = await window.electronAPI.getResourcePath(this.EXAMPLE_PROJECT_FILENAME)
+    await this.load(examplePath, dispatch, true)
   }
 
-  private static showErrorBox(title: string, message: string) {
-    electronAPI().showErrorBox(title, message)
-  }
-
-  static load(path: string, dispatch: Dispatch<AppAction>, isExampleProject: boolean) {
-    if (!this.isProjectFile(path)) {
-      this.showErrorBox(
+  static async load(path: string, dispatch: Dispatch<AppAction>, isExampleProject: boolean) {
+    let valid = await window.electronAPI.isProjectFile(path)
+    if (!valid) {
+      window.electronAPI.showErrorBox(
         'Failed to load project',
         'This does not appear to be a valid project file'
       )
     } else {
-      let buffer = new Uint8Array(0)
+      let buffer: Uint8Array
       try {
-        buffer = electronAPI().readFile(path)
+        buffer = await window.electronAPI.readFile(path)
       } catch {
-        this.showErrorBox(
+        window.electronAPI.showErrorBox(
           'Failed to load image data',
           'Could not load the image data contained in the project file'
         )
@@ -95,7 +89,7 @@ export default class ProjectFile {
       try {
         projectData = parseProjectFileData(buffer)
       } catch (error) {
-        this.showErrorBox(
+        window.electronAPI.showErrorBox(
           'Failed to load project',
           (error as Error).message
         )
@@ -166,7 +160,7 @@ export default class ProjectFile {
             )
           },
           () => {
-            this.showErrorBox(
+            window.electronAPI.showErrorBox(
               'Failed to load image data',
               'Could not load the image data contained in the project file'
             )
@@ -192,7 +186,7 @@ export default class ProjectFile {
     }
   }
 
-  static isProjectFile(path: string): boolean {
-    return electronAPI().isProjectFile(path)
+  static async isProjectFile(path: string): Promise<boolean> {
+    return window.electronAPI.isProjectFile(path)
   }
 }

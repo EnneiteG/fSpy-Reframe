@@ -28,6 +28,7 @@ import { GlobalSettings } from './types/global-settings'
 import { UIState } from './types/ui-state'
 import { ImageState } from './types/image-state'
 import { SolverResult } from './solver/solver-result'
+import './types/electron-api'
 import { ExportType } from '../main/ipc-messages'
 import ProjectFile from './io/project-file'
 import { loadImage } from './io/util'
@@ -35,7 +36,6 @@ import store from './store/store'
 import SplashScreen from './components/splash-screen'
 import { Dispatch } from 'redux'
 import { convertCameraParametersForTarget, targetPresetForId, targetSceneOrientationForId } from './solver/target-presets'
-import { electronAPI, Unsubscribe } from './electron-api'
 
 interface AppProps {
   uiState: UIState,
@@ -55,26 +55,42 @@ interface AppProps {
 }
 
 class App extends React.PureComponent<AppProps> {
-  private unsubscribeIPCHandlers: Unsubscribe[] = []
-
-  constructor(props: AppProps) {
-    super(props)
-  }
-
   componentDidMount() {
     this.registerIPCHandlers()
+
+    document.ondragover = (ev) => {
+      ev.preventDefault()
+      return false
+    }
+
+    document.ondragenter = (ev) => {
+      ev.preventDefault()
+      return false
+    }
 
     document.ondragleave = (ev) => {
       ev.preventDefault()
       return false
     }
-  }
 
-  componentWillUnmount() {
-    for (let unsubscribe of this.unsubscribeIPCHandlers) {
-      unsubscribe()
+    document.ondrop = (ev) => {
+      if (ev.dataTransfer != null) {
+        let firstFile = ev.dataTransfer.files[0]
+        if (firstFile) {
+          let filePath = window.electronAPI.getPathForFile(firstFile)
+          ProjectFile.isProjectFile(filePath).then((isProject) => {
+            if (isProject) {
+              this.props.onProjectFileDropped(filePath)
+            } else {
+              this.props.onImageFileDropped(filePath)
+            }
+          })
+        }
+        ev.preventDefault()
+        return false
+      }
+      return true
     }
-    this.unsubscribeIPCHandlers = []
   }
 
   render() {
@@ -90,48 +106,37 @@ class App extends React.PureComponent<AppProps> {
   }
 
   private registerIPCHandlers() {
-    const api = electronAPI()
-    this.unsubscribeIPCHandlers.push(api.onNewProject(() => {
+    window.electronAPI.onNewProject(() => {
       this.props.onNewProjectIPCMessage()
-    }))
+    })
 
-    this.unsubscribeIPCHandlers.push(api.onOpenProject((filePath, isExampleProject) => {
+    window.electronAPI.onOpenProject((filePath: string, isExampleProject: boolean) => {
       this.props.onOpenProjectIPCMessage(filePath, isExampleProject)
-    }))
+    })
 
-    this.unsubscribeIPCHandlers.push(api.onSaveProject(() => {
+    window.electronAPI.onSaveProject(() => {
       if (this.props.uiState.projectFilePath) {
         this.props.onSaveProjectAsIPCMessage(this.props.uiState.projectFilePath)
       } else {
-        api.specifyProjectPath()
+        window.electronAPI.sendSpecifyProjectPath()
       }
-    }))
+    })
 
-    this.unsubscribeIPCHandlers.push(api.onSaveProjectAs((filePath) => {
+    window.electronAPI.onSaveProjectAs((filePath: string) => {
       this.props.onSaveProjectAsIPCMessage(filePath)
-    }))
+    })
 
-    this.unsubscribeIPCHandlers.push(api.onOpenImage((filePath) => {
+    window.electronAPI.onOpenImage((filePath: string) => {
       this.props.onOpenImageIPCMessage(filePath)
-    }))
+    })
 
-    this.unsubscribeIPCHandlers.push(api.onExport((exportType) => {
+    window.electronAPI.onExport((exportType: number) => {
       this.props.onExportIPCMessage(exportType)
-    }))
+    })
 
-    this.unsubscribeIPCHandlers.push(api.onSetSidePanelVisibility((panelsAreVisible) => {
+    window.electronAPI.onSetSidePanelVisibility((panelsAreVisible: boolean) => {
       this.props.onSetSidePanelVisibilityIPCMessage(panelsAreVisible)
-    }))
-
-    this.unsubscribeIPCHandlers.push(api.onFileDrop((filePath) => {
-      let isProjectFile = api.isProjectFile(filePath)
-      if (isProjectFile) {
-        this.props.onProjectFileDropped(filePath)
-      } else {
-        // try to open the file as an image
-        this.props.onImageFileDropped(filePath)
-      }
-    }))
+    })
   }
 }
 
@@ -147,23 +152,23 @@ export function mapStateToProps(state: StoreState) {
 export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
   return {
     onImageFileDropped: (imagePath: string) => {
-      let imageBuffer = electronAPI().readFile(imagePath)
-      // TODO: good to do async loading here?
-      loadImage(
-        imageBuffer,
-        (width: number, height: number, url: string) => {
-          dispatch(setImage(url, imageBuffer, width, height))
-        },
-        () => {
-          electronAPI().showErrorBox(
-            'Failed to load image data',
-            'Could not load the image data. Is this a valid image file?'
-          )
-        }
-      )
+      window.electronAPI.readFile(imagePath).then((imageBuffer) => {
+        loadImage(
+          imageBuffer,
+          (width: number, height: number, url: string) => {
+            dispatch(setImage(url, imageBuffer, width, height))
+          },
+          () => {
+            window.electronAPI.showErrorBox(
+              'Failed to load image data',
+              'Could not load the image data. Is this a valid image file?'
+            )
+          }
+        )
+      })
     },
     onProjectFileDropped: (projectPath: string) => {
-      electronAPI().openDroppedProject(projectPath)
+      window.electronAPI.sendOpenDroppedProject(projectPath)
     },
     onOpenExampleProjectPressed: () => {
       ProjectFile.loadExample(dispatch)
@@ -178,16 +183,17 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       ProjectFile.save(filePath, dispatch)
     },
     onOpenImageIPCMessage: (imagePath: string) => {
-      let imageBuffer = electronAPI().readFile(imagePath)
-      loadImage(
-        imageBuffer,
-        (width: number, height: number, url: string) => {
-          dispatch(setImage(url, imageBuffer, width, height))
-        },
-        () => {
-          alert('Failed to load image')
-        }
-      )
+      window.electronAPI.readFile(imagePath).then((imageBuffer) => {
+        loadImage(
+          imageBuffer,
+          (width: number, height: number, url: string) => {
+            dispatch(setImage(url, imageBuffer, width, height))
+          },
+          () => {
+            alert('Failed to load image')
+          }
+        )
+      })
     },
     onOpenExampleProjectIPCMessage: () => {
       ProjectFile.loadExample(dispatch)
@@ -223,7 +229,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       }
 
       if (dataToExport) {
-        electronAPI().specifyExportPath(exportType, dataToExport)
+        window.electronAPI.sendSpecifyExportPath(exportType, dataToExport)
       }
     },
     onSetSidePanelVisibilityIPCMessage: (panelsAreVisible: boolean) => {

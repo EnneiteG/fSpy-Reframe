@@ -12,7 +12,7 @@ import { defaultResultDisplaySettings } from '../../src/gui/defaults/result-disp
 import { ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
 import { TargetPresetId, TargetSceneOrientationId } from '../../src/gui/solver/target-presets'
 import { cameraPresets } from '../../src/gui/solver/camera-presets'
-import { FSpyElectronAPI } from '../../src/gui/electron-api'
+import type { ElectronAPI } from '../../src/gui/types/electron-api'
 import { isProjectFileData } from '../../src/gui/io/project-file-format'
 
 ;(global as any).TextDecoder = TextDecoder
@@ -23,37 +23,37 @@ const noop = () => {
 }
 
 function installElectronAPIFallback() {
-  const api: FSpyElectronAPI = {
-    getAppVersion: () => '',
-    showErrorBox: noop,
-    readFile: (filePath: string) => new Uint8Array(readFileSync(filePath)),
-    writeFile: (filePath: string, data: Uint8Array) => {
+  const api: ElectronAPI = {
+    getAppVersion: async () => '',
+    showErrorBox: async () => undefined,
+    readFile: async (filePath: string) => new Uint8Array(readFileSync(filePath)),
+    writeFile: async (filePath: string, data: Uint8Array) => {
       writeFileSync(filePath, Buffer.from(data))
     },
-    isProjectFile: (filePath: string) => {
+    isProjectFile: async (filePath: string) => {
       try {
         return isProjectFileData(readFileSync(filePath).slice(0, 4))
       } catch {
         return false
       }
     },
-    resourcePath: () => '',
-    resourceURL: () => '',
-    copyText: noop,
-    onFileDrop: () => noop,
-    specifyProjectPath: noop,
-    specifyExportPath: noop,
-    openDroppedProject: noop,
-    setDocumentState: noop,
-    onNewProject: () => noop,
-    onOpenProject: () => noop,
-    onSaveProject: () => noop,
-    onSaveProjectAs: () => noop,
-    onOpenImage: () => noop,
-    onExport: () => noop,
-    onSetSidePanelVisibility: () => noop
+    getResourcePath: async () => '',
+    getResourceURL: async () => '',
+    writeClipboardText: noop,
+    getPathForFile: () => '',
+    sendSetDocumentState: noop,
+    sendSpecifyProjectPath: noop,
+    sendOpenDroppedProject: noop,
+    sendSpecifyExportPath: noop,
+    onNewProject: noop,
+    onOpenProject: noop,
+    onSaveProject: noop,
+    onSaveProjectAs: noop,
+    onOpenImage: noop,
+    onExport: noop,
+    onSetSidePanelVisibility: noop
   }
-  window.fSpyElectron = api
+  ;(global as any).window = { electronAPI: api }
 }
 
 function writeProjectFileBuffer(stateBuffer: Buffer): string {
@@ -77,7 +77,7 @@ function writeProjectFile(state: any): string {
   return writeProjectFileBuffer(Buffer.from(JSON.stringify(state)))
 }
 
-function loadProjectState(state: any, isExampleProject = false): LoadState {
+async function loadProjectState(state: any, isExampleProject = false): Promise<LoadState> {
   const actions: AppAction[] = []
   const dispatch = ((action: AppAction) => {
     actions.push(action)
@@ -85,7 +85,7 @@ function loadProjectState(state: any, isExampleProject = false): LoadState {
   }) as any
   const filePath = writeProjectFile(state)
 
-  ProjectFile.load(filePath, dispatch, isExampleProject)
+  await ProjectFile.load(filePath, dispatch, isExampleProject)
 
   expect(actions).toHaveLength(1)
   expect(actions[0].type).toEqual(ActionTypes.LOAD_STATE)
@@ -112,7 +112,7 @@ describe('Project file compatibility', () => {
     installElectronAPIFallback()
   })
 
-  test('loads old project files without saved Unreal display settings', () => {
+  test('loads old project files without saved Unreal display settings', async () => {
     const state = savedState({
       cameraParameters: undefined,
       resultDisplaySettings: undefined,
@@ -128,7 +128,7 @@ describe('Project file compatibility', () => {
       }
     })
 
-    const action = loadProjectState(state)
+    const action = await loadProjectState(state)
 
     expect(action.savedState.cameraParameters).toBeNull()
     expect(action.savedState.resultDisplaySettings.targetPresetId).toEqual(TargetPresetId.FSpy)
@@ -142,7 +142,7 @@ describe('Project file compatibility', () => {
     expect(action.imageState.height).toBeNull()
   })
 
-  test('preserves target preset and backfills missing scene orientation', () => {
+  test('preserves target preset and backfills missing scene orientation', async () => {
     const state = savedState({
       resultDisplaySettings: {
         ...defaultResultDisplaySettings,
@@ -159,7 +159,7 @@ describe('Project file compatibility', () => {
       }
     })
 
-    const action = loadProjectState(state, true)
+    const action = await loadProjectState(state, true)
 
     expect(action.savedState.resultDisplaySettings.targetPresetId).toEqual(TargetPresetId.Unreal)
     expect(action.savedState.resultDisplaySettings.targetSceneOrientationId).toEqual(TargetSceneOrientationId.Default)
@@ -169,7 +169,7 @@ describe('Project file compatibility', () => {
     expect(action.isExampleProject).toEqual(true)
   })
 
-  test('does not dispatch state when project state JSON is invalid', () => {
+  test('does not dispatch state when project state JSON is invalid', async () => {
     const actions: AppAction[] = []
     const dispatch = ((action: AppAction) => {
       actions.push(action)
@@ -177,7 +177,7 @@ describe('Project file compatibility', () => {
     }) as any
     const filePath = writeProjectFileBuffer(Buffer.from('{not-json'))
 
-    ProjectFile.load(filePath, dispatch, false)
+    await ProjectFile.load(filePath, dispatch, false)
 
     expect(actions).toHaveLength(0)
   })

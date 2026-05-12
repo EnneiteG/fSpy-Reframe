@@ -16,17 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
-const path = require('path')
-const url = require('url')
+import path from 'path'
+import { pathToFileURL } from 'url'
 
 import windowStateKeeper from 'electron-window-state'
-import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage, GetAppVersionMessage, ShowErrorBoxMessage, ReadFileMessage, WriteFileMessage, IsProjectFileMessage } from '../gui/ipc-messages'
-import { basename, join } from 'path'
+import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
 import AppMenuManager from './app-menu-manager'
 import { Palette } from '../gui/style/palette'
-import { openSync, writeSync, closeSync, readFileSync, writeFileSync } from 'fs'
+import { openSync, writeSync, closeSync, readFileSync } from 'fs'
 import { CLI } from '../cli/cli'
 import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
 
@@ -44,7 +43,7 @@ let initialOpenMessage: OpenProjectMessage | null = null
 let windowHasAppeared = false
 
 // macOS only
-app.on('open-file', (event: Event, filePath: string) => {
+app.on('open-file', (event, filePath) => {
   if (mainWindow === null) {
     initialOpenMessage = new OpenProjectMessage(filePath, false)
     if (windowHasAppeared) {
@@ -62,23 +61,34 @@ app.on('open-file', (event: Event, filePath: string) => {
   }
 })
 
-function openProject(path: string, window: BrowserWindow) {
-  app.addRecentDocument(path)
+function openProject(filePath: string, window: BrowserWindow) {
+  app.addRecentDocument(filePath)
   window.webContents.send(
     OpenProjectMessage.type,
-    new OpenProjectMessage(path, false)
+    new OpenProjectMessage(filePath, false)
   )
 }
 
-function appResourcePath(fileName: string): string {
-  if (process.resourcesPath != null) {
-    if (process.env.DEV) {
-      return join(process.cwd(), 'assets/electron', fileName)
-    }
-    return join(process.resourcesPath, fileName)
+function getResourcePath(fileName: string): string {
+  if (!app.isPackaged) {
+    return path.join(process.cwd(), 'assets/electron', fileName)
   }
-
+  if (process.resourcesPath != null) {
+    return path.join(process.resourcesPath, fileName)
+  }
   return ''
+}
+
+function getResourceURL(fileName: string): string {
+  const resourcePath = getResourcePath(fileName)
+  if (resourcePath) {
+    return pathToFileURL(resourcePath).href
+  }
+  return ''
+}
+
+function getExampleProjectPath(): string {
+  return getResourcePath(EXAMPLE_PROJECT_FILENAME)
 }
 
 function isProjectFilePath(filePath: string): boolean {
@@ -100,11 +110,11 @@ function createWindow() {
   let windowIconPath: string | undefined
   if (process.resourcesPath) {
     if (process.platform == 'darwin') {
-      //
+      // macOS uses the app bundle icon.
     } else if (process.platform == 'win32') {
-      windowIconPath = join(process.resourcesPath, 'icon.ico')
+      windowIconPath = path.join(process.resourcesPath, 'icon.ico')
     } else {
-      windowIconPath = join(process.resourcesPath, 'icon.png')
+      windowIconPath = path.join(process.resourcesPath, 'icon.png')
     }
   }
 
@@ -121,17 +131,41 @@ function createWindow() {
     webPreferences: {
       // Allow loading local files in dev mode
       webSecurity: process.env.DEV === undefined,
-      preload: join(__dirname, 'preload.js'),
-      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      sandbox: false
+      contextIsolation: true,
+      sandbox: true
     }
   })
 
   mainWindowState.manage(window)
   mainWindow = window
 
-  let appMenuManager = new AppMenuManager(
+  let appMenuManager: AppMenuManager
+
+  const restoreMenuBar = () => {
+    window.setAutoHideMenuBar(false)
+    window.setMenuBarVisibility(true)
+  }
+
+  const applyFullScreenState = (isFullScreen: boolean) => {
+    window.webContents.send(
+      SetSidePanelVisibilityMessage.type,
+      new SetSidePanelVisibilityMessage(!isFullScreen)
+    )
+    appMenuManager.setEnterFullScreenItemEnabled(!isFullScreen)
+    appMenuManager.setExitFullScreenItemEnabled(isFullScreen)
+    if (!isFullScreen) {
+      restoreMenuBar()
+    }
+  }
+
+  const setFullScreenMode = (isFullScreen: boolean) => {
+    window.setFullScreen(isFullScreen)
+    applyFullScreenState(isFullScreen)
+  }
+
+  appMenuManager = new AppMenuManager(
     {
       onNewProject: () => {
         if (mainWindow) {
@@ -163,8 +197,8 @@ function createWindow() {
                 if (!result.canceled) {
                   openProject(result.filePaths[0], window)
                 }
-              }).catch((_) => {
-                //
+              }).catch(() => {
+                // dialog canceled or failed
               })
             } else {
               dialog.showOpenDialog(
@@ -179,8 +213,8 @@ function createWindow() {
                   initialOpenMessage = new OpenProjectMessage(result.filePaths[0], false)
                   createWindow()
                 }
-              }).catch((_) => {
-                //
+              }).catch(() => {
+                // dialog canceled or failed
               })
             }
           }
@@ -203,8 +237,8 @@ function createWindow() {
               new SaveProjectAsMessage(result.filePath)
             )
           }
-        }).catch((_) => {
-          //
+        }).catch(() => {
+          // dialog canceled or failed
         })
       },
       onOpenImage: () => {
@@ -220,14 +254,14 @@ function createWindow() {
               new OpenImageMessage(result.filePaths[0])
             )
           }
-        }).catch((_) => {
-          //
+        }).catch(() => {
+          // dialog canceled or failed
         })
       },
       onOpenExampleProject: () => {
         showDiscardChangesDialogIfNeeded(mainWindow, (didCancel: boolean) => {
           if (!didCancel) {
-            let projectPath = appResourcePath(EXAMPLE_PROJECT_FILENAME)
+            let projectPath = getExampleProjectPath()
             if (mainWindow) {
               window.webContents.send(
                 OpenProjectMessage.type,
@@ -262,18 +296,10 @@ function createWindow() {
         app.quit()
       },
       onEnterFullScreenMode: () => {
-        window.webContents.send(
-          SetSidePanelVisibilityMessage.type,
-          new SetSidePanelVisibilityMessage(false)
-        )
-        window.setFullScreen(true)
+        setFullScreenMode(true)
       },
       onExitFullScreenMode: () => {
-        window.webContents.send(
-          SetSidePanelVisibilityMessage.type,
-          new SetSidePanelVisibilityMessage(true)
-        )
-        window.setFullScreen(false)
+        setFullScreenMode(false)
       }
     }
   )
@@ -286,6 +312,20 @@ function createWindow() {
       // relies on it
     } else {
       ev.preventDefault()
+    }
+  })
+
+  window.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') {
+      return
+    }
+
+    if (input.key === 'F11') {
+      event.preventDefault()
+      setFullScreenMode(!window.isFullScreen())
+    } else if (input.key === 'Escape' && window.isFullScreen()) {
+      event.preventDefault()
+      setFullScreenMode(false)
     }
   })
 
@@ -347,26 +387,22 @@ function createWindow() {
     }
   })
 
-  const startUrl = url.format({
-    pathname: path.join(__dirname, '../build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  })
+  const startUrl = pathToFileURL(path.join(__dirname, '../build/index.html')).href
 
   const devUrl = 'http://localhost:8080'
 
   window.loadURL(
     process.env.DEV ? devUrl : startUrl
-  ).then((_) => {
-    //
-  }).catch((_) => {
-    //
+  ).then(() => {
+    // loaded
+  }).catch(() => {
+    // load failed
   })
 
   Menu.setApplicationMenu(appMenuManager.menu)
   appMenuManager.setExitFullScreenItemEnabled(false)
 
-  window.on('close', (event: Event) => {
+  window.on('close', (event) => {
     showDiscardChangesDialogIfNeeded(window, (didCancel: boolean) => {
       if (didCancel) {
         event.preventDefault()
@@ -375,11 +411,6 @@ function createWindow() {
         ipcMain.removeAllListeners(SpecifyProjectPathMessage.type)
         ipcMain.removeAllListeners(SpecifyExportPathMessage.type)
         ipcMain.removeAllListeners(OpenDroppedProjectMessage.type)
-        ipcMain.removeAllListeners(GetAppVersionMessage.type)
-        ipcMain.removeAllListeners(ShowErrorBoxMessage.type)
-        ipcMain.removeAllListeners(ReadFileMessage.type)
-        ipcMain.removeAllListeners(WriteFileMessage.type)
-        ipcMain.removeAllListeners(IsProjectFileMessage.type)
         appMenuManager.setOpenImageItemEnabled(false)
         appMenuManager.setSaveAsItemEnabled(false)
         appMenuManager.setSaveItemEnabled(false)
@@ -392,23 +423,17 @@ function createWindow() {
     })
   })
 
-  window.on('enter-full-screen', (_: Event) => {
-    appMenuManager.setEnterFullScreenItemEnabled(false)
-    appMenuManager.setExitFullScreenItemEnabled(true)
+  window.on('enter-full-screen', () => {
+    applyFullScreenState(true)
     window.setMenuBarVisibility(false)
   })
 
-  window.on('leave-full-screen', (_: Event) => {
-    window.webContents.send(
-      SetSidePanelVisibilityMessage.type,
-      new SetSidePanelVisibilityMessage(true)
-    )
-    appMenuManager.setEnterFullScreenItemEnabled(true)
-    appMenuManager.setExitFullScreenItemEnabled(false)
-    window.setMenuBarVisibility(true)
+  window.on('leave-full-screen', () => {
+    applyFullScreenState(false)
+    setTimeout(restoreMenuBar, 0)
   })
 
-  ipcMain.on(SpecifyProjectPathMessage.type, (_: any, __: SpecifyProjectPathMessage) => {
+  ipcMain.on(SpecifyProjectPathMessage.type, () => {
     // TODO: DRY
     dialog.showSaveDialog(
       window,
@@ -420,12 +445,12 @@ function createWindow() {
           new SaveProjectAsMessage(result.filePath)
         )
       }
-    }).catch((_) => {
-      //
+    }).catch(() => {
+      // dialog canceled or failed
     })
   })
 
-  ipcMain.on(SpecifyExportPathMessage.type, (_: any, message: SpecifyExportPathMessage) => {
+  ipcMain.on(SpecifyExportPathMessage.type, (_: Electron.IpcMainEvent, message: SpecifyExportPathMessage) => {
     // TODO: DRY
     dialog.showSaveDialog(
       window,
@@ -436,47 +461,17 @@ function createWindow() {
         writeSync(file, message.data)
         closeSync(file)
       }
-    }).catch((_) => {
-      //
+    }).catch(() => {
+      // dialog canceled or failed
     })
   })
 
-  ipcMain.on(OpenDroppedProjectMessage.type, (_: any, message: OpenDroppedProjectMessage) => {
+  ipcMain.on(OpenDroppedProjectMessage.type, (_: Electron.IpcMainEvent, message: OpenDroppedProjectMessage) => {
     showDiscardChangesDialogIfNeeded(window, (didCancel: boolean) => {
       if (!didCancel) {
         openProject(message.filePath, window)
       }
     })
-  })
-
-  ipcMain.on(GetAppVersionMessage.type, (event: Electron.IpcMainEvent) => {
-    event.returnValue = app.getVersion()
-  })
-
-  ipcMain.on(ShowErrorBoxMessage.type, (_: any, message: ShowErrorBoxMessage) => {
-    dialog.showErrorBox(message.title, message.message)
-  })
-
-  ipcMain.on(ReadFileMessage.type, (event: Electron.IpcMainEvent, message: ReadFileMessage) => {
-    try {
-      const fileData = readFileSync(message.filePath)
-      event.returnValue = { data: fileData.buffer.slice(fileData.byteOffset, fileData.byteOffset + fileData.byteLength) }
-    } catch (error) {
-      event.returnValue = { error: (error as Error).message }
-    }
-  })
-
-  ipcMain.on(WriteFileMessage.type, (event: Electron.IpcMainEvent, message: WriteFileMessage) => {
-    try {
-      writeFileSync(message.filePath, Buffer.from(message.data))
-      event.returnValue = { data: undefined }
-    } catch (error) {
-      event.returnValue = { error: (error as Error).message }
-    }
-  })
-
-  ipcMain.on(IsProjectFileMessage.type, (event: Electron.IpcMainEvent, message: IsProjectFileMessage) => {
-    event.returnValue = isProjectFilePath(message.filePath)
   })
 
   function refreshTitle(window: BrowserWindow) {
@@ -486,7 +481,7 @@ function createWindow() {
       if (documentState.isExampleProject) {
         title = 'Example project'
       } else if (documentState.filePath !== null) {
-        title = basename(documentState.filePath)
+        title = path.basename(documentState.filePath)
       }
 
       if (documentState.hasUnsavedChanges) {
@@ -507,13 +502,13 @@ function createWindow() {
     }
 
     if (process.platform !== 'darwin') {
-      title += ' - fSpy'
+      title += ' - fSpy UE'
     }
 
     window.setTitle(title)
   }
 
-  ipcMain.on(SetDocumentStateMessage.type, (_: any, message: SetDocumentStateMessage) => {
+  ipcMain.on(SetDocumentStateMessage.type, (_: Electron.IpcMainEvent, message: SetDocumentStateMessage) => {
     if (documentState !== null) {
       if (message.filePath !== undefined) {
         documentState.filePath = message.filePath
@@ -561,7 +556,43 @@ function showDiscardChangesDialogIfNeeded(
   }
 }
 
-app.on('ready', () => {
+// IPC handlers for renderer requests (replacing remote module usage)
+ipcMain.handle('show-error-box', (_event, title: string, content: string) => {
+  dialog.showErrorBox(title, content)
+})
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion()
+})
+
+ipcMain.handle('read-file', (_event, filePath: string): Uint8Array => {
+  const buffer = readFileSync(filePath)
+  return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+})
+
+ipcMain.handle('write-file', (_event, filePath: string, data: Uint8Array) => {
+  const file = openSync(filePath, 'w')
+  writeSync(file, Buffer.from(data))
+  closeSync(file)
+})
+
+ipcMain.handle('is-project-file', (_event, filePath: string): boolean => {
+  return isProjectFilePath(filePath)
+})
+
+ipcMain.handle('get-resource-url', (_event, fileName: string): string => {
+  return getResourceURL(fileName)
+})
+
+ipcMain.handle('get-resource-path', (_event, fileName: string): string => {
+  return getResourcePath(fileName)
+})
+
+ipcMain.handle('write-clipboard-text', (_event, text: string): void => {
+  clipboard.writeText(text)
+})
+
+app.whenReady().then(() => {
   // Assume we're in CLI mode if any argument starts
   // with '-' or equals 'help'
   let isCli = false

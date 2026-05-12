@@ -163,7 +163,7 @@ export default class AppMenuManager {
         {
           label: 'Enter full screen mode',
           id: 'enter-full-screen',
-          accelerator: 'Command+F',
+          accelerator: 'F11',
           click: () => {
             this.callbacks.onEnterFullScreenMode()
           }
@@ -171,7 +171,7 @@ export default class AppMenuManager {
         {
           label: 'Exit full screen mode',
           id: 'exit-full-screen',
-          accelerator: 'Escape',
+          accelerator: 'F11',
           click: () => {
             this.callbacks.onExitFullScreenMode()
           }
@@ -193,22 +193,27 @@ export default class AppMenuManager {
   }
 
   setOpenImageItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('open-image')!.enabled = enabled
+    const item = this.menu.getMenuItemById('open-image')
+    if (item) item.enabled = enabled
   }
 
   setSaveItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('save')!.enabled = enabled
+    const item = this.menu.getMenuItemById('save')
+    if (item) item.enabled = enabled
   }
 
   setSaveAsItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('save-as')!.enabled = enabled
+    const item = this.menu.getMenuItemById('save-as')
+    if (item) item.enabled = enabled
   }
 
   setEnterFullScreenItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('enter-full-screen')!.enabled = enabled
+    const item = this.menu.getMenuItemById('enter-full-screen')
+    if (item) item.enabled = enabled
   }
 
   setExitFullScreenItemEnabled(enabled: boolean) {
-    this.menu.getMenuItemById('exit-full-screen')!.enabled = enabled
+    const item = this.menu.getMenuItemById('exit-full-screen')
+    if (item) item.enabled = enabled
   }
 }

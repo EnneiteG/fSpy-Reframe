@@ -16,24 +16,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react'
-import { resourceURL } from '../io/util'
+import React, { useEffect, useState } from 'react'
 import { Palette } from '../style/palette'
-import { electronAPI } from '../electron-api'
+import '../types/electron-api'
 
 interface SplashScreenProps {
   onClickedLoadExampleProject(): void
 }
 
 export default function SplashScreen(props: SplashScreenProps) {
+  const [appVersion, setAppVersion] = useState('')
+  const [iconURL, setIconURL] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+    Promise.all([
+      window.electronAPI.getAppVersion(),
+      window.electronAPI.getResourceURL('icon.svg')
+    ]).then(([version, url]) => {
+      if (isMounted) {
+        setAppVersion(version)
+        setIconURL(url)
+      }
+    }).catch(() => {
+      // Keep the splash screen usable if metadata lookup fails.
+    })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   return (
     <div style={{ backgroundColor: Palette.imagePanelBackgroundColor, width: '100vw', height: '100vh', position: 'absolute' }}>
-      <div style={{ position: 'absolute', right: '0px', padding: '10px', color: 'white', opacity: 0.1 }}>{ electronAPI().getAppVersion() }</div>
+      <div style={{ position: 'absolute', right: '0px', padding: '10px', color: 'white', opacity: 0.1 }}>{ appVersion }</div>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', alignSelf: 'center' }}>
           <img
             style={{ width: '100px', marginTop: '100px', marginBottom: '30px', height: '100px' }}
-            src={resourceURL('icon.svg')}
+            src={iconURL}
           />
           <div style={{ color: 'white', opacity: 0.3 }}>Drop an image or project here</div>
         </div>
