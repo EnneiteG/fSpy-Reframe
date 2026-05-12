@@ -58,6 +58,16 @@ class App extends React.PureComponent<AppProps> {
   componentDidMount() {
     this.registerIPCHandlers()
 
+    document.ondragover = (ev) => {
+      ev.preventDefault()
+      return false
+    }
+
+    document.ondragenter = (ev) => {
+      ev.preventDefault()
+      return false
+    }
+
     document.ondragleave = (ev) => {
       ev.preventDefault()
       return false

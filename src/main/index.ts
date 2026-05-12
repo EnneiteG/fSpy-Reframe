@@ -141,7 +141,31 @@ function createWindow() {
   mainWindowState.manage(window)
   mainWindow = window
 
-  let appMenuManager = new AppMenuManager(
+  let appMenuManager: AppMenuManager
+
+  const restoreMenuBar = () => {
+    window.setAutoHideMenuBar(false)
+    window.setMenuBarVisibility(true)
+  }
+
+  const applyFullScreenState = (isFullScreen: boolean) => {
+    window.webContents.send(
+      SetSidePanelVisibilityMessage.type,
+      new SetSidePanelVisibilityMessage(!isFullScreen)
+    )
+    appMenuManager.setEnterFullScreenItemEnabled(!isFullScreen)
+    appMenuManager.setExitFullScreenItemEnabled(isFullScreen)
+    if (!isFullScreen) {
+      restoreMenuBar()
+    }
+  }
+
+  const setFullScreenMode = (isFullScreen: boolean) => {
+    window.setFullScreen(isFullScreen)
+    applyFullScreenState(isFullScreen)
+  }
+
+  appMenuManager = new AppMenuManager(
     {
       onNewProject: () => {
         if (mainWindow) {
@@ -272,18 +296,10 @@ function createWindow() {
         app.quit()
       },
       onEnterFullScreenMode: () => {
-        window.webContents.send(
-          SetSidePanelVisibilityMessage.type,
-          new SetSidePanelVisibilityMessage(false)
-        )
-        window.setFullScreen(true)
+        setFullScreenMode(true)
       },
       onExitFullScreenMode: () => {
-        window.webContents.send(
-          SetSidePanelVisibilityMessage.type,
-          new SetSidePanelVisibilityMessage(true)
-        )
-        window.setFullScreen(false)
+        setFullScreenMode(false)
       }
     }
   )
@@ -296,6 +312,20 @@ function createWindow() {
       // relies on it
     } else {
       ev.preventDefault()
+    }
+  })
+
+  window.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') {
+      return
+    }
+
+    if (input.key === 'F11') {
+      event.preventDefault()
+      setFullScreenMode(!window.isFullScreen())
+    } else if (input.key === 'Escape' && window.isFullScreen()) {
+      event.preventDefault()
+      setFullScreenMode(false)
     }
   })
 
@@ -394,19 +424,13 @@ function createWindow() {
   })
 
   window.on('enter-full-screen', () => {
-    appMenuManager.setEnterFullScreenItemEnabled(false)
-    appMenuManager.setExitFullScreenItemEnabled(true)
+    applyFullScreenState(true)
     window.setMenuBarVisibility(false)
   })
 
   window.on('leave-full-screen', () => {
-    window.webContents.send(
-      SetSidePanelVisibilityMessage.type,
-      new SetSidePanelVisibilityMessage(true)
-    )
-    appMenuManager.setEnterFullScreenItemEnabled(true)
-    appMenuManager.setExitFullScreenItemEnabled(false)
-    window.setMenuBarVisibility(true)
+    applyFullScreenState(false)
+    setTimeout(restoreMenuBar, 0)
   })
 
   ipcMain.on(SpecifyProjectPathMessage.type, () => {
