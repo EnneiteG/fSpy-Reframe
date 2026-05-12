@@ -19,7 +19,7 @@
 import { ActionTypes, AppAction } from '../actions'
 import { UIState } from '../types/ui-state'
 import { defaultUIState } from '../defaults/ui-state'
-import { electronAPI } from '../electron-api'
+import '../types/electron-api'
 
 export function uiState(state: UIState | undefined, action: AppAction): UIState {
   if (state === undefined) {
@@ -30,19 +30,19 @@ export function uiState(state: UIState | undefined, action: AppAction): UIState 
 
   switch (action.type) {
     case ActionTypes.SET_PROJECT_HAS_UNSAVED_CHANGES:
-      electronAPI().setDocumentState(true, undefined, undefined)
+      window.electronAPI.sendSetDocumentState(true, undefined, undefined)
       return {
         ...state,
         projectHasUnsavedChanges: true
       }
     case ActionTypes.SET_PROJECT_FILE_PATH:
-      electronAPI().setDocumentState(false, action.projectFilePath, false)
+      window.electronAPI.sendSetDocumentState(false, action.projectFilePath, false)
       return {
         ...state,
         projectFilePath: action.projectFilePath
       }
     case ActionTypes.LOAD_DEFAULT_STATE:
-      electronAPI().setDocumentState(false, null, false)
+      window.electronAPI.sendSetDocumentState(false, null, false)
       return {
         ...state,
         projectHasUnsavedChanges: false,
@@ -54,7 +54,11 @@ export function uiState(state: UIState | undefined, action: AppAction): UIState 
         sidePanelsAreVisible: action.panelsAreVisible
       }
     case ActionTypes.LOAD_STATE:
-      electronAPI().setDocumentState(false, action.projectFilePath, action.isExampleProject)
+      window.electronAPI.sendSetDocumentState(
+        false,
+        action.projectFilePath,
+        action.isExampleProject
+      )
       return {
         ...state,
         projectHasUnsavedChanges: false,

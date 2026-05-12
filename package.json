@@ -1,7 +1,7 @@
 {
   "name": "fspy-ue",
   "version": "0.3.0-ue",
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "npm@10.9.2",
   "main": "build/main.js",
   "homepage": "https://github.com/EnneiteG/fSpy-UE",
   "repository": {
@@ -16,82 +16,66 @@
   "description": "An open source, cross platform app for still image camera matching",
   "license": "GPL-3.0",
   "engines": {
-    "node": ">=22.12 <25"
+    "node": ">=22.14 <25"
   },
   "devDependencies": {
-    "@babel/core": "7.29.0",
-    "@babel/preset-env": "7.29.5",
-    "@babel/preset-react": "7.28.5",
-    "@types/electron-window-state": "2.0.34",
-    "@types/jest": "23.3.14",
-    "@types/minimatch": "3.0.5",
-    "@types/minimist": "1.2.5",
-    "@types/node": "10.17.60",
-    "@types/react": "18.2.79",
-    "@types/react-dom": "18.2.25",
-    "@types/react-measure": "2.0.12",
-    "@types/yargs": "12.0.20",
-    "babel-loader": "9.2.1",
-    "cross-env": "7.0.3",
-    "css-loader": "6.11.0",
-    "electron": "22.3.27",
-    "electron-builder": "26.8.1",
-    "html-webpack-plugin": "5.6.0",
-    "jest": "23.6.0",
-    "jest-junit": "5.2.0",
-    "standard": "11.0.1",
-    "style-loader": "3.3.4",
-    "trash-cli": "1.4.0",
-    "ts-loader": "9.5.4",
-    "tslint": "5.20.1",
-    "tslint-config-standard": "7.1.0",
-    "tslint-loader": "3.6.0",
-    "typescript": "4.9.5",
-    "webpack": "5.106.2",
-    "webpack-cli": "5.1.4",
-    "webpack-dev-server": "4.15.2"
+    "@types/jest": "^29.5.14",
+    "@types/minimist": "^1.2.0",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@types/react-measure": "^2.0.12",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^7.1.4",
+    "electron": "^42.0.1",
+    "electron-builder": "^26.8.1",
+    "eslint": "^8.57.1",
+    "html-webpack-plugin": "^5.6.7",
+    "jest": "^29.7.0",
+    "jest-junit": "^17.0.0",
+    "rimraf": "^6.1.3",
+    "style-loader": "^4.0.0",
+    "ts-jest": "^29.4.9",
+    "ts-loader": "^9.5.7",
+    "typescript": "^5.9.3",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.3"
   },
   "scripts": {
-    "prebuild-dev": "trash build",
-    "build-dev": "node scripts/run-webpack-tool.js webpack --config webpack.config.js --mode development",
-    "prebuild-dist": "trash build",
-    "build-dist": "node scripts/run-webpack-tool.js webpack --config webpack.config.js --mode production",
+    "prebuild-dev": "rimraf build",
+    "build-dev": "webpack --config webpack.config.js --mode development",
+    "prebuild-dist": "rimraf build",
+    "build-dist": "webpack --config webpack.config.js --mode production",
     "predist": "npm run build-dist",
     "predist-preview": "npm run build-dist",
-    "predist-win": "trash dist && npm run build-dist",
+    "predist-win": "rimraf dist && npm run build-dist",
     "dist-preview": "electron-builder --dir",
     "dist-win": "electron-builder --win --x64 --publish never",
-    "prebuild-test": "trash __tests__",
-    "build-test": "node scripts/run-webpack-tool.js webpack --config webpack.tests.config.js --mode development",
-    "pretest": "npm run build-test",
-    "lint": "tslint --config tslint.json --format stylish \"src/**/*.ts\" \"src/**/*.tsx\" \"tests/**/*.ts\"",
-    "dev-server": "node scripts/run-webpack-tool.js webpack serve --config webpack.config.js --mode development",
+    "start": "npm run build-dev && npm run electron-dev",
+    "dev-server": "webpack serve --config webpack.config.js --mode development",
     "electron-dev": "cross-env DEV=true node scripts/run-electron.js .",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
     "dist": "electron-builder -mwl",
     "test": "jest",
-    "test:unit": "jest __tests__/main_tests.js",
-    "test:export-project": "jest __tests__/gui_tests.js __tests__/project_file_tests.js",
+    "test:unit": "jest tests/main/main_tests.ts",
+    "test:export-project": "jest tests/gui/gui_tests.ts tests/gui/project_file_tests.ts tests/gui/io/project-file.tests.ts",
     "verify": "npm run lint && npm run build-dev && npm test",
     "prepublish-release": "npm run build-dist",
     "publish-release": "electron-builder -mwl --publish always"
   },
   "dependencies": {
-    "electron-window-state": "4.1.1",
-    "konva": "8.4.3",
-    "minimist": "1.2.8",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-konva": "18.2.14",
-    "react-measure": "2.5.2",
-    "react-redux": "8.1.3",
-    "redux": "4.2.1",
-    "redux-thunk": "2.4.2"
-  },
-  "resolutions": {
-    "electron": "22.3.27",
-    "@types/react": "18.2.79",
-    "react-reconciler": "0.29.0",
-    "redux": "4.2.1"
+    "electron-window-state": "^5.0.3",
+    "konva": "^9.3.22",
+    "minimist": "^1.2.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-konva": "^18.2.14",
+    "react-measure": "^2.5.2",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0"
   },
   "build": {
     "publish": {
@@ -103,7 +87,15 @@
     "productName": "fSpy UE",
     "appId": "com.enneiteg.fspyue",
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
       "category": "public.app-category.utilities"
     },
     "linux": {
@@ -113,8 +105,14 @@
     },
     "win": {
       "target": [
-        "nsis",
-        "zip"
+        {
+          "target": "nsis",
+          "arch": "x64"
+        },
+        {
+          "target": "zip",
+          "arch": "x64"
+        }
       ]
     },
     "files": [
@@ -161,17 +159,5 @@
         "role": "Editor"
       }
     ]
-  },
-  "jest": {
-    "testRegex": "/__tests__/.*\\.jsx?",
-    "transform": {},
-    "testResultsProcessor": "jest-junit"
-  },
-  "jest-junit": {
-    "suiteName": "jest tests",
-    "output": "./TEST-jest_junit.xml",
-    "classNameTemplate": "{classname}-{title}",
-    "titleTemplate": "{classname}-{title}",
-    "usePathForSuiteName": "true"
   }
 }

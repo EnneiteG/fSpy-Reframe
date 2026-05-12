@@ -28,6 +28,7 @@ export interface CameraPresetFormProps {
   children?: React.ReactNode
   absoluteFocalLength: number
   cameraData: CameraData
+  children?: React.ReactNode
   onCameraPresetChange(cameraPreset: string | null): void
   onSensorSizeChange(width: number | undefined, height: number | undefined): void
 }

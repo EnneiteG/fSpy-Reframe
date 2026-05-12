@@ -23,21 +23,14 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Enable Yarn 1
-        shell: pwsh
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
-          yarn --version
-
       - name: Install dependencies
-        run: corepack yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Verify build and tests
-        run: corepack yarn verify
+        run: npm run verify
 
       - name: Build Windows installer
-        run: corepack yarn dist-win
+        run: npm run dist-win
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4

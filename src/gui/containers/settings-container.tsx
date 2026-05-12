@@ -117,4 +117,8 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer)
+interface OwnProps {
+  isVisible: boolean
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer) as unknown as React.ComponentType<OwnProps>

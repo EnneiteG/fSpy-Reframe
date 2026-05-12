@@ -1,4 +1,5 @@
 const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const commonConfig = {
   output: {
@@ -9,26 +10,7 @@ const commonConfig = {
     rules: [
       {
         test: /\.tsx?$/,
-        enforce: 'pre',
-        use: [
-          {
-            loader: 'tslint-loader',
-            options: {
-              typeCheck: false,
-              emitErrors: true,
-              configFile: 'tslint.json'
-            }
-          }
-        ]
-      },
-      {
-        test: /\.tsx?$/,
-        use: ['babel-loader', 'ts-loader']
-      },
-      {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
+        loader: 'ts-loader'
       },
       {
         test: /\.css$/,
@@ -38,39 +20,38 @@ const commonConfig = {
   },
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.jsx', '.json']
-  },
-  node: {
-    __dirname: false
   }
 }
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = [
-  Object.assign(
-    {
-      target: 'electron-main',
-      entry: { main: './src/main/index.ts' }
+  {
+    target: 'electron-main',
+    entry: { main: './src/main/index.ts' },
+    node: {
+      __dirname: false
     },
-    commonConfig),
-  Object.assign(
-    {
-      target: 'electron-preload',
-      entry: { preload: './src/preload/index.ts' }
+    ...commonConfig
+  },
+  {
+    target: 'electron-preload',
+    entry: { preload: './src/main/preload.ts' },
+    node: {
+      __dirname: false
     },
-    commonConfig),
-  Object.assign(
-    {
-      target: 'electron-renderer',
-      entry: { gui: './src/gui/index.tsx' },
-      devServer: {
-        static: {
-          directory: path.resolve(__dirname, 'build')
-        },
-        port: 8080
+    ...commonConfig
+  },
+  {
+    target: 'web',
+    entry: { gui: './src/gui/index.tsx' },
+    devServer: {
+      static: {
+        directory: path.resolve(__dirname, 'build')
       },
-      plugins: [new HtmlWebpackPlugin({
-        template: 'src/gui/index.html'
-      })]
+      port: 8080
     },
-    commonConfig)
+    plugins: [new HtmlWebpackPlugin({
+      template: 'src/gui/index.html'
+    })],
+    ...commonConfig
+  }
 ]
