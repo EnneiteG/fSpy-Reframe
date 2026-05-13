@@ -16,8 +16,6 @@ updates:
           - patch
       build-tooling:
         patterns:
-          - "@babel/*"
-          - babel-loader
           - webpack
           - webpack-cli
           - webpack-dev-server
@@ -26,7 +24,8 @@ updates:
           - style-loader
           - ts-loader
           - typescript
-          - trash-cli
+          - cross-env
+          - rimraf
         update-types:
           - minor
           - patch
@@ -57,12 +56,13 @@ updates:
           - patch
       tests-lint:
         patterns:
+          - "@eslint/js"
+          - "@typescript-eslint/*"
+          - eslint
+          - globals
           - jest
           - jest-junit
-          - tslint
-          - tslint-config-standard
-          - tslint-loader
-          - standard
+          - ts-jest
           - "@types/jest"
         update-types:
           - minor
