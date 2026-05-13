@@ -28,6 +28,7 @@ import { Palette } from '../gui/style/palette'
 import { openSync, writeSync, closeSync, readFileSync } from 'fs'
 import { CLI } from '../cli/cli'
 import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
+import { exportFileOptions, pathWithExportExtension } from './export-file-options'
 
 let mainWindow: Electron.BrowserWindow | null = null
 
@@ -452,12 +453,14 @@ function createWindow() {
 
   ipcMain.on(SpecifyExportPathMessage.type, (_: Electron.IpcMainEvent, message: SpecifyExportPathMessage) => {
     // TODO: DRY
+    const fileOptions = exportFileOptions(message.exportType, message.data)
     dialog.showSaveDialog(
       window,
-      {}
+      fileOptions.saveDialogOptions
     ).then((result) => {
       if (!result.canceled && result.filePath) {
-        let file = openSync(result.filePath, 'w')
+        const filePath = pathWithExportExtension(result.filePath, fileOptions.defaultExtension)
+        let file = openSync(filePath, 'w')
         writeSync(file, message.data)
         closeSync(file)
       }
