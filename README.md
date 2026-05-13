@@ -70,4 +70,4 @@ To create a Windows installer locally, run:
 npm run dist-win
 ```
 
-On Windows, this creates an x64 NSIS setup executable and zip archive in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer and archive. Pushing a tag such as `v0.4.0-ue` creates a GitHub Release and attaches the generated files. The generated file names use the version from `package.json`.
+On Windows, this creates an x64 NSIS setup executable and zip archive in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer and archive. Pushing a tag such as `v0.5.0-ue` creates a GitHub Release and attaches the generated files. The generated file names use the version from `package.json`.
