@@ -4,13 +4,12 @@
 
 ## Validation
 
-- [ ] `corepack yarn install --frozen-lockfile`
-- [ ] `corepack yarn lint`
-- [ ] `corepack yarn build-dev`
-- [ ] `corepack yarn build-test`
-- [ ] `corepack yarn test:unit`
-- [ ] `corepack yarn test:export-project`
-- [ ] `corepack yarn dist-preview`
+- [ ] `npm ci`
+- [ ] `npm run lint`
+- [ ] `npm run build-dev`
+- [ ] `npm run test:unit`
+- [ ] `npm run test:export-project`
+- [ ] `npm run dist-preview`
 
 ## Dependency Update Checklist
 
