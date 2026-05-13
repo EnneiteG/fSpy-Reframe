@@ -83,8 +83,8 @@ const menuTitleStyle = {
 // https://stackoverflow.com/questions/7855590/preventing-scroll-bars-from-being-hidden-for-macos-trackpad-users-in-webkit-blin
 export default class Dropdown<T> extends React.PureComponent<DropdownProps<T>, DropdownState> {
 
-  private topContainerRef: React.RefObject<HTMLDivElement>
-  private scrollContainerRef: React.RefObject<HTMLDivElement>
+  private topContainerRef: React.RefObject<HTMLDivElement | null>
+  private scrollContainerRef: React.RefObject<HTMLDivElement | null>
 
   constructor(props: DropdownProps<T>) {
     super(props)
