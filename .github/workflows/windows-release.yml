@@ -38,7 +38,7 @@ jobs:
       - name: Upload installer artifact
         uses: actions/upload-artifact@v7
         with:
-          name: fSpy-UE-windows-installer
+          name: fSpy-Reframe-windows-installer
           path: |
             dist/*.exe
             dist/*.zip

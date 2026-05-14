@@ -1,16 +1,16 @@
 ## What is this?
 
-fSpy is an open source, cross platform app for still image camera matching. See [fspy.io](https://fspy.io) for more info. The source code is available under the GPL license.
+fSpy Reframe is a modernized fork of fSpy, an open source cross-platform app for still image camera matching. See [fspy.io](https://fspy.io) for more information about the original project. The source code is available under the GPL license.
 
 ## Purpose of this fork
 
-fSpy-UE started as a fork of fSpy focused on making the camera matching workflow easier to use with [Unreal Engine](https://www.unrealengine.com/). The first goal was to add a target preset that displays fSpy's solved camera in Unreal-friendly coordinates, units and rotation order.
+fSpy Reframe started as fSpy-UE, a fork focused on making the camera matching workflow easier to use with [Unreal Engine](https://www.unrealengine.com/). The project has grown into a broader maintained fork for target-specific camera workflows.
 
-The goal is now broader: keep the app maintained on a modern Electron/React toolchain while preserving fSpy's original calibration model and adding target presets for more applications over time. The solved camera data remains compatible with fSpy, while the UI and exports can present that same camera in target-specific coordinate systems.
+The goal is to keep the app maintained on a modern Electron/React toolchain while preserving fSpy's original calibration model and adding target presets for more applications over time. The solved camera data remains compatible with fSpy, while the UI and exports can present that same camera in target-specific coordinate systems.
 
 The fork currently includes Unreal Engine and Blender target presets, scene orientation options, target-specific camera rotation display and a target camera JSON export. Future presets can follow the same approach for other DCCs, engines or rendering tools.
 
-![fSpy-UE screenshot](doc/images/Capture_01.png)
+![fSpy Reframe screenshot](doc/images/Capture_01.png)
 
 ## Using the computed camera parameters in other applications
 
@@ -20,7 +20,7 @@ Interested in writing an importer for your favorite application? Then the [fSpy 
 
 ## Building and running
 
-The following instructions are for developers. If you just want to run the app, download the latest build from the [fSpy-UE releases page](https://github.com/EnneiteG/fSpy-UE/releases).
+The following instructions are for developers. If you just want to run the app, download the latest build from the [fSpy Reframe releases page](https://github.com/EnneiteG/fSpy-Reframe/releases).
 
 fSpy is written in [TypeScript](https://www.typescriptlang.org) using [Electron](https://electronjs.org), [React](https://reactjs.org) and [Redux](https://redux.js.org). [Visual Studio Code](https://code.visualstudio.com) is recommended for a pleasant editing experience.
 
@@ -70,4 +70,4 @@ To create a Windows installer locally, run:
 npm run dist-win
 ```
 
-On Windows, this creates an x64 NSIS setup executable and zip archive in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer and archive. Pushing a tag such as `v0.5.0-ue` creates a GitHub Release and attaches the generated files. The generated file names use the version from `package.json`.
+On Windows, this creates an x64 NSIS setup executable and zip archive in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer and archive. Pushing a tag such as `v0.8.0` creates a GitHub Release and attaches the generated files. The generated file names use the version from `package.json`.
