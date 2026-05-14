@@ -18,7 +18,7 @@
 
 import { CalibrationMode, Overlay3DGuide } from '../types/global-settings'
 import { ControlPointPairIndex } from '../types/control-points-state'
-import { PrincipalPointMode1VP, PrincipalPointMode2VP, Axis, ReferenceDistanceUnit } from '../types/calibration-settings'
+import { PrincipalPointMode1VP, PrincipalPointMode2VP, Axis, ReferenceDistanceUnit, ReferenceDistanceMode, ReferenceDistancePlane } from '../types/calibration-settings'
 import Point2D from '../solver/point-2d'
 import { StoreState } from '../types/store-state'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
@@ -48,6 +48,8 @@ export enum ActionTypes {
   SET_REFERENCE_DISTANCE = 'SET_REFERENCE_DISTANCE',
   SET_REFERENCE_DISTANCE_UNIT = 'SET_REFERENCE_DISTANCE_UNIT',
   SET_REFERENCE_DISTANCE_AXIS = 'SET_REFERENCE_DISTANCE_AXIS',
+  SET_REFERENCE_DISTANCE_MODE = 'SET_REFERENCE_DISTANCE_MODE',
+  SET_REFERENCE_DISTANCE_PLANE = 'SET_REFERENCE_DISTANCE_PLANE',
   SET_CAMERA_PRESET = 'SET_CAMERA_PRESET',
   SET_CAMERA_SENSOR_SIZE = 'SET_CAMERA_SENSOR_SIZE',
 
@@ -62,6 +64,7 @@ export enum ActionTypes {
   SET_PRINCIPAL_POINT = 'SET_PRINCIPAL_POINT',
   SET_ORIGIN = 'SET_ORIGIN',
   SET_REFERENCE_DISTANCE_ANCHOR = 'SET_REFERENCE_DISTANCE_ANCHOR',
+  SET_REFERENCE_DISTANCE_FREE_HANDLE = 'SET_REFERENCE_DISTANCE_FREE_HANDLE',
   ADJUST_HORIZON = 'ADJUST_HORIZON',
   ADJUST_FIRST_VANISHING_POINT = 'ADJUST_FIRST_VANISHING_POINT',
   ADJUST_SECOND_VANISHING_POINT = 'ADJUST_SECOND_VANISHING_POINT',
@@ -343,6 +346,32 @@ export function setReferenceDistanceAxis(axis: Axis | null): SetReferenceDistanc
 }
 
 //
+export interface SetReferenceDistanceMode {
+  type: ActionTypes.SET_REFERENCE_DISTANCE_MODE,
+  mode: ReferenceDistanceMode
+}
+
+export function setReferenceDistanceMode(mode: ReferenceDistanceMode): SetReferenceDistanceMode {
+  return {
+    type: ActionTypes.SET_REFERENCE_DISTANCE_MODE,
+    mode: mode
+  }
+}
+
+//
+export interface SetReferenceDistancePlane {
+  type: ActionTypes.SET_REFERENCE_DISTANCE_PLANE,
+  plane: ReferenceDistancePlane
+}
+
+export function setReferenceDistancePlane(plane: ReferenceDistancePlane): SetReferenceDistancePlane {
+  return {
+    type: ActionTypes.SET_REFERENCE_DISTANCE_PLANE,
+    plane: plane
+  }
+}
+
+//
 export interface SetCameraPreset {
   type: ActionTypes.SET_CAMERA_PRESET,
   cameraPresetId: string | null
@@ -405,6 +434,21 @@ export interface SetReferenceDistanceAnchor {
 export function setReferenceDistanceAnchor(position: Point2D): SetReferenceDistanceAnchor {
   return {
     type: ActionTypes.SET_REFERENCE_DISTANCE_ANCHOR,
+    position: position
+  }
+}
+
+// Set reference distance free handle position
+export interface SetReferenceDistanceFreeHandle {
+  type: ActionTypes.SET_REFERENCE_DISTANCE_FREE_HANDLE
+  handleIndex: number
+  position: Point2D
+}
+
+export function setReferenceDistanceFreeHandle(handleIndex: number, position: Point2D): SetReferenceDistanceFreeHandle {
+  return {
+    type: ActionTypes.SET_REFERENCE_DISTANCE_FREE_HANDLE,
+    handleIndex: handleIndex,
     position: position
   }
 }
@@ -624,12 +668,15 @@ export type AppAction =
   SetSecondVanishingPointAxis |
   SetAbsoluteFocalLength1VP |
   SetReferenceDistanceAxis |
+  SetReferenceDistanceMode |
+  SetReferenceDistancePlane |
   SetReferenceDistanceUnit |
   SetCameraPreset |
   SetCameraSensorSize |
   SetReferenceDistance |
   SetOrigin |
   SetReferenceDistanceAnchor |
+  SetReferenceDistanceFreeHandle |
   SetPrincipalPoint |
   AdjustHorizon |
   AdjustReferenceDistanceHandle |
@@ -657,6 +704,8 @@ export const actionTypesTriggeringRecalculation: ActionTypes[] = [
   ActionTypes.SET_REFERENCE_DISTANCE,
   ActionTypes.SET_REFERENCE_DISTANCE_UNIT,
   ActionTypes.SET_REFERENCE_DISTANCE_AXIS,
+  ActionTypes.SET_REFERENCE_DISTANCE_MODE,
+  ActionTypes.SET_REFERENCE_DISTANCE_PLANE,
   ActionTypes.SET_CAMERA_PRESET,
   ActionTypes.SET_CAMERA_SENSOR_SIZE,
 
@@ -669,6 +718,7 @@ export const actionTypesTriggeringRecalculation: ActionTypes[] = [
   ActionTypes.SET_PRINCIPAL_POINT,
   ActionTypes.SET_ORIGIN,
   ActionTypes.SET_REFERENCE_DISTANCE_ANCHOR,
+  ActionTypes.SET_REFERENCE_DISTANCE_FREE_HANDLE,
   ActionTypes.ADJUST_HORIZON,
   ActionTypes.ADJUST_FIRST_VANISHING_POINT,
   ActionTypes.ADJUST_SECOND_VANISHING_POINT,
@@ -687,6 +737,8 @@ export const actionTypesSettingNeedsSaveFlag: ActionTypes[] = [
   ActionTypes.SET_REFERENCE_DISTANCE,
   ActionTypes.SET_REFERENCE_DISTANCE_UNIT,
   ActionTypes.SET_REFERENCE_DISTANCE_AXIS,
+  ActionTypes.SET_REFERENCE_DISTANCE_MODE,
+  ActionTypes.SET_REFERENCE_DISTANCE_PLANE,
   ActionTypes.SET_CAMERA_PRESET,
   ActionTypes.SET_CAMERA_SENSOR_SIZE,
 
@@ -700,6 +752,7 @@ export const actionTypesSettingNeedsSaveFlag: ActionTypes[] = [
   ActionTypes.SET_PRINCIPAL_POINT,
   ActionTypes.SET_ORIGIN,
   ActionTypes.SET_REFERENCE_DISTANCE_ANCHOR,
+  ActionTypes.SET_REFERENCE_DISTANCE_FREE_HANDLE,
   ActionTypes.ADJUST_HORIZON,
   ActionTypes.ADJUST_FIRST_VANISHING_POINT,
   ActionTypes.ADJUST_SECOND_VANISHING_POINT,

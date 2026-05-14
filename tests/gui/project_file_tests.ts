@@ -10,7 +10,7 @@ import { defaultGlobalSettings } from '../../src/gui/defaults/global-settings'
 import { defaultCalibrationSettingsBase, defaultCalibrationSettings1VP, defaultCalibrationSettings2VP } from '../../src/gui/defaults/calibration-settings'
 import { defaultControlPointsStateBase, defaultControlPointsState1VP, defaultControlPointsState2VP } from '../../src/gui/defaults/control-points-state'
 import { defaultResultDisplaySettings } from '../../src/gui/defaults/result-display-settings'
-import { ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
+import { ReferenceDistanceMode, ReferenceDistancePlane, ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
 import { TargetPresetId, TargetSceneOrientationId } from '../../src/gui/solver/target-presets'
 import { cameraPresets } from '../../src/gui/solver/camera-presets'
 import type { ElectronAPI } from '../../src/gui/types/electron-api'
@@ -132,6 +132,11 @@ describe('Project file compatibility', () => {
           customSensorWidth: 36,
           customSensorHeight: 24
         }
+      },
+      controlPointsStateBase: {
+        principalPoint: defaultControlPointsStateBase.principalPoint,
+        origin: defaultControlPointsStateBase.origin,
+        firstVanishingPoint: defaultControlPointsStateBase.firstVanishingPoint
       }
     })
 
@@ -142,6 +147,11 @@ describe('Project file compatibility', () => {
     expect(action.savedState.resultDisplaySettings.targetSceneOrientationId).toEqual(TargetSceneOrientationId.Default)
     expect(action.savedState.calibrationSettingsBase.referenceDistanceUnit).toEqual(ReferenceDistanceUnit.Feet)
     expect(action.savedState.calibrationSettingsBase.referenceDistance).toEqual(6)
+    expect(action.savedState.calibrationSettingsBase.referenceDistanceMode).toEqual(ReferenceDistanceMode.Axis)
+    expect(action.savedState.calibrationSettingsBase.referenceDistancePlane).toEqual(ReferenceDistancePlane.XY)
+    expect(action.savedState.controlPointsStateBase.referenceDistanceAnchor).toEqual(defaultControlPointsStateBase.referenceDistanceAnchor)
+    expect(action.savedState.controlPointsStateBase.referenceDistanceHandleOffsets).toEqual(defaultControlPointsStateBase.referenceDistanceHandleOffsets)
+    expect(action.savedState.controlPointsStateBase.referenceDistanceFreeHandlePositions).toEqual(defaultControlPointsStateBase.referenceDistanceFreeHandlePositions)
     expect(action.savedState.calibrationSettingsBase.cameraData.presetId).toBeNull()
     expect(action.savedState.calibrationSettingsBase.cameraData.presetData).toBeNull()
     expect(action.imageState.data).toBeNull()

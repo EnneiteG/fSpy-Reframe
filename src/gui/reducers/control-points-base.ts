@@ -53,6 +53,14 @@ export function controlPointsStateBase(state: ControlPointsStateBase | undefined
         ...state,
         referenceDistanceAnchor: action.position
       }
+    case ActionTypes.SET_REFERENCE_DISTANCE_FREE_HANDLE: {
+      let adjustedPositions = [...state.referenceDistanceFreeHandlePositions]
+      adjustedPositions[action.handleIndex] = action.position
+      return {
+        ...state,
+        referenceDistanceFreeHandlePositions: [adjustedPositions[0], adjustedPositions[1]]
+      }
+    }
     case ActionTypes.ADJUST_REFERENCE_DISTANCE_HANDLE:
       let adjustedOffsets = [...state.referenceDistanceHandleOffsets]
       adjustedOffsets[action.handleIndex] = action.position

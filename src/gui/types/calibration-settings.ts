@@ -49,6 +49,17 @@ export enum ReferenceDistanceUnit {
   Miles = 'Miles'
 }
 
+export enum ReferenceDistanceMode {
+  Axis = 'Axis',
+  Free = 'Free'
+}
+
+export enum ReferenceDistancePlane {
+  XY = 'XY',
+  XZ = 'XZ',
+  YZ = 'YZ'
+}
+
 export interface CameraData {
   presetId: string | null
   presetData: CameraPreset | null
@@ -60,6 +71,8 @@ export interface CalibrationSettingsBase {
   referenceDistanceUnit: ReferenceDistanceUnit
   referenceDistance: number
   referenceDistanceAxis: Axis | null
+  referenceDistanceMode: ReferenceDistanceMode
+  referenceDistancePlane: ReferenceDistancePlane
   cameraData: CameraData
   firstVanishingPointAxis: Axis
   secondVanishingPointAxis: Axis

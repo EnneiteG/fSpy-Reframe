@@ -19,11 +19,11 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import { AppAction, setCalibrationMode, setImageOpacity, setPrincipalPointMode1VP, setPrincipalPointMode2VP, setQuadModeEnabled, setReferenceDistanceUnit, setReferenceDistance, setReferenceDistanceAxis, setCameraPreset, setCameraSensorSize, setFirstVanishingPointAxis, setSecondVanishingPointAxis, setAbsoluteFocalLength1VP, setOverlay3DGuide } from '../actions'
+import { AppAction, setCalibrationMode, setImageOpacity, setPrincipalPointMode1VP, setPrincipalPointMode2VP, setQuadModeEnabled, setReferenceDistanceUnit, setReferenceDistance, setReferenceDistanceAxis, setReferenceDistanceMode, setReferenceDistancePlane, setCameraPreset, setCameraSensorSize, setFirstVanishingPointAxis, setSecondVanishingPointAxis, setAbsoluteFocalLength1VP, setOverlay3DGuide } from '../actions'
 import SettingsPanel from '../components/settings-panel/settings-panel'
 import { CalibrationMode, GlobalSettings, Overlay3DGuide } from '../types/global-settings'
 import { StoreState } from '../types/store-state'
-import { CalibrationSettings1VP, CalibrationSettings2VP, PrincipalPointMode1VP, PrincipalPointMode2VP, Axis, ReferenceDistanceUnit, CalibrationSettingsBase } from '../types/calibration-settings'
+import { CalibrationSettings1VP, CalibrationSettings2VP, PrincipalPointMode1VP, PrincipalPointMode2VP, Axis, ReferenceDistanceUnit, CalibrationSettingsBase, ReferenceDistanceMode, ReferenceDistancePlane } from '../types/calibration-settings'
 import { ResultDisplaySettings } from '../types/result-display-settings'
 
 export interface SettingsContainerProps {
@@ -43,6 +43,8 @@ export interface SettingsContainerProps {
   onSecondVanishingPointAxisChange(axis: Axis): void
   onAbsoluteFocalLengthChange1VP(absoluteFocalLength: number): void
   onReferenceDistanceAxisChange(axis: Axis | null): void
+  onReferenceDistanceModeChange(mode: ReferenceDistanceMode): void
+  onReferenceDistancePlaneChange(plane: ReferenceDistancePlane): void
   onReferenceDistanceUnitChange(unit: ReferenceDistanceUnit): void
   onReferenceDistanceChange(distance: number): void
   onCameraPresetChange(cameraPreset: string | null): void
@@ -101,6 +103,12 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
     },
     onReferenceDistanceAxisChange: (axis: Axis | null) => {
       dispatch(setReferenceDistanceAxis(axis))
+    },
+    onReferenceDistanceModeChange: (mode: ReferenceDistanceMode) => {
+      dispatch(setReferenceDistanceMode(mode))
+    },
+    onReferenceDistancePlaneChange: (plane: ReferenceDistancePlane) => {
+      dispatch(setReferenceDistancePlane(plane))
     },
     onReferenceDistanceUnitChange: (unit: ReferenceDistanceUnit) => {
       dispatch(setReferenceDistanceUnit(unit))

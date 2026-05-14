@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 import Transform from '../../src/gui/solver/transform'
 import { CameraParameters } from '../../src/gui/solver/solver-result'
-import { Axis, CalibrationSettingsBase, ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
+import { Axis, CalibrationSettingsBase, ReferenceDistanceMode, ReferenceDistancePlane, ReferenceDistanceUnit } from '../../src/gui/types/calibration-settings'
 import {
   convertCameraParametersForTarget,
   fSpyAxisToTargetAxis,
@@ -9,6 +9,8 @@ import {
   targetPresetForId,
   targetAxisToFSpyAxis,
   targetAxisToFSpyReferenceAxis,
+  targetPlaneToFSpyReferencePlane,
+  fSpyReferencePlaneToTargetPlane,
   TargetPresetId,
   targetSceneOrientationForId,
   TargetSceneOrientationId
@@ -86,6 +88,8 @@ const calibrationSettings: CalibrationSettingsBase = {
   referenceDistanceUnit: ReferenceDistanceUnit.Meters,
   referenceDistance: 1,
   referenceDistanceAxis: null,
+  referenceDistanceMode: ReferenceDistanceMode.Axis,
+  referenceDistancePlane: ReferenceDistancePlane.XY,
   cameraData: {
     presetId: null,
     presetData: null,
@@ -222,6 +226,19 @@ describe('GUI', () => {
       expect(targetAxisToFSpyReferenceAxis(testCase[2], preset, sceneOrientation)).toEqual(Axis.PositiveY)
       expect(targetAxisToFSpyReferenceAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
     }
+  })
+
+  test('maps reference distance planes through Unreal scene orientations', () => {
+    const preset = targetPresetForId(TargetPresetId.Unreal)
+    const sceneOrientation = targetSceneOrientationForId(TargetSceneOrientationId.Default)
+
+    expect(targetPlaneToFSpyReferencePlane(ReferenceDistancePlane.XY, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.XY)
+    expect(targetPlaneToFSpyReferencePlane(ReferenceDistancePlane.XZ, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.YZ)
+    expect(targetPlaneToFSpyReferencePlane(ReferenceDistancePlane.YZ, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.XZ)
+
+    expect(fSpyReferencePlaneToTargetPlane(ReferenceDistancePlane.XY, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.XY)
+    expect(fSpyReferencePlaneToTargetPlane(ReferenceDistancePlane.YZ, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.XZ)
+    expect(fSpyReferencePlaneToTargetPlane(ReferenceDistancePlane.XZ, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.YZ)
   })
 
   test('maps signed vanishing point axes through Unreal scene orientations', () => {

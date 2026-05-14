@@ -87,12 +87,16 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
               </div>
 
               <ReferenceDistanceForm
+                referenceMode={this.props.calibrationSettingsBase.referenceDistanceMode}
                 referenceAxis={this.props.calibrationSettingsBase.referenceDistanceAxis}
+                referencePlane={this.props.calibrationSettingsBase.referenceDistancePlane}
                 referenceDistance={this.props.calibrationSettingsBase.referenceDistance}
                 referenceDistanceUnit={this.props.calibrationSettingsBase.referenceDistanceUnit}
                 targetPresetId={this.props.resultDisplaySettings.targetPresetId}
                 targetSceneOrientationId={this.props.resultDisplaySettings.targetSceneOrientationId}
+                onReferenceModeChange={this.props.onReferenceDistanceModeChange}
                 onReferenceAxisChange={this.props.onReferenceDistanceAxisChange}
+                onReferencePlaneChange={this.props.onReferenceDistancePlaneChange}
                 onReferenceDistanceChange={this.props.onReferenceDistanceChange}
                 onReferenceDistanceUnitChange={this.props.onReferenceDistanceUnitChange}
               />

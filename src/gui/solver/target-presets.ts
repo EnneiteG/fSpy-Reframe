@@ -19,7 +19,7 @@
 import Transform from './transform'
 import Vector3D from './vector-3d'
 import { CameraParameters } from './solver-result'
-import { Axis, CalibrationSettingsBase, ReferenceDistanceUnit } from '../types/calibration-settings'
+import { Axis, CalibrationSettingsBase, ReferenceDistancePlane, ReferenceDistanceUnit } from '../types/calibration-settings'
 
 export enum TargetPresetId {
   FSpy = 'fspy',
@@ -184,6 +184,38 @@ export function targetAxisToFSpyReferenceAxis(axis: Axis, preset: TargetPreset, 
 
 export function fSpyReferenceAxisToTargetAxis(axis: Axis, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): Axis {
   return positiveAxis(fSpyAxisToTargetAxis(axis, preset, sceneOrientation))
+}
+
+export function targetPlaneToFSpyReferencePlane(plane: ReferenceDistancePlane, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): ReferenceDistancePlane {
+  return referencePlaneForNormalAxis(targetAxisToFSpyReferenceAxis(referencePlaneNormalAxis(plane), preset, sceneOrientation))
+}
+
+export function fSpyReferencePlaneToTargetPlane(plane: ReferenceDistancePlane, preset: TargetPreset, sceneOrientation: TargetSceneOrientation): ReferenceDistancePlane {
+  return referencePlaneForNormalAxis(fSpyReferenceAxisToTargetAxis(referencePlaneNormalAxis(plane), preset, sceneOrientation))
+}
+
+function referencePlaneNormalAxis(plane: ReferenceDistancePlane): Axis {
+  switch (plane) {
+    case ReferenceDistancePlane.XY:
+      return Axis.PositiveZ
+    case ReferenceDistancePlane.XZ:
+      return Axis.PositiveY
+    case ReferenceDistancePlane.YZ:
+      return Axis.PositiveX
+  }
+}
+
+function referencePlaneForNormalAxis(axis: Axis): ReferenceDistancePlane {
+  switch (positiveAxis(axis)) {
+    case Axis.PositiveX:
+      return ReferenceDistancePlane.YZ
+    case Axis.PositiveY:
+      return ReferenceDistancePlane.XZ
+    case Axis.PositiveZ:
+      return ReferenceDistancePlane.XY
+  }
+
+  return ReferenceDistancePlane.XY
 }
 
 export function positiveAxis(axis: Axis): Axis {
