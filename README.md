@@ -36,14 +36,6 @@ Displays position in Blender-compatible coordinates and reports rotation as XYZ 
 
 Scene orientation options can rotate the target frame without changing the underlying calibration. This is useful when the image's main forward direction does not match the target application's default forward axis.
 
-## Downloads
-
-Windows installers and zip archives are published from GitHub Actions:
-
-https://github.com/EnneiteG/fSpy-Reframe/releases
-
-The current release line uses version tags without the old `-ue` suffix, for example `v0.8.0`.
-
 ## Original fSpy And Blender Importer
 
 The original fSpy project is available at:
