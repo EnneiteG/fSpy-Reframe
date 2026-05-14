@@ -71,6 +71,41 @@ export interface ControlPointsPanelProps {
 
 export default class ControlPointsPanel extends React.Component<ControlPointsPanelProps, ControlPointsPanelState> {
 
+  private readonly handleDocumentMouseUp = () => {
+    this.setState({
+      isDraggingControlPoint: false
+    })
+  }
+
+  private readonly handleDocumentKeyDown = (event: KeyboardEvent) => {
+    if (event.key == 'Shift') {
+      this.setState({
+        shiftIsDown: true
+      })
+    }
+  }
+
+  private readonly handleDocumentKeyUp = (event: KeyboardEvent) => {
+    if (event.key == 'Shift') {
+      this.setState({
+        shiftIsDown: false
+      })
+    }
+  }
+
+  private readonly handleDocumentVisibilityChange = () => {
+    if (document.hidden) {
+      this.resetInteractionState()
+    }
+  }
+
+  private readonly resetInteractionState = () => {
+    this.setState({
+      isDraggingControlPoint: false,
+      shiftIsDown: false
+    })
+  }
+
   constructor(props: ControlPointsPanelProps) {
     super(props)
 
@@ -86,32 +121,19 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
   }
 
   componentDidMount() {
-    document.addEventListener('mouseup', (_) => {
-      this.setState({
-        ...this.state,
-        isDraggingControlPoint: false
-      })
-    })
-    document.addEventListener('keydown', (event) => {
-      if (event.key == 'Shift') {
-        this.setState({
-          ...this.state,
-          shiftIsDown: true
-        })
-      }
-    })
-    document.addEventListener('keyup', (event) => {
-      if (event.key == 'Shift') {
-        this.setState({
-          ...this.state,
-          shiftIsDown: false
-        })
-      }
-    })
+    document.addEventListener('mouseup', this.handleDocumentMouseUp)
+    document.addEventListener('keydown', this.handleDocumentKeyDown)
+    document.addEventListener('keyup', this.handleDocumentKeyUp)
+    document.addEventListener('visibilitychange', this.handleDocumentVisibilityChange)
+    window.addEventListener('blur', this.resetInteractionState)
   }
 
   componentWillUnmount() {
-    //
+    document.removeEventListener('mouseup', this.handleDocumentMouseUp)
+    document.removeEventListener('keydown', this.handleDocumentKeyDown)
+    document.removeEventListener('keyup', this.handleDocumentKeyUp)
+    document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange)
+    window.removeEventListener('blur', this.resetInteractionState)
   }
 
   render() {

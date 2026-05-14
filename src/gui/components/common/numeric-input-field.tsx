@@ -35,6 +35,8 @@ interface NumericInputFieldState {
 
 export default class NumericInputField extends React.Component<NumericInputFieldProps, NumericInputFieldState> {
 
+  private skipNextBlurHandling = false
+
   constructor(props: NumericInputFieldProps) {
     super(props)
     this.state = {
@@ -55,6 +57,7 @@ export default class NumericInputField extends React.Component<NumericInputField
   handleSubmit(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
     this.finishEditing()
+    this.skipNextBlurHandling = true
     event.currentTarget.blur()
   }
 
@@ -63,7 +66,16 @@ export default class NumericInputField extends React.Component<NumericInputField
   }
 
   handleBlur(_event: React.FocusEvent<HTMLInputElement>) {
-    this.cancelEditing()
+    if (this.skipNextBlurHandling) {
+      this.skipNextBlurHandling = false
+      return
+    }
+
+    if (this.state.editedValueIsValid) {
+      this.finishEditing()
+    } else {
+      this.cancelEditing()
+    }
   }
 
   render() {
@@ -128,6 +140,7 @@ export default class NumericInputField extends React.Component<NumericInputField
           if (!this.props.isDisabled) {
             if (event.key == 'Escape') {
               this.cancelEditing()
+              this.skipNextBlurHandling = true
               event.currentTarget.blur()
             } else if (event.key == 'Enter') {
               if (this.state.editedValueIsValid) {
