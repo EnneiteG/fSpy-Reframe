@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard, shell, screen } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage, RunSmokeTestMessage } from './ipc-messages'
 import path from 'path'
 import { pathToFileURL } from 'url'
@@ -27,9 +27,11 @@ import AppMenuManager from './app-menu-manager'
 import { Palette } from '../gui/style/palette'
 import { existsSync, openSync, writeSync, closeSync, readFileSync, realpathSync } from 'fs'
 import { CLI } from '../cli/cli'
-import { EXAMPLE_PROJECT_FILENAME, PROJECT_FILE_EXTENSION, isProjectFileData } from '../gui/io/project-file-format'
+import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
 import { exportFileOptions, pathWithExportExtension } from './export-file-options'
 import type { SmokeTestOptions, SmokeTestResult } from './smoke-test-options'
+import { safeWindowBounds } from './window-bounds'
+import { pathWithProjectExtension, projectSaveDialogOptions } from './project-file-options'
 
 let mainWindow: Electron.BrowserWindow | null = null
 
@@ -173,11 +175,10 @@ function allowWritePath(filePath: string): string {
   return resolvedPath
 }
 
-function allowProjectWritePath(filePath: string): void {
-  allowWritePath(filePath)
-  if (!filePath.endsWith('.' + PROJECT_FILE_EXTENSION)) {
-    allowWritePath(filePath + '.' + PROJECT_FILE_EXTENSION)
-  }
+function allowProjectWritePath(filePath: string): string {
+  const projectPath = pathWithProjectExtension(filePath)
+  allowWritePath(projectPath)
+  return projectPath
 }
 
 function registerOpenProjectPath(filePath: string): string {
@@ -217,6 +218,16 @@ function createWindow() {
     defaultWidth: minWidth,
     defaultHeight: minHeight
   })
+  const initialWindowBounds = safeWindowBounds(
+    {
+      x: mainWindowState.x,
+      y: mainWindowState.y,
+      width: mainWindowState.width,
+      height: mainWindowState.height
+    },
+    screen.getAllDisplays().map((display) => display.workArea),
+    { width: minWidth, height: minHeight }
+  )
 
   let windowIconPath: string | undefined
   if (process.resourcesPath) {
@@ -230,10 +241,7 @@ function createWindow() {
   }
 
   let window = new BrowserWindow({
-    x: mainWindowState.x,
-    y: mainWindowState.y,
-    width: mainWindowState.width,
-    height: mainWindowState.height,
+    ...initialWindowBounds,
     minWidth: minWidth,
     minHeight: minHeight,
     show: false,
@@ -340,13 +348,13 @@ function createWindow() {
       onSaveProjectAs: () => {
         dialog.showSaveDialog(
           window,
-          {}
+          projectSaveDialogOptions(documentState?.filePath || null, documentState?.isExampleProject || false)
         ).then((result) => {
           if (!result.canceled && result.filePath !== undefined) {
-            allowProjectWritePath(result.filePath)
+            const projectPath = allowProjectWritePath(result.filePath)
             window.webContents.send(
               SaveProjectAsMessage.type,
-              new SaveProjectAsMessage(result.filePath)
+              new SaveProjectAsMessage(projectPath)
             )
           }
         }).catch(() => {
@@ -501,8 +509,7 @@ function createWindow() {
       }
     }
 
-    if (process.env.DEV) {
-      // show dev tools
+    if (process.env.DEV && process.env.FSPY_OPEN_DEVTOOLS === '1') {
       window.webContents.openDevTools({ mode: 'bottom' })
     }
 
@@ -566,13 +573,13 @@ function createWindow() {
     // TODO: DRY
     dialog.showSaveDialog(
       window,
-      {}
+      projectSaveDialogOptions(documentState?.filePath || null, documentState?.isExampleProject || false)
     ).then((result) => {
       if (!result.canceled && result.filePath) {
-        allowProjectWritePath(result.filePath)
+        const projectPath = allowProjectWritePath(result.filePath)
         window.webContents.send(
           SaveProjectAsMessage.type,
-          new SaveProjectAsMessage(result.filePath)
+          new SaveProjectAsMessage(projectPath)
         )
       }
     }).catch(() => {

@@ -58,6 +58,8 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
   readonly SHIFT_DRAG_DAMING = 0.1
 
   private circleNode: DraggableKonvaNode | null = null
+  private dragPosition: Point2D = { x: 0, y: 0 }
+  private previousDragPosition: Point2D = { x: 0, y: 0 }
 
   constructor(props: ControlPointProps) {
     super(props)
@@ -73,22 +75,21 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('keyup', this.handleKeyUp)
+    document.addEventListener('visibilitychange', this.handleDocumentVisibilityChange)
     window.addEventListener('mouseup', this.handleWindowMouseUp)
+    window.addEventListener('blur', this.resetDragState)
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown)
     document.removeEventListener('keyup', this.handleKeyUp)
+    document.removeEventListener('visibilitychange', this.handleDocumentVisibilityChange)
     window.removeEventListener('mouseup', this.handleWindowMouseUp)
+    window.removeEventListener('blur', this.resetDragState)
   }
 
   private handleWindowMouseUp = () => {
-    if (this.state.isDragging) {
-      const node = this.circleNode
-      if (node) {
-        node.stopDrag()
-      }
-    }
+    this.stopNodeDrag()
   }
 
   handleKeyDown = (event: KeyboardEvent) => {
@@ -109,6 +110,30 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
     }
   }
 
+  private handleDocumentVisibilityChange = () => {
+    if (document.hidden) {
+      this.resetDragState()
+    }
+  }
+
+  private resetDragState = () => {
+    this.stopNodeDrag()
+    this.setState({
+      ...this.state,
+      isDragging: false,
+      dragDamping: 1
+    })
+  }
+
+  private stopNodeDrag() {
+    if (this.state.isDragging) {
+      const node = this.circleNode
+      if (node) {
+        node.stopDrag()
+      }
+    }
+  }
+
   render() {
     if (this.props.hidden) {
       return null
@@ -123,30 +148,34 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
           x={this.props.absolutePosition.x}
           y={this.props.absolutePosition.y}
           onDragStart={(event: ControlPointDragEvent) => {
+            const dragPosition = { x: event.target.x(), y: event.target.y() }
+            this.dragPosition = dragPosition
+            this.previousDragPosition = dragPosition
             this.setState({
               ...this.state,
               isDragging: true,
-              dragPosition: { x: event.target.x(), y: event.target.y() },
-              previousDragPosition: { x: event.target.x(), y: event.target.y() }
+              dragPosition,
+              previousDragPosition: dragPosition
             })
-            this.onDragPositionChanged()
           }}
           onDragMove={(event: ControlPointDragEvent) => {
             // Compute the drag delta
-            const dx = event.target.x() - this.state.previousDragPosition.x
-            const dy = event.target.y() - this.state.previousDragPosition.y
+            const dx = event.target.x() - this.previousDragPosition.x
+            const dy = event.target.y() - this.previousDragPosition.y
             // Compute the new drag position by adding the delta multiplied
             // by the damping factor
             const newDragPosition = {
-              x: this.state.dragPosition.x + this.state.dragDamping * dx,
-              y: this.state.dragPosition.y + this.state.dragDamping * dy
+              x: this.dragPosition.x + this.state.dragDamping * dx,
+              y: this.dragPosition.y + this.state.dragDamping * dy
             }
+            this.dragPosition = newDragPosition
+            this.previousDragPosition = { x: event.target.x(), y: event.target.y() }
             this.setState({
               ...this.state,
               dragPosition: newDragPosition,
-              previousDragPosition: { x: event.target.x(), y: event.target.y() }
+              previousDragPosition: this.previousDragPosition
             })
-            this.onDragPositionChanged()
+            this.props.onControlPointDrag(newDragPosition)
           }}
           onDragEnd={() => {
             // Reset the Konva node position to match React props.
@@ -157,14 +186,13 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
             // the hit area desynchronized from the visual representation.
             const node = this.circleNode
             if (node) {
-              node.x(this.props.absolutePosition.x)
-              node.y(this.props.absolutePosition.y)
+              node.x(this.dragPosition.x)
+              node.y(this.dragPosition.y)
             }
             this.setState({
               ...this.state,
               isDragging: false
             })
-            this.onDragPositionChanged()
           }}
         />
         {this.renderVisualRepresentation()}
@@ -207,7 +235,4 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
     }
   }
 
-  private onDragPositionChanged() {
-    this.props.onControlPointDrag(this.state.dragPosition)
-  }
 }
