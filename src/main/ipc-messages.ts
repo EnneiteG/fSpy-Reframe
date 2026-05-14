@@ -55,6 +55,17 @@ export class OpenImageMessage {
   }
 }
 
+export class RunSmokeTestMessage {
+  static readonly type = 'runSmokeTest'
+  readonly imagePath: string
+  readonly exportPath: string
+
+  constructor(imagePath: string, exportPath: string) {
+    this.imagePath = imagePath
+    this.exportPath = exportPath
+  }
+}
+
 export class SetSidePanelVisibilityMessage {
   static readonly type = 'setSidePanelVisibility'
   readonly panelsAreVisible: boolean

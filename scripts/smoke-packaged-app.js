@@ -1,5 +1,6 @@
 const { spawn } = require('child_process')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 
 const executableName = process.platform === 'win32' ? 'fSpy UE.exe' : 'fSpy UE'
@@ -12,28 +13,68 @@ if (!fs.existsSync(executablePath)) {
 
 const env = { ...process.env }
 delete env.ELECTRON_RUN_AS_NODE
+env.FSPY_SMOKE_TEST = '1'
+env.FSPY_SMOKE_IMAGE_PATH = path.resolve(__dirname, '..', 'test_data', 'box.jpg')
+env.FSPY_SMOKE_EXPORT_PATH = path.join(os.tmpdir(), `fspy-smoke-camera-parameters-${process.pid}.json`)
+
+if (fs.existsSync(env.FSPY_SMOKE_EXPORT_PATH)) {
+  fs.unlinkSync(env.FSPY_SMOKE_EXPORT_PATH)
+}
 
 const child = spawn(executablePath, [], {
   env,
-  stdio: 'ignore',
+  stdio: ['ignore', 'pipe', 'pipe'],
   detached: false
 })
 
 let settled = false
+let output = ''
 
 const timeout = setTimeout(() => {
   settled = true
   child.kill()
-  console.log('Packaged app smoke launch succeeded')
-}, 5000)
+  console.error('Packaged app smoke test timed out')
+  if (output) {
+    console.error(output)
+  }
+  process.exit(1)
+}, 20000)
+
+child.stdout.on('data', (chunk) => {
+  output += chunk.toString()
+})
+
+child.stderr.on('data', (chunk) => {
+  output += chunk.toString()
+})
 
 child.on('exit', (code, signal) => {
   clearTimeout(timeout)
   if (settled) {
     return
   }
-  console.error(`Packaged app exited early with code ${code} and signal ${signal}`)
-  process.exit(1)
+
+  if (code !== 0) {
+    console.error(`Packaged app smoke test failed with code ${code} and signal ${signal}`)
+    if (output) {
+      console.error(output)
+    }
+    process.exit(1)
+  }
+
+  if (!fs.existsSync(env.FSPY_SMOKE_EXPORT_PATH)) {
+    console.error(`Smoke export was not created at ${env.FSPY_SMOKE_EXPORT_PATH}`)
+    process.exit(1)
+  }
+
+  const exportData = JSON.parse(fs.readFileSync(env.FSPY_SMOKE_EXPORT_PATH, 'utf8'))
+  fs.unlinkSync(env.FSPY_SMOKE_EXPORT_PATH)
+  if (typeof exportData.horizontalFieldOfView !== 'number' || typeof exportData.verticalFieldOfView !== 'number') {
+    console.error('Smoke export did not contain camera field of view values')
+    process.exit(1)
+  }
+
+  console.log('Packaged app smoke test succeeded')
 })
 
 child.on('error', (error) => {

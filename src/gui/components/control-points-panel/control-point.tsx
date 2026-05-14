@@ -22,6 +22,18 @@ import { Circle, Group } from 'react-konva'
 import ControlPolyline from './control-polyline'
 import MathUtil from '../../solver/math-util'
 
+interface DraggableKonvaNode {
+  x(): number
+  x(value: number): void
+  y(): number
+  y(value: number): void
+  stopDrag(): void
+}
+
+interface ControlPointDragEvent {
+  target: DraggableKonvaNode
+}
+
 interface ControlPointProps {
   hidden?: boolean
   absolutePosition: Point2D
@@ -45,7 +57,7 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
   readonly RADIUS = 3
   readonly SHIFT_DRAG_DAMING = 0.1
 
-  private circleRef = React.createRef<any>()
+  private circleNode: DraggableKonvaNode | null = null
 
   constructor(props: ControlPointProps) {
     super(props)
@@ -72,7 +84,7 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
 
   private handleWindowMouseUp = () => {
     if (this.state.isDragging) {
-      const node = this.circleRef.current
+      const node = this.circleNode
       if (node) {
         node.stopDrag()
       }
@@ -105,12 +117,12 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
     return (
       <Group>
         <Circle
-          ref={this.circleRef}
+          ref={(node) => { this.circleNode = node }}
           draggable={!this.props.isDragDisabled}
           radius={this.HIT_RADIUS}
           x={this.props.absolutePosition.x}
           y={this.props.absolutePosition.y}
-          onDragStart={(event: any) => {
+          onDragStart={(event: ControlPointDragEvent) => {
             this.setState({
               ...this.state,
               isDragging: true,
@@ -119,7 +131,7 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
             })
             this.onDragPositionChanged()
           }}
-          onDragMove={(event: any) => {
+          onDragMove={(event: ControlPointDragEvent) => {
             // Compute the drag delta
             const dx = event.target.x() - this.state.previousDragPosition.x
             const dy = event.target.y() - this.state.previousDragPosition.y
@@ -136,14 +148,14 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
             })
             this.onDragPositionChanged()
           }}
-          onDragEnd={(_event: any) => {
+          onDragEnd={() => {
             // Reset the Konva node position to match React props.
             // During drag, Konva internally moves the node to follow the pointer.
             // If the pointer moved outside the stage, the node's internal position
             // can be far from the visible area. react-konva may skip updating it
             // if props haven't changed (e.g. clamped to the same boundary), leaving
             // the hit area desynchronized from the visual representation.
-            const node = this.circleRef.current
+            const node = this.circleNode
             if (node) {
               node.x(this.props.absolutePosition.x)
               node.y(this.props.absolutePosition.y)

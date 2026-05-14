@@ -18,21 +18,23 @@
 
 import { Middleware } from 'redux'
 import { StoreState } from '../types/store-state'
-import { actionTypesTriggeringRecalculation, recalculateCalibrationResult, actionTypesSettingNeedsSaveFlag, setProjectHasUnsavedChanges, ActionTypes } from '../actions'
+import { actionTypesTriggeringRecalculation, recalculateCalibrationResult, actionTypesSettingNeedsSaveFlag, setProjectHasUnsavedChanges, ActionTypes, AppAction } from '../actions'
+import { ThunkDispatch } from 'redux-thunk'
 import store from './store'
 
 // Middleware for requesting calibration result recalculation for
 // action types matching a set of given types
-export const appMiddleware: Middleware<{}, StoreState> = _ => next => (action: unknown) => {
+export const appMiddleware: Middleware<unknown, StoreState> = _ => next => (action: unknown) => {
   const { type } = action as { type: ActionTypes }
+  const dispatch = store.dispatch as ThunkDispatch<StoreState, void, AppAction>
 
   if (actionTypesTriggeringRecalculation.indexOf(type) >= 0) {
-    store.dispatch(recalculateCalibrationResult() as any)
+    dispatch(recalculateCalibrationResult())
   }
 
   if (actionTypesSettingNeedsSaveFlag.indexOf(type) >= 0) {
     setTimeout(() => {
-      store.dispatch(setProjectHasUnsavedChanges() as any)
+      dispatch(setProjectHasUnsavedChanges())
     })
   }
 

@@ -168,13 +168,13 @@ export default class Overlay3DPanel extends React.PureComponent<Overlay3DPanelPr
           gridPoint(min, linePosition),
           gridPoint(max, linePosition)
         ]
-      ),
-        gridLines3D.push(
-          [
-            gridPoint(linePosition, min),
-            gridPoint(linePosition, max)
-          ]
-        )
+      )
+      gridLines3D.push(
+        [
+          gridPoint(linePosition, min),
+          gridPoint(linePosition, max)
+        ]
+      )
     }
 
     let gridLines2D: [Point2D, Point2D][] = []

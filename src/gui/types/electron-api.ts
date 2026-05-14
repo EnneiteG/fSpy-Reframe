@@ -1,4 +1,5 @@
 import type { ExportType } from '../../main/ipc-messages'
+import type { SmokeTestResult } from '../../main/smoke-test-options'
 import type { ExportFileData } from '../ipc-messages'
 
 export interface ElectronAPI {
@@ -29,6 +30,10 @@ export interface ElectronAPI {
   onOpenImage(callback: (filePath: string) => void): void
   onExport(callback: (exportType: ExportType) => void): void
   onSetSidePanelVisibility(callback: (panelsAreVisible: boolean) => void): void
+  onRunSmokeTest(callback: (imagePath: string, exportPath: string) => void): void
+
+  // Smoke test
+  sendSmokeTestResult(result: SmokeTestResult): void
 
   // Clipboard
   writeClipboardText(text: string): void

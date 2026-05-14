@@ -1,4 +1,5 @@
 import type { ExportType } from './ipc-messages'
+import type { SmokeTestResult } from './smoke-test-options'
 import type { ExportFileData } from '../gui/ipc-messages'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
@@ -74,6 +75,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
       callback(message.panelsAreVisible)
     })
   },
+  onRunSmokeTest: (callback: (imagePath: string, exportPath: string) => void): void => {
+    ipcRenderer.on('runSmokeTest', (_event, message) => {
+      callback(message.imagePath, message.exportPath)
+    })
+  },
+
+  // Smoke test
+  sendSmokeTestResult: (result: SmokeTestResult): void => {
+    ipcRenderer.send('SmokeTestResultMessage', result)
+  },
 
   // Clipboard
   writeClipboardText: (text: string): void => {
@@ -82,6 +93,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // File utilities
   getPathForFile: (file: File): string => {
-    return webUtils.getPathForFile(file)
+    const filePath = webUtils.getPathForFile(file)
+    ipcRenderer.send('RegisterFilePathMessage', { filePath })
+    return filePath
   }
 })

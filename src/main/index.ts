@@ -17,18 +17,19 @@
  */
 
 import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard, shell } from 'electron'
-import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
+import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage, RunSmokeTestMessage } from './ipc-messages'
 import path from 'path'
 import { pathToFileURL } from 'url'
 
 import windowStateKeeper from 'electron-window-state'
-import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage } from '../gui/ipc-messages'
+import { SpecifyProjectPathMessage, SpecifyExportPathMessage, SetDocumentStateMessage, OpenDroppedProjectMessage, RegisterFilePathMessage } from '../gui/ipc-messages'
 import AppMenuManager from './app-menu-manager'
 import { Palette } from '../gui/style/palette'
-import { openSync, writeSync, closeSync, readFileSync } from 'fs'
+import { existsSync, openSync, writeSync, closeSync, readFileSync, realpathSync } from 'fs'
 import { CLI } from '../cli/cli'
-import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
+import { EXAMPLE_PROJECT_FILENAME, PROJECT_FILE_EXTENSION, isProjectFileData } from '../gui/io/project-file-format'
 import { exportFileOptions, pathWithExportExtension } from './export-file-options'
+import type { SmokeTestOptions, SmokeTestResult } from './smoke-test-options'
 
 let mainWindow: Electron.BrowserWindow | null = null
 
@@ -42,11 +43,20 @@ let documentState: DocumentState | null = null
 
 let initialOpenMessage: OpenProjectMessage | null = null
 let windowHasAppeared = false
+let smokeTestOptions: SmokeTestOptions | null = null
+const allowedReadFilePaths = new Set<string>()
+const allowedWriteFilePaths = new Set<string>()
+
+const allowedResourceFileNames = new Set([
+  EXAMPLE_PROJECT_FILENAME,
+  'icon.svg',
+  'icon.png'
+])
 
 // macOS only
 app.on('open-file', (event, filePath) => {
   if (mainWindow === null) {
-    initialOpenMessage = new OpenProjectMessage(filePath, false)
+    initialOpenMessage = new OpenProjectMessage(registerOpenProjectPath(filePath), false)
     if (windowHasAppeared) {
       // The main window has appeared at least once but there is
       // currently no window. Create one
@@ -63,21 +73,36 @@ app.on('open-file', (event, filePath) => {
 })
 
 function openProject(filePath: string, window: BrowserWindow) {
-  app.addRecentDocument(filePath)
+  const projectPath = registerOpenProjectPath(filePath)
+  app.addRecentDocument(projectPath)
   window.webContents.send(
     OpenProjectMessage.type,
-    new OpenProjectMessage(filePath, false)
+    new OpenProjectMessage(projectPath, false)
+  )
+}
+
+function openImage(filePath: string, window: BrowserWindow) {
+  const imagePath = allowReadPath(filePath)
+  window.webContents.send(
+    OpenImageMessage.type,
+    new OpenImageMessage(imagePath)
   )
 }
 
 function getResourcePath(fileName: string): string {
+  if (!allowedResourceFileNames.has(fileName) || path.basename(fileName) !== fileName) {
+    throw new Error('Resource is not allowed')
+  }
+
+  let resourcePath: string
   if (!app.isPackaged) {
-    return path.join(process.cwd(), 'assets/electron', fileName)
+    resourcePath = path.join(process.cwd(), 'assets/electron', fileName)
+  } else if (process.resourcesPath != null) {
+    resourcePath = path.join(process.resourcesPath, fileName)
+  } else {
+    return ''
   }
-  if (process.resourcesPath != null) {
-    return path.join(process.resourcesPath, fileName)
-  }
-  return ''
+  return allowReadPath(resourcePath)
 }
 
 function getResourceURL(fileName: string): string {
@@ -96,9 +121,90 @@ function isAllowedNavigationURL(url: string): boolean {
   return url.startsWith('https://github.com/') || url.startsWith('https://stuffmatic.com/')
 }
 
+function getSmokeTestOptions(): SmokeTestOptions | null {
+  if (process.env.FSPY_SMOKE_TEST !== '1') {
+    return null
+  }
+
+  const imagePath = process.env.FSPY_SMOKE_IMAGE_PATH
+  const exportPath = process.env.FSPY_SMOKE_EXPORT_PATH
+  if (!imagePath || !exportPath) {
+    throw new Error('FSPY_SMOKE_IMAGE_PATH and FSPY_SMOKE_EXPORT_PATH are required for smoke tests')
+  }
+
+  return { imagePath, exportPath }
+}
+
+function resolveExistingPath(filePath: string): string {
+  if (!path.isAbsolute(filePath)) {
+    throw new Error('Path must be absolute')
+  }
+  return realpathSync(filePath)
+}
+
+function resolveWritablePath(filePath: string): string {
+  if (!path.isAbsolute(filePath)) {
+    throw new Error('Path must be absolute')
+  }
+
+  const parentPath = path.dirname(filePath)
+  if (!existsSync(parentPath)) {
+    throw new Error('Parent directory does not exist')
+  }
+
+  return path.join(realpathSync(parentPath), path.basename(filePath))
+}
+
+function allowReadPath(filePath: string): string {
+  if (!filePath) {
+    throw new Error('Path is required')
+  }
+  const resolvedPath = resolveExistingPath(filePath)
+  allowedReadFilePaths.add(resolvedPath)
+  return resolvedPath
+}
+
+function allowWritePath(filePath: string): string {
+  if (!filePath) {
+    throw new Error('Path is required')
+  }
+  const resolvedPath = resolveWritablePath(filePath)
+  allowedWriteFilePaths.add(resolvedPath)
+  return resolvedPath
+}
+
+function allowProjectWritePath(filePath: string): void {
+  allowWritePath(filePath)
+  if (!filePath.endsWith('.' + PROJECT_FILE_EXTENSION)) {
+    allowWritePath(filePath + '.' + PROJECT_FILE_EXTENSION)
+  }
+}
+
+function registerOpenProjectPath(filePath: string): string {
+  const projectPath = allowReadPath(filePath)
+  allowWritePath(projectPath)
+  return projectPath
+}
+
+function assertAllowedReadPath(filePath: string): string {
+  const resolvedPath = resolveExistingPath(filePath)
+  if (!allowedReadFilePaths.has(resolvedPath)) {
+    throw new Error('Read path is outside allowed locations')
+  }
+  return resolvedPath
+}
+
+function assertAllowedWritePath(filePath: string): string {
+  const resolvedPath = resolveWritablePath(filePath)
+  if (!allowedWriteFilePaths.has(resolvedPath)) {
+    throw new Error('Write path is outside allowed locations')
+  }
+  return resolvedPath
+}
+
 function isProjectFilePath(filePath: string): boolean {
   try {
-    return isProjectFileData(readFileSync(filePath).slice(0, 4))
+    return isProjectFileData(readFileSync(assertAllowedReadPath(filePath)).slice(0, 4))
   } catch {
     return false
   }
@@ -215,7 +321,7 @@ function createWindow() {
                 }
               ).then((result) => {
                 if (!result.canceled) {
-                  initialOpenMessage = new OpenProjectMessage(result.filePaths[0], false)
+                  initialOpenMessage = new OpenProjectMessage(registerOpenProjectPath(result.filePaths[0]), false)
                   createWindow()
                 }
               }).catch(() => {
@@ -237,6 +343,7 @@ function createWindow() {
           {}
         ).then((result) => {
           if (!result.canceled && result.filePath !== undefined) {
+            allowProjectWritePath(result.filePath)
             window.webContents.send(
               SaveProjectAsMessage.type,
               new SaveProjectAsMessage(result.filePath)
@@ -254,10 +361,7 @@ function createWindow() {
           }
         ).then((result) => {
           if (!result.canceled) {
-            window.webContents.send(
-              OpenImageMessage.type,
-              new OpenImageMessage(result.filePaths[0])
-            )
+            openImage(result.filePaths[0], window)
           }
         }).catch(() => {
           // dialog canceled or failed
@@ -376,19 +480,13 @@ function createWindow() {
       if (openCommand == 'open' && filePath) {
         try {
           // Make sure the file can be opened before proceeding
-          const fd = openSync(filePath, 'r')
+          const fd = openSync(allowReadPath(filePath), 'r')
           closeSync(fd)
 
           if (isProjectFilePath(filePath)) {
-            window.webContents.send(
-              OpenProjectMessage.type,
-              new OpenProjectMessage(filePath, false)
-            )
+            openProject(filePath, window)
           } else {
-            window.webContents.send(
-              OpenImageMessage.type,
-              new OpenImageMessage(filePath)
-            )
+            openImage(filePath, window)
           }
         } catch (error) {
           console.log(error)
@@ -406,6 +504,13 @@ function createWindow() {
     if (process.env.DEV) {
       // show dev tools
       window.webContents.openDevTools({ mode: 'bottom' })
+    }
+
+    if (smokeTestOptions) {
+      window.webContents.send(
+        RunSmokeTestMessage.type,
+        new RunSmokeTestMessage(smokeTestOptions.imagePath, smokeTestOptions.exportPath)
+      )
     }
   })
 
@@ -433,6 +538,8 @@ function createWindow() {
         ipcMain.removeAllListeners(SpecifyProjectPathMessage.type)
         ipcMain.removeAllListeners(SpecifyExportPathMessage.type)
         ipcMain.removeAllListeners(OpenDroppedProjectMessage.type)
+        ipcMain.removeAllListeners(RegisterFilePathMessage.type)
+        ipcMain.removeAllListeners('SmokeTestResultMessage')
         appMenuManager.setOpenImageItemEnabled(false)
         appMenuManager.setSaveAsItemEnabled(false)
         appMenuManager.setSaveItemEnabled(false)
@@ -462,6 +569,7 @@ function createWindow() {
       {}
     ).then((result) => {
       if (!result.canceled && result.filePath) {
+        allowProjectWritePath(result.filePath)
         window.webContents.send(
           SaveProjectAsMessage.type,
           new SaveProjectAsMessage(result.filePath)
@@ -475,24 +583,35 @@ function createWindow() {
   ipcMain.on(SpecifyExportPathMessage.type, (_: Electron.IpcMainEvent, message: SpecifyExportPathMessage) => {
     // TODO: DRY
     const fileOptions = exportFileOptions(message.exportType, message.data)
-    dialog.showSaveDialog(
-      window,
-      fileOptions.saveDialogOptions
-    ).then((result) => {
-      if (!result.canceled && result.filePath) {
-        const filePath = pathWithExportExtension(result.filePath, fileOptions.defaultExtension)
-        const file = openSync(filePath, 'w')
-        if (typeof message.data === 'string') {
-          writeSync(file, message.data)
-        } else {
-          writeSync(file, exportFileDataToBuffer(message.data))
+    const smokeExportPath = smokeTestOptions?.exportPath
+    if (smokeExportPath) {
+      allowWritePath(smokeExportPath)
+      writeExportFile(smokeExportPath, fileOptions.defaultExtension, message.data)
+    } else {
+      dialog.showSaveDialog(
+        window,
+        fileOptions.saveDialogOptions
+      ).then((result) => {
+        if (!result.canceled && result.filePath) {
+          allowWritePath(pathWithExportExtension(result.filePath, fileOptions.defaultExtension))
+          writeExportFile(result.filePath, fileOptions.defaultExtension, message.data)
         }
-        closeSync(file)
-      }
-    }).catch(() => {
-      // dialog canceled or failed
-    })
+      }).catch(() => {
+        // dialog canceled or failed
+      })
+    }
   })
+
+  function writeExportFile(filePath: string, defaultExtension: string, data: SpecifyExportPathMessage['data']) {
+    const exportPath = assertAllowedWritePath(pathWithExportExtension(filePath, defaultExtension))
+    const file = openSync(exportPath, 'w')
+    if (typeof data === 'string') {
+      writeSync(file, data)
+    } else {
+      writeSync(file, exportFileDataToBuffer(data))
+    }
+    closeSync(file)
+  }
 
   function exportFileDataToBuffer(data: Exclude<SpecifyExportPathMessage['data'], string>): Buffer {
     if (data instanceof ArrayBuffer) {
@@ -504,9 +623,14 @@ function createWindow() {
   ipcMain.on(OpenDroppedProjectMessage.type, (_: Electron.IpcMainEvent, message: OpenDroppedProjectMessage) => {
     showDiscardChangesDialogIfNeeded(window, (didCancel: boolean) => {
       if (!didCancel) {
+        registerOpenProjectPath(message.filePath)
         openProject(message.filePath, window)
       }
     })
+  })
+
+  ipcMain.on(RegisterFilePathMessage.type, (_: Electron.IpcMainEvent, message: RegisterFilePathMessage) => {
+    allowReadPath(message.filePath)
   })
 
   function refreshTitle(window: BrowserWindow) {
@@ -559,6 +683,20 @@ function createWindow() {
     }
     refreshTitle(window)
   })
+
+  ipcMain.on('SmokeTestResultMessage', (_: Electron.IpcMainEvent, result: SmokeTestResult) => {
+    if (!smokeTestOptions) {
+      return
+    }
+
+    if (!result.success) {
+      console.error(result.message || 'Smoke test failed')
+      app.exit(1)
+      return
+    }
+
+    app.exit(0)
+  })
 }
 
 function showDiscardChangesDialogIfNeeded(
@@ -601,18 +739,18 @@ ipcMain.handle('get-app-version', () => {
 })
 
 ipcMain.handle('read-file', (_event, filePath: string): Uint8Array => {
-  const buffer = readFileSync(filePath)
+  const buffer = readFileSync(assertAllowedReadPath(filePath))
   return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
 })
 
 ipcMain.handle('write-file', (_event, filePath: string, data: Uint8Array) => {
-  const file = openSync(filePath, 'w')
+  const file = openSync(assertAllowedWritePath(filePath), 'w')
   writeSync(file, Buffer.from(data))
   closeSync(file)
 })
 
 ipcMain.handle('is-project-file', (_event, filePath: string): boolean => {
-  return isProjectFilePath(filePath)
+  return isProjectFilePath(assertAllowedReadPath(filePath))
 })
 
 ipcMain.handle('get-resource-url', (_event, fileName: string): string => {
@@ -628,6 +766,18 @@ ipcMain.handle('write-clipboard-text', (_event, text: string): void => {
 })
 
 app.whenReady().then(() => {
+  try {
+    smokeTestOptions = getSmokeTestOptions()
+    if (smokeTestOptions) {
+      allowReadPath(smokeTestOptions.imagePath)
+      allowWritePath(smokeTestOptions.exportPath)
+    }
+  } catch (error) {
+    console.error(error)
+    app.exit(1)
+    return
+  }
+
   // Assume we're in CLI mode if any argument starts
   // with '-' or equals 'help'
   let isCli = false

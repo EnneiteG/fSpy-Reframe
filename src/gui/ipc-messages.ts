@@ -44,6 +44,14 @@ export class OpenDroppedProjectMessage {
   }
 }
 
+export class RegisterFilePathMessage {
+  static readonly type = 'RegisterFilePathMessage'
+  readonly filePath: string
+  constructor(filePath: string) {
+    this.filePath = filePath
+  }
+}
+
 export class SetDocumentStateMessage {
   static readonly type = 'SetDocumentStateMessage'
   readonly hasUnsavedChanges: boolean | undefined

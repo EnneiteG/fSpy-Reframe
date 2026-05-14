@@ -36,13 +36,14 @@ import store from './store/store'
 import SplashScreen from './components/splash-screen'
 import { Dispatch } from 'redux'
 import { convertCameraParametersForTarget, targetPresetForId, targetSceneOrientationForId } from './solver/target-presets'
+import type { SmokeTestResult } from '../main/smoke-test-options'
 
 interface AppProps {
   uiState: UIState,
   globalSettings: GlobalSettings,
   solverResult: SolverResult,
   image: ImageState,
-  onImageFileDropped(imagePath: string): void
+  onImageFileDropped(imagePath: string): void | Promise<void>
   onProjectFileDropped(imagePath: string): void
   onOpenExampleProjectPressed(): void
 
@@ -52,6 +53,69 @@ interface AppProps {
   onOpenImageIPCMessage(imagePath: string): void
   onExportIPCMessage(exportType: ExportType): void
   onSetSidePanelVisibilityIPCMessage(panelsAreVisible: boolean): void
+  onRunSmokeTestIPCMessage(imagePath: string, exportPath: string): void
+}
+
+function waitForCondition(condition: () => boolean, timeoutMs = 10000): Promise<void> {
+  const startTime = Date.now()
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      if (condition()) {
+        resolve()
+      } else if (Date.now() - startTime >= timeoutMs) {
+        reject(new Error('Timed out while waiting for smoke test condition'))
+      } else {
+        window.setTimeout(check, 100)
+      }
+    }
+    check()
+  })
+}
+
+function loadDroppedImage(imagePath: string, dispatch: Dispatch<AppAction>, onError: () => void): Promise<void> {
+  let didReportError = false
+  const reportError = () => {
+    if (!didReportError) {
+      didReportError = true
+      onError()
+    }
+  }
+
+  return window.electronAPI.readFile(imagePath).then((imageBuffer) => new Promise<void>((resolve, reject) => {
+    loadImage(
+      imageBuffer,
+      (width: number, height: number, url: string) => {
+        dispatch(setImage(url, imageBuffer, width, height))
+        resolve()
+      },
+      () => {
+        reportError()
+        reject(new Error('Failed to load image'))
+      }
+    )
+  })).catch((error) => {
+    reportError()
+    throw error
+  })
+}
+
+async function runRendererSmokeTest(
+  callbacks: {
+    onOpenExampleProjectPressed(): void
+    onSmokeImageDropped(imagePath: string): Promise<void>
+    onExportIPCMessage(exportType: ExportType): void
+  },
+  imagePath: string
+): Promise<void> {
+  callbacks.onOpenExampleProjectPressed()
+  await waitForCondition(() => store.getState().uiState.projectFilePath === null && store.getState().image.data !== null)
+  if (store.getState().solverResult.cameraParameters === null) {
+    throw new Error('Example project did not produce camera parameters')
+  }
+
+  await callbacks.onSmokeImageDropped(imagePath)
+  await waitForCondition(() => store.getState().image.data !== null && store.getState().uiState.projectHasUnsavedChanges)
+  callbacks.onExportIPCMessage(ExportType.CameraParametersJSON)
 }
 
 class App extends React.PureComponent<AppProps> {
@@ -137,6 +201,10 @@ class App extends React.PureComponent<AppProps> {
     window.electronAPI.onSetSidePanelVisibility((panelsAreVisible: boolean) => {
       this.props.onSetSidePanelVisibilityIPCMessage(panelsAreVisible)
     })
+
+    window.electronAPI.onRunSmokeTest((imagePath: string, exportPath: string) => {
+      this.props.onRunSmokeTestIPCMessage(imagePath, exportPath)
+    })
   }
 }
 
@@ -152,20 +220,16 @@ export function mapStateToProps(state: StoreState) {
 export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
   return {
     onImageFileDropped: (imagePath: string) => {
-      window.electronAPI.readFile(imagePath).then((imageBuffer) => {
-        loadImage(
-          imageBuffer,
-          (width: number, height: number, url: string) => {
-            dispatch(setImage(url, imageBuffer, width, height))
-          },
-          () => {
-            window.electronAPI.showErrorBox(
-              'Failed to load image data',
-              'Could not load the image data. Is this a valid image file?'
-            )
-          }
-        )
-      })
+      void loadDroppedImage(
+        imagePath,
+        dispatch,
+        () => {
+          window.electronAPI.showErrorBox(
+            'Failed to load image data',
+            'Could not load the image data. Is this a valid image file?'
+          )
+        }
+      )
     },
     onProjectFileDropped: (projectPath: string) => {
       window.electronAPI.sendOpenDroppedProject(projectPath)
@@ -183,16 +247,8 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       ProjectFile.save(filePath, dispatch)
     },
     onOpenImageIPCMessage: (imagePath: string) => {
-      window.electronAPI.readFile(imagePath).then((imageBuffer) => {
-        loadImage(
-          imageBuffer,
-          (width: number, height: number, url: string) => {
-            dispatch(setImage(url, imageBuffer, width, height))
-          },
-          () => {
-            alert('Failed to load image')
-          }
-        )
+      loadDroppedImage(imagePath, dispatch, () => {
+        alert('Failed to load image')
       })
     },
     onOpenExampleProjectIPCMessage: () => {
@@ -234,6 +290,29 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
     },
     onSetSidePanelVisibilityIPCMessage: (panelsAreVisible: boolean) => {
       dispatch(setSidePanelVisibility(panelsAreVisible))
+    },
+    onRunSmokeTestIPCMessage: (imagePath: string) => {
+      runRendererSmokeTest(
+        {
+          onOpenExampleProjectPressed: () => ProjectFile.loadExample(dispatch),
+          onSmokeImageDropped: (droppedImagePath: string) => loadDroppedImage(droppedImagePath, dispatch, () => {
+            window.electronAPI.sendSmokeTestResult({ success: false, message: 'Smoke image failed to load' })
+          }),
+          onExportIPCMessage: (exportType: ExportType) => {
+            const cameraParameters = store.getState().solverResult.cameraParameters
+            const result: SmokeTestResult = { success: false, message: 'Camera parameters were not available for export' }
+            if (cameraParameters) {
+              window.electronAPI.sendSpecifyExportPath(exportType, JSON.stringify(cameraParameters, null, 2))
+              result.success = true
+              result.message = undefined
+            }
+            window.electronAPI.sendSmokeTestResult(result)
+          }
+        },
+        imagePath
+      ).catch((error) => {
+        window.electronAPI.sendSmokeTestResult({ success: false, message: (error as Error).message })
+      })
     }
   }
 }

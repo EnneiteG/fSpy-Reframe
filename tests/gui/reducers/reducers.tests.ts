@@ -7,7 +7,9 @@ import { defaultImageState } from '../../../src/gui/defaults/image-state'
 import { defaultResultDisplaySettings } from '../../../src/gui/defaults/result-display-settings'
 import { CalibrationMode, Overlay3DGuide } from '../../../src/gui/types/global-settings'
 import { OrientationFormat, PrincipalPointFormat, FieldOfViewFormat } from '../../../src/gui/types/result-display-settings'
-import { ActionTypes } from '../../../src/gui/actions'
+import { ActionTypes, AppAction } from '../../../src/gui/actions'
+
+const unknownAction = { type: 'UNKNOWN_ACTION' } as unknown as AppAction
 
 describe('globalSettings reducer', () => {
   test('returns default state when undefined', () => {
@@ -53,7 +55,7 @@ describe('globalSettings reducer', () => {
   })
 
   test('unknown action returns current state', () => {
-    const state = globalSettings(defaultGlobalSettings, { type: 'UNKNOWN_ACTION' } as any)
+    const state = globalSettings(defaultGlobalSettings, unknownAction)
     expect(state).toBe(defaultGlobalSettings)
   })
 })
@@ -95,7 +97,7 @@ describe('imageState reducer', () => {
 
   test('unknown action returns current state', () => {
     const current = { width: 100, height: 200, url: 'x', data: null }
-    const state = imageState(current, { type: 'UNKNOWN' } as any)
+    const state = imageState(current, unknownAction)
     expect(state).toBe(current)
   })
 })
@@ -150,7 +152,7 @@ describe('resultDisplaySettings reducer', () => {
   })
 
   test('unknown action returns current state', () => {
-    const state = resultDisplaySettings(defaultResultDisplaySettings, { type: 'UNKNOWN' } as any)
+    const state = resultDisplaySettings(defaultResultDisplaySettings, unknownAction)
     expect(state).toBe(defaultResultDisplaySettings)
   })
 })
