@@ -46,9 +46,6 @@ interface ControlPointProps {
 
 interface ControlPointState {
   isDragging: boolean
-  dragPosition: Point2D
-  previousDragPosition: Point2D
-  dragDamping: number
 }
 
 export default class ControlPoint extends React.Component<ControlPointProps, ControlPointState> {
@@ -60,15 +57,13 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
   private circleNode: DraggableKonvaNode | null = null
   private dragPosition: Point2D = { x: 0, y: 0 }
   private previousDragPosition: Point2D = { x: 0, y: 0 }
+  private dragDamping = 1
 
   constructor(props: ControlPointProps) {
     super(props)
 
     this.state = {
-      isDragging: false,
-      dragPosition: { x: 0, y: 0 },
-      previousDragPosition: { x: 0, y: 0 },
-      dragDamping: 1
+      isDragging: false
     }
   }
 
@@ -94,19 +89,13 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
 
   handleKeyDown = (event: KeyboardEvent) => {
     if (event.key == 'Shift') {
-      this.setState({
-        ...this.state,
-        dragDamping: this.SHIFT_DRAG_DAMING
-      })
+      this.dragDamping = this.SHIFT_DRAG_DAMING
     }
   }
 
   handleKeyUp = (event: KeyboardEvent) => {
     if (event.key == 'Shift') {
-      this.setState({
-        ...this.state,
-        dragDamping: 1
-      })
+      this.dragDamping = 1
     }
   }
 
@@ -118,10 +107,10 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
 
   private resetDragState = () => {
     this.stopNodeDrag()
+    this.dragDamping = 1
     this.setState({
       ...this.state,
-      isDragging: false,
-      dragDamping: 1
+      isDragging: false
     })
   }
 
@@ -134,6 +123,18 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
     }
   }
 
+  private dragBoundFunc = (position: Point2D): Point2D => {
+    const dx = position.x - this.previousDragPosition.x
+    const dy = position.y - this.previousDragPosition.y
+    const newDragPosition = {
+      x: this.dragPosition.x + this.dragDamping * dx,
+      y: this.dragPosition.y + this.dragDamping * dy
+    }
+    this.dragPosition = newDragPosition
+    this.previousDragPosition = position
+    return newDragPosition
+  }
+
   render() {
     if (this.props.hidden) {
       return null
@@ -144,6 +145,7 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
         <Circle
           ref={(node) => { this.circleNode = node }}
           draggable={!this.props.isDragDisabled}
+          dragBoundFunc={this.dragBoundFunc}
           radius={this.HIT_RADIUS}
           x={this.props.absolutePosition.x}
           y={this.props.absolutePosition.y}
@@ -153,29 +155,11 @@ export default class ControlPoint extends React.Component<ControlPointProps, Con
             this.previousDragPosition = dragPosition
             this.setState({
               ...this.state,
-              isDragging: true,
-              dragPosition,
-              previousDragPosition: dragPosition
+              isDragging: true
             })
           }}
           onDragMove={(event: ControlPointDragEvent) => {
-            // Compute the drag delta
-            const dx = event.target.x() - this.previousDragPosition.x
-            const dy = event.target.y() - this.previousDragPosition.y
-            // Compute the new drag position by adding the delta multiplied
-            // by the damping factor
-            const newDragPosition = {
-              x: this.dragPosition.x + this.state.dragDamping * dx,
-              y: this.dragPosition.y + this.state.dragDamping * dy
-            }
-            this.dragPosition = newDragPosition
-            this.previousDragPosition = { x: event.target.x(), y: event.target.y() }
-            this.setState({
-              ...this.state,
-              dragPosition: newDragPosition,
-              previousDragPosition: this.previousDragPosition
-            })
-            this.props.onControlPointDrag(newDragPosition)
+            this.props.onControlPointDrag({ x: event.target.x(), y: event.target.y() })
           }}
           onDragEnd={() => {
             // Reset the Konva node position to match React props.
