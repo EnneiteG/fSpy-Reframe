@@ -29,6 +29,7 @@ import { existsSync, openSync, writeSync, closeSync, readFileSync, realpathSync 
 import { CLI } from '../cli/cli'
 import { EXAMPLE_PROJECT_FILENAME, isProjectFileData } from '../gui/io/project-file-format'
 import { exportFileOptions, pathWithExportExtension } from './export-file-options'
+import { IMAGE_FILE_EXTENSIONS } from '../gui/io/image-format'
 import type { SmokeTestOptions, SmokeTestResult } from './smoke-test-options'
 import { safeWindowBounds } from './window-bounds'
 import { pathWithProjectExtension, projectSaveDialogOptions } from './project-file-options'
@@ -365,7 +366,11 @@ function createWindow() {
         dialog.showOpenDialog(
           window,
           {
-            properties: ['openFile']
+            properties: ['openFile'],
+            filters: [
+              { name: 'Image files', extensions: IMAGE_FILE_EXTENSIONS },
+              { name: 'All files', extensions: ['*'] }
+            ]
           }
         ).then((result) => {
           if (!result.canceled) {

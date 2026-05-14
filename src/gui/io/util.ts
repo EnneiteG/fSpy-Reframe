@@ -17,13 +17,14 @@
  */
 
 import '../types/electron-api'
+import { detectImageMimeType } from './image-format'
 
 export function loadImage(
   imageBuffer: Uint8Array,
   onLoad: (width: number, height: number, url: string) => void,
   onError: () => void
 ) {
-  let blob = new Blob([new Uint8Array(imageBuffer) as BlobPart])
+  let blob = new Blob([new Uint8Array(imageBuffer) as BlobPart], { type: detectImageMimeType(imageBuffer) || undefined })
   let url = URL.createObjectURL(blob)
   let image = new Image()
   image.src = url

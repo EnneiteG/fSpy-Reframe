@@ -24,6 +24,26 @@ describe('export file options', () => {
     expect(options.saveDialogOptions.defaultPath).toBe('project-image.jpg')
   })
 
+  test('detects AVIF project image extension from bytes', () => {
+    const options = exportFileOptions(ExportType.ProjectImage, new Uint8Array([
+      0x00, 0x00, 0x00, 0x20,
+      0x66, 0x74, 0x79, 0x70,
+      0x61, 0x76, 0x69, 0x66,
+      0x00, 0x00, 0x00, 0x00,
+      0x61, 0x76, 0x69, 0x66
+    ]))
+
+    expect(options.defaultExtension).toBe('avif')
+    expect(options.saveDialogOptions.defaultPath).toBe('project-image.avif')
+  })
+
+  test('includes AVIF in project image export filters', () => {
+    const options = exportFileOptions(ExportType.ProjectImage, new Uint8Array([0xff, 0xd8, 0xff, 0xe0]))
+    const imageFilter = options.saveDialogOptions.filters?.find((filter) => filter.name == 'Image files')
+
+    expect(imageFilter?.extensions).toContain('avif')
+  })
+
   test('adds default extension when export path has none', () => {
     expect(pathWithExportExtension('camera-parameters', 'json')).toBe('camera-parameters.json')
   })
