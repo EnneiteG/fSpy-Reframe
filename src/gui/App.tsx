@@ -130,7 +130,7 @@ class App extends React.PureComponent<AppProps> {
       this.props.onOpenImageIPCMessage(filePath)
     })
 
-    window.electronAPI.onExport((exportType: number) => {
+    window.electronAPI.onExport((exportType: ExportType) => {
       this.props.onExportIPCMessage(exportType)
     })
 
@@ -199,7 +199,7 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       ProjectFile.loadExample(dispatch)
     },
     onExportIPCMessage: (exportType: ExportType) => {
-      let dataToExport: any | null = null
+      let dataToExport: string | Uint8Array | null = null
       const storeState: StoreState = store.getState()
       switch (exportType) {
         case ExportType.CameraParametersJSON:

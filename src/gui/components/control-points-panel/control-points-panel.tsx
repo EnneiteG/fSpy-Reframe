@@ -598,7 +598,7 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
     let aspect = (width - 2 * pad) / (height - 2 * pad)
     let xOffset = pad
     let yOffset = pad
-    let imageScale = 1
+    let imageScale: number
     if (imageAspect > aspect) {
       // wide image
       imageScale = (width - 2 * pad) / imageWidth

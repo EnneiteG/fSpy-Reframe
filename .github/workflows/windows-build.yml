@@ -13,6 +13,37 @@ permissions:
   contents: read
 
 jobs:
+  node-compatibility:
+    name: Node ${{ matrix.node-version }} compatibility
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 22.14.0
+          - 24.x
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build development bundles
+        run: npm run build-dev
+
+      - name: Run tests
+        run: npm test
+
   build:
     name: Verify Windows package
     runs-on: windows-latest
@@ -43,6 +74,9 @@ jobs:
 
       - name: Build unpacked Windows package
         run: npm run dist-preview
+
+      - name: Smoke launch packaged app
+        run: npm run smoke:packaged
 
       - name: Upload unpacked app
         uses: actions/upload-artifact@v7

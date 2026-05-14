@@ -18,6 +18,8 @@
 
 import { ExportType } from '../main/ipc-messages'
 
+export type ExportFileData = string | Uint8Array | ArrayBuffer | ArrayBufferView
+
 // Messages sent from the renderer process to the main process
 
 export class SpecifyProjectPathMessage {
@@ -26,9 +28,9 @@ export class SpecifyProjectPathMessage {
 
 export class SpecifyExportPathMessage {
   static readonly type = 'SpecifyExportPathMessage'
-  readonly data: any
+  readonly data: ExportFileData
   readonly exportType: ExportType
-  constructor(exportType: ExportType, data: any) {
+  constructor(exportType: ExportType, data: ExportFileData) {
     this.exportType = exportType
     this.data = data
   }

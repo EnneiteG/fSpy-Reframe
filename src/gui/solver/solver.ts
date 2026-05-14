@@ -76,16 +76,11 @@ export default class Solver {
       sensorWidth = preset.sensorWidth
       sensorHeight = preset.sensorHeight
     }
-    let relativeFocalLength = 0
     let sensorAspectRatio = sensorWidth / sensorHeight
     // TODO: verify factor 2
-    if (sensorAspectRatio > 1) {
-      // wide sensor.
-      relativeFocalLength = 2 * absoluteFocalLength / sensorWidth
-    } else {
-      // tall sensor
-      relativeFocalLength = 2 * absoluteFocalLength / sensorHeight
-    }
+    const relativeFocalLength = sensorAspectRatio > 1
+      ? 2 * absoluteFocalLength / sensorWidth
+      : 2 * absoluteFocalLength / sensorHeight
 
     if (!this.imageProportionsMatchSensor(sensorWidth, sensorHeight, imageWidth, imageHeight)) {
       result.warnings.push(strings.imageSensorProportionsMismatch)
@@ -121,8 +116,6 @@ export default class Solver {
     }
 
     // Compute the horizon direction
-    let horizonDirection: Point2D = { x: 1, y: 0 } // flat by default
-
     // Compute two points on the horizon line in image plane coordinates
     let horizonStart = CoordinatesUtil.convert(
       controlPoints1VP.horizon[0],
@@ -140,7 +133,7 @@ export default class Solver {
     )
 
     // Normalized horizon direction vector
-    horizonDirection = MathUtil.normalized({
+    const horizonDirection = MathUtil.normalized({
       x: horizonEnd.x - horizonStart.x,
       y: horizonEnd.y - horizonStart.y
     })

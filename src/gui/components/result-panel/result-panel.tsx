@@ -297,14 +297,9 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
       sensorHeight = preset.sensorHeight
     }
     let sensorAspectRatio = sensorHeight > 0 ? sensorWidth / sensorHeight : 1
-    let absoluteFocalLength = 0
-    if (sensorAspectRatio > 1) {
-      // wide sensor.
-      absoluteFocalLength = 0.5 * sensorWidth * cameraParameters.relativeFocalLength
-    } else {
-      // tall sensor
-      absoluteFocalLength = 0.5 * sensorHeight * cameraParameters.relativeFocalLength
-    }
+    const absoluteFocalLength = sensorAspectRatio > 1
+      ? 0.5 * sensorWidth * cameraParameters.relativeFocalLength
+      : 0.5 * sensorHeight * cameraParameters.relativeFocalLength
 
     const displayFocalLength = this.props.resultDisplaySettings.displayAbsoluteFocalLength
     const proportionsMatch = Solver.imageProportionsMatchSensor(

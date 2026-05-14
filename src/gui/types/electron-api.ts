@@ -1,3 +1,6 @@
+import type { ExportType } from '../../main/ipc-messages'
+import type { ExportFileData } from '../ipc-messages'
+
 export interface ElectronAPI {
   // Request-response
   showErrorBox(title: string, content: string): Promise<void>
@@ -16,7 +19,7 @@ export interface ElectronAPI {
   ): void
   sendSpecifyProjectPath(): void
   sendOpenDroppedProject(filePath: string): void
-  sendSpecifyExportPath(exportType: number, data: unknown): void
+  sendSpecifyExportPath(exportType: ExportType, data: ExportFileData): void
 
   // Listeners (main → renderer)
   onNewProject(callback: () => void): void
@@ -24,7 +27,7 @@ export interface ElectronAPI {
   onSaveProject(callback: () => void): void
   onSaveProjectAs(callback: (filePath: string) => void): void
   onOpenImage(callback: (filePath: string) => void): void
-  onExport(callback: (exportType: number) => void): void
+  onExport(callback: (exportType: ExportType) => void): void
   onSetSidePanelVisibility(callback: (panelsAreVisible: boolean) => void): void
 
   // Clipboard

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Menu, clipboard, shell } from 'electron'
 import { OpenProjectMessage, OpenImageMessage, SaveProjectMessage, SaveProjectAsMessage, NewProjectMessage, ExportMessage, ExportType, SetSidePanelVisibilityMessage } from './ipc-messages'
 import path from 'path'
 import { pathToFileURL } from 'url'
@@ -90,6 +90,10 @@ function getResourceURL(fileName: string): string {
 
 function getExampleProjectPath(): string {
   return getResourcePath(EXAMPLE_PROJECT_FILENAME)
+}
+
+function isAllowedNavigationURL(url: string): boolean {
+  return url.startsWith('https://github.com/') || url.startsWith('https://stuffmatic.com/')
 }
 
 function isProjectFilePath(filePath: string): boolean {
@@ -308,12 +312,29 @@ function createWindow() {
   // Prevent following links, e.g when they are dropped
   // on the app window
   window.webContents.on('will-navigate', ev => {
-    if (process.env.DEV) {
-      // Allow this event in dev builds, since auto reload
-      // relies on it
-    } else {
+    if (process.env.DEV === undefined) {
       ev.preventDefault()
     }
+  })
+
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    if (isAllowedNavigationURL(url)) {
+      shell.openExternal(url)
+    }
+    return { action: 'deny' }
+  })
+
+  window.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          process.env.DEV === undefined
+            ? "default-src 'self'; img-src 'self' file: blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+            : "default-src 'self' http://localhost:8080 ws://localhost:8080; img-src 'self' file: blob: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'"
+        ]
+      }
+    })
   })
 
   window.webContents.on('before-input-event', (event, input) => {
@@ -460,14 +481,25 @@ function createWindow() {
     ).then((result) => {
       if (!result.canceled && result.filePath) {
         const filePath = pathWithExportExtension(result.filePath, fileOptions.defaultExtension)
-        let file = openSync(filePath, 'w')
-        writeSync(file, message.data)
+        const file = openSync(filePath, 'w')
+        if (typeof message.data === 'string') {
+          writeSync(file, message.data)
+        } else {
+          writeSync(file, exportFileDataToBuffer(message.data))
+        }
         closeSync(file)
       }
     }).catch(() => {
       // dialog canceled or failed
     })
   })
+
+  function exportFileDataToBuffer(data: Exclude<SpecifyExportPathMessage['data'], string>): Buffer {
+    if (data instanceof ArrayBuffer) {
+      return Buffer.from(data)
+    }
+    return Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+  }
 
   ipcMain.on(OpenDroppedProjectMessage.type, (_: Electron.IpcMainEvent, message: OpenDroppedProjectMessage) => {
     showDiscardChangesDialogIfNeeded(window, (didCancel: boolean) => {

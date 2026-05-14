@@ -7,7 +7,9 @@ export interface ExportFileOptions {
   saveDialogOptions: SaveDialogOptions
 }
 
-export function exportFileOptions(exportType: ExportType, data: any): ExportFileOptions {
+export type ExportFileData = string | Uint8Array | ArrayBuffer | ArrayBufferView
+
+export function exportFileOptions(exportType: ExportType, data: ExportFileData): ExportFileOptions {
   switch (exportType) {
     case ExportType.CameraParametersJSON:
       return jsonExportFileOptions('camera-parameters.json')
@@ -49,7 +51,7 @@ function jsonExportFileOptions(defaultPath: string): ExportFileOptions {
   }
 }
 
-function detectImageFileExtension(data: any): string | null {
+function detectImageFileExtension(data: ExportFileData): string | null {
   const bytes = bytesFromData(data)
   if (bytes === null) {
     return null
@@ -75,7 +77,7 @@ function detectImageFileExtension(data: any): string | null {
   return null
 }
 
-function bytesFromData(data: any): Uint8Array | null {
+function bytesFromData(data: ExportFileData): Uint8Array | null {
   if (data instanceof Uint8Array) {
     return data
   }

@@ -1,3 +1,5 @@
+import type { ExportType } from './ipc-messages'
+import type { ExportFileData } from '../gui/ipc-messages'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -42,7 +44,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendOpenDroppedProject: (filePath: string): void => {
     ipcRenderer.send('OpenDroppedProjectMessage', { filePath })
   },
-  sendSpecifyExportPath: (exportType: number, data: unknown): void => {
+  sendSpecifyExportPath: (exportType: ExportType, data: ExportFileData): void => {
     ipcRenderer.send('SpecifyExportPathMessage', { exportType, data })
   },
 
@@ -64,7 +66,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onOpenImage: (callback: (filePath: string) => void): void => {
     ipcRenderer.on('openImage', (_event, message) => callback(message.filePath))
   },
-  onExport: (callback: (exportType: number) => void): void => {
+  onExport: (callback: (exportType: ExportType) => void): void => {
     ipcRenderer.on('export', (_event, message) => callback(message.exportType))
   },
   onSetSidePanelVisibility: (callback: (panelsAreVisible: boolean) => void): void => {

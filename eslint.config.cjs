@@ -42,7 +42,8 @@ module.exports = [
       'no-undef': 'off',
       'no-redeclare': 'off',
       'no-case-declarations': 'off',
-      'no-useless-assignment': 'off',
+      'no-useless-assignment': 'error',
+      'no-var': 'error',
       'space-before-function-paren': ['error', {
         'anonymous': 'always',
         'named': 'never',
