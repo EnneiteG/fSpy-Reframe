@@ -1,73 +1,148 @@
-## What is this?
+# fSpy Reframe
 
-fSpy Reframe is a modernized fork of fSpy, an open source cross-platform app for still image camera matching. See [fspy.io](https://fspy.io) for more information about the original project. The source code is available under the GPL license.
+fSpy Reframe is a modernized fork of [fSpy](https://fspy.io), an open source application for still image camera matching. It preserves fSpy's original calibration model and `.fspy` project format while adding target-specific camera workflows for DCCs and engines.
 
-## Purpose of this fork
-
-fSpy Reframe started as fSpy-UE, a fork focused on making the camera matching workflow easier to use with [Unreal Engine](https://www.unrealengine.com/). The project has grown into a broader maintained fork for target-specific camera workflows.
-
-The goal is to keep the app maintained on a modern Electron/React toolchain while preserving fSpy's original calibration model and adding target presets for more applications over time. The solved camera data remains compatible with fSpy, while the UI and exports can present that same camera in target-specific coordinate systems.
-
-The fork currently includes Unreal Engine and Blender target presets, scene orientation options, target-specific camera rotation display and a target camera JSON export. Future presets can follow the same approach for other DCCs, engines or rendering tools.
+The project started as fSpy-UE, focused on Unreal Engine camera output. It has since grown into a broader maintained fork with Unreal Engine and Blender presets, updated dependencies, safer file handling, and workflow fixes.
 
 ![fSpy Reframe screenshot](doc/images/Capture_01.png)
 
-## Using the computed camera parameters in other applications
+## Highlights
 
-In theory, camera parameters computed by fSpy could be used in any application that has a notion of a 3D camera and provides some way of setting the camera parameters. If you're a Blender user, have a look at the [official fSpy importer add-on](https://github.com/stuffmatic/fSpy-Blender). If you're using an application without a dedicated importer, you may still be able to manually copy the camera parameters from fSpy.
+- Modern Electron, React, Redux, TypeScript and Webpack stack.
+- Compatible with existing `.fspy` project files.
+- Unreal Engine target preset with Unreal-friendly coordinates, centimeters and Roll/Pitch/Yaw output.
+- Blender target preset with Blender XYZ Euler rotation output in degrees.
+- Target camera JSON export for copy/paste or custom pipeline tooling.
+- Raw fSpy camera JSON export for low-level integration.
+- Free reference distance mode for measuring scale from arbitrary image handles on a selected plane.
+- AVIF image import support alongside common raster image formats.
+- Safer save/export defaults, extension handling and packaged app smoke tests.
 
-Interested in writing an importer for your favorite application? Then the [fSpy project file format spec](https://github.com/stuffmatic/fSpy/blob/develop/project_file_format.md) is a good starting point.
+## Target Presets
 
-## Building and running
+The solver still computes the same fSpy camera. Target presets only change how that solved camera is displayed and exported.
 
-The following instructions are for developers. If you just want to run the app, download the latest build from the [fSpy Reframe releases page](https://github.com/EnneiteG/fSpy-Reframe/releases).
+`fSpy`
 
-fSpy is written in [TypeScript](https://www.typescriptlang.org) using [Electron](https://electronjs.org), [React](https://reactjs.org) and [Redux](https://redux.js.org). [Visual Studio Code](https://code.visualstudio.com) is recommended for a pleasant editing experience.
+Native fSpy coordinates and axis-angle rotation.
 
-Node.js 22 is the recommended development runtime for the current Electron build stack. The repository includes an `.nvmrc` file for this purpose. npm is the package manager for this fork.
+`Unreal Engine`
 
-To install necessary dependencies, run:
+Displays position in Unreal's X-forward, Y-right, Z-up coordinate system, converts supported units to centimeters, and reports rotation as Roll, Pitch and Yaw in degrees.
 
-```
+`Blender`
+
+Displays position in Blender-compatible coordinates and reports rotation as XYZ Euler angles in degrees, matching Blender's camera rotation convention.
+
+Scene orientation options can rotate the target frame without changing the underlying calibration. This is useful when the image's main forward direction does not match the target application's default forward axis.
+
+## Downloads
+
+Windows installers and zip archives are published from GitHub Actions:
+
+https://github.com/EnneiteG/fSpy-Reframe/releases
+
+The current release line uses version tags without the old `-ue` suffix, for example `v0.8.0`.
+
+## Original fSpy And Blender Importer
+
+The original fSpy project is available at:
+
+https://github.com/stuffmatic/fSpy
+
+If you only need to import `.fspy` projects directly into Blender, the official importer add-on remains useful:
+
+https://github.com/stuffmatic/fSpy-Blender
+
+fSpy Reframe is useful when you want the desktop calibration workflow plus target-specific camera values and JSON exports from the app itself.
+
+## Development
+
+Node.js 22.14.0 is the recommended development runtime. The repository includes an `.nvmrc` file, and npm is the package manager for this fork.
+
+Install dependencies:
+
+```bash
 npm ci
 ```
 
-The `src` folder contains `main` and `gui`, containing code for the [Electron main and renderer processes](https://electronjs.org/docs/tutorial/application-architecture) respectively, and `cli`, which contains a command-line interface for processing fSpy project files without the GUI. The main process includes a preload script (`src/main/preload.ts`) that bridges the renderer and main processes via IPC.
+Build development bundles once:
 
-Here's how to run the app in development mode:
-
-1. Run `npm run build-dev` once to generate the main process, preload and renderer bundles.
-2. Run `npm run dev-server` in a separate terminal tab to start the renderer dev server.
-3. Run `npm run electron-dev` in another terminal tab to start Electron against the dev server.
-
-To test a packaged app without creating installers, run:
-
+```bash
+npm run build-dev
 ```
+
+Run the renderer dev server:
+
+```bash
+npm run dev-server
+```
+
+Start Electron against the dev server in another terminal:
+
+```bash
+npm run electron-dev
+```
+
+On Windows PowerShell, use `npm.cmd` if script execution policy blocks `npm.ps1`.
+
+## Validation
+
+Run lint, development build and the full Jest suite:
+
+```bash
+npm run verify
+```
+
+Run only the main process tests:
+
+```bash
+npm run test:unit
+```
+
+Run project/export compatibility tests:
+
+```bash
+npm run test:export-project
+```
+
+## Packaging
+
+Build an unpacked app for local smoke testing:
+
+```bash
 npm run dist-preview
 ```
 
-On Windows, this creates an unpacked app in `dist/win-unpacked`.
+On Windows, this creates `dist/win-unpacked/fSpy Reframe.exe`.
 
-When launching the unpacked app from a terminal, make sure `ELECTRON_RUN_AS_NODE` is not set. That variable is used by Electron tooling to run Electron as a Node.js binary; if it leaks into the app launch environment, the app exits immediately instead of opening a window. In PowerShell, clear it for the current session with:
+Run the packaged smoke test:
 
-```powershell
-Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+```bash
+npm run smoke:packaged
 ```
 
-## Creating binaries for distribution
+Build the Windows installer and zip archive:
 
-To create installers and archives for all configured platforms, run:
-
-```
-npm run dist
-```
-
-which invokes [Electron builder](https://github.com/electron-userland/electron-builder).
-
-To create a Windows installer locally, run:
-
-```
+```bash
 npm run dist-win
 ```
 
-On Windows, this creates an x64 NSIS setup executable and zip archive in `dist/`. GitHub also has a `Windows Release` workflow that builds the same installer and archive. Pushing a tag such as `v0.8.0` creates a GitHub Release and attaches the generated files. The generated file names use the version from `package.json`.
+The release workflow builds the same Windows artifacts on tags matching `v*`, uploads them to the GitHub Release, and runs a smoke launch of the packaged app before publishing.
+
+## Repository Layout
+
+- `src/main`: Electron main process, windows, menus, IPC handlers and file system access.
+- `src/main/preload.ts`: context-isolated API bridge exposed as `window.electronAPI`.
+- `src/gui`: React/Redux renderer UI, calibration controls and solver display.
+- `src/gui/solver`: camera matching math, target presets and coordinate conversions.
+- `tests`: Jest tests for main process helpers, project files, reducers, solver utilities and GUI conversion logic.
+- `doc/release-notes`: release notes used for GitHub Releases.
+
+## Security Model
+
+The renderer has no direct Node.js or Electron access. Electron runs with `contextIsolation: true`, `nodeIntegration: false` and `sandbox: true`. Renderer access to native capabilities goes through the typed preload API and IPC handlers in the main process.
+
+## License
+
+fSpy Reframe is licensed under GPL-3.0, following the original fSpy project.
