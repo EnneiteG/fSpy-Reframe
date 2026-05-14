@@ -29,12 +29,13 @@ import { ImageState } from '../../types/image-state'
 import VanishingPointControl from './vanishing-point-control'
 import { Palette } from '../../style/palette'
 import HorizonControl from './horizon-control'
-import { CalibrationSettings1VP, CalibrationSettingsBase, CalibrationSettings2VP, PrincipalPointMode2VP, PrincipalPointMode1VP, Axis } from '../../types/calibration-settings'
+import { CalibrationSettings1VP, CalibrationSettingsBase, CalibrationSettings2VP, PrincipalPointMode2VP, PrincipalPointMode1VP, Axis, ReferenceDistanceMode } from '../../types/calibration-settings'
 import PrincipalPointControl from './principal-point-control'
 import { SolverResult } from '../../solver/solver-result'
 import CoordinatesUtil, { ImageCoordinateFrame } from '../../solver/coordinates-util'
 import Overlay3DPanel from './overlay-3d-panel'
 import ReferenceDistanceControl from './reference-distance-control'
+import FreeReferenceDistanceControl from './free-reference-distance-control'
 import Solver from '../../solver/solver'
 import MathUtil from '../../solver/math-util'
 import AABBOps from '../../solver/aabb-ops'
@@ -251,7 +252,9 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
     }
     return (
       <Overlay3DPanel
-        referenceDistanceAxis={this.props.calibrationSettingsBase.referenceDistanceAxis}
+        referenceDistanceAxis={this.props.calibrationSettingsBase.referenceDistanceMode == ReferenceDistanceMode.Axis
+          ? this.props.calibrationSettingsBase.referenceDistanceAxis
+          : null}
         imageAABB={imageAABB}
         width={this.state.width}
         height={this.state.height}
@@ -321,6 +324,10 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
   }
 
   private renderReferenceDistanceControl() {
+    if (this.props.calibrationSettingsBase.referenceDistanceMode == ReferenceDistanceMode.Free) {
+      return this.renderFreeReferenceDistanceControl()
+    }
+
     let referenceAxis = this.props.calibrationSettingsBase.referenceDistanceAxis
     if (referenceAxis === null) {
       return null
@@ -447,6 +454,24 @@ export default class ControlPointsPanel extends React.Component<ControlPointsPan
           this.didDragControlPoint(dragPosition, handleIndex)
           this.props.callbacks.onReferenceDistanceHandleDrag(
             handleIndex, offset
+          )
+        }}
+      />
+    )
+  }
+
+  private renderFreeReferenceDistanceControl() {
+    return (
+      <FreeReferenceDistanceControl
+        handlePositions={[
+          this.rel2AbsPoint(this.props.controlPointsStateBase.referenceDistanceFreeHandlePositions[0]),
+          this.rel2AbsPoint(this.props.controlPointsStateBase.referenceDistanceFreeHandlePositions[1])
+        ]}
+        handleDragCallback={(handleIndex: number, position: Point2D) => {
+          this.didDragControlPoint(position)
+          this.props.callbacks.onReferenceDistanceFreeHandleDrag(
+            handleIndex,
+            this.abs2RelPoint(position)
           )
         }}
       />

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { CalibrationSettings1VP, CalibrationSettings2VP, PrincipalPointMode2VP, Axis, CalibrationSettingsBase, PrincipalPointMode1VP } from '../types/calibration-settings'
+import { CalibrationSettings1VP, CalibrationSettings2VP, PrincipalPointMode2VP, Axis, CalibrationSettingsBase, PrincipalPointMode1VP, ReferenceDistanceMode, ReferenceDistancePlane } from '../types/calibration-settings'
 import { ControlPointsState1VP, ControlPointsState2VP, VanishingPointControlState, ControlPointsStateBase } from '../types/control-points-state'
 import { ImageState } from '../types/image-state'
 import MathUtil from './math-util'
@@ -492,6 +492,82 @@ export default class Solver {
     return [result[0], result[1]]
   }
 
+  static freeReferenceDistanceHandlesWorldPositions(
+    controlPoints: ControlPointsStateBase,
+    referencePlane: ReferenceDistancePlane,
+    imageWidth: number,
+    imageHeight: number,
+    cameraParameters: CameraParameters
+  ): [Vector3D, Vector3D] | null {
+    let handlePositions = controlPoints.referenceDistanceFreeHandlePositions.map((handlePosition) => {
+      return CoordinatesUtil.convert(
+        handlePosition,
+        ImageCoordinateFrame.Relative,
+        ImageCoordinateFrame.ImagePlane,
+        imageWidth,
+        imageHeight
+      )
+    })
+
+    let planePoint = new Vector3D()
+    let planeNormal = this.referenceDistancePlaneNormal(referencePlane)
+    let result: Vector3D[] = []
+
+    for (let handlePosition of handlePositions) {
+      let rayStart = MathUtil.perspectiveUnproject(
+        new Vector3D(handlePosition.x, handlePosition.y, 1),
+        cameraParameters.viewTransform,
+        cameraParameters.principalPoint,
+        cameraParameters.horizontalFieldOfView
+      )
+      let rayEnd = MathUtil.perspectiveUnproject(
+        new Vector3D(handlePosition.x, handlePosition.y, 2),
+        cameraParameters.viewTransform,
+        cameraParameters.principalPoint,
+        cameraParameters.horizontalFieldOfView
+      )
+      let intersection = this.linePlaneIntersectionWithNormal(
+        planePoint,
+        planeNormal,
+        rayStart,
+        rayEnd
+      )
+      if (intersection == null) {
+        return null
+      }
+      result.push(intersection)
+    }
+
+    return [result[0], result[1]]
+  }
+
+  private static referenceDistancePlaneNormal(referencePlane: ReferenceDistancePlane): Vector3D {
+    switch (referencePlane) {
+      case ReferenceDistancePlane.XY:
+        return new Vector3D(0, 0, 1)
+      case ReferenceDistancePlane.XZ:
+        return new Vector3D(0, 1, 0)
+      case ReferenceDistancePlane.YZ:
+        return new Vector3D(1, 0, 0)
+    }
+  }
+
+  private static linePlaneIntersectionWithNormal(
+    planePoint: Vector3D,
+    planeNormal: Vector3D,
+    lineStart: Vector3D,
+    lineEnd: Vector3D
+  ): Vector3D | null {
+    let lineDirection = lineEnd.subtracted(lineStart)
+    let denominator = planeNormal.dot(lineDirection)
+    if (Math.abs(denominator) < 1e-8) {
+      return null
+    }
+
+    let t = planeNormal.dot(planePoint.subtracted(lineStart)) / denominator
+    return lineStart.added(lineDirection.multipliedByScalar(t))
+  }
+
   static referenceDistanceHandlesRelativePositions(
     controlPoints: ControlPointsStateBase,
     referenceAxis: Axis,
@@ -679,7 +755,23 @@ export default class Solver {
     cameraParameters.viewTransform.matrix[1][3] = origin3D.y
     cameraParameters.viewTransform.matrix[2][3] = origin3D.z
 
-    if (settings.referenceDistanceAxis) {
+    if (settings.referenceDistanceMode == ReferenceDistanceMode.Free) {
+      let referenceDistanceHandles3D = this.freeReferenceDistanceHandlesWorldPositions(
+        controlPoints,
+        settings.referenceDistancePlane,
+        imageWidth,
+        imageHeight,
+        cameraParameters
+      )
+      if (referenceDistanceHandles3D) {
+        let defaultHandleDistance = referenceDistanceHandles3D[0].subtracted(referenceDistanceHandles3D[1]).length
+        if (defaultHandleDistance > 1e-8) {
+          let referenceDistance = settings.referenceDistance
+          let scale = referenceDistance / defaultHandleDistance
+          origin3D.multiplyByScalar(scale)
+        }
+      }
+    } else if (settings.referenceDistanceAxis) {
       // If requested, scale the translation vector so that
       // the distance between the 3d handle positions equals the
       // specified reference distance

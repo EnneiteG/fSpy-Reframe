@@ -40,6 +40,16 @@ export const defaultControlPointsStateBase: ControlPointsStateBase = {
     0.13108430697783005,
     0.065990108556575
   ],
+  referenceDistanceFreeHandlePositions: [
+    {
+      x: 0.375,
+      y: 0.625
+    },
+    {
+      x: 0.625,
+      y: 0.625
+    }
+  ],
   firstVanishingPoint: {
     lineSegments: [
       [

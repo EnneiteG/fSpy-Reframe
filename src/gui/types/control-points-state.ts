@@ -47,6 +47,7 @@ export interface ControlPointsStateBase {
   // along the axis from the anchor to the vanishing point corresponding
   // to the selected reference axis
   referenceDistanceHandleOffsets: [number, number]
+  referenceDistanceFreeHandlePositions: [ControlPointState, ControlPointState]
 }
 
 export interface ControlPointsState1VP {

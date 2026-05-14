@@ -24,7 +24,7 @@ import { connect } from 'react-redux'
 import { GlobalSettings } from '../types/global-settings'
 import ControlPointsPanel from '../components/control-points-panel/control-points-panel'
 import Point2D from '../solver/point-2d'
-import { AppAction, setPrincipalPoint, setOrigin, setReferenceDistanceAnchor, adjustHorizon, adjustReferenceDistanceHandle, adjustFirstVanishingPoint, adjustSecondVanishingPoint, adjustThirdVanishingPoint } from '../actions'
+import { AppAction, setPrincipalPoint, setOrigin, setReferenceDistanceAnchor, setReferenceDistanceFreeHandle, adjustHorizon, adjustReferenceDistanceHandle, adjustFirstVanishingPoint, adjustSecondVanishingPoint, adjustThirdVanishingPoint } from '../actions'
 import { CalibrationSettingsBase, CalibrationSettings1VP, CalibrationSettings2VP } from '../types/calibration-settings'
 import { SolverResult } from '../solver/solver-result'
 import { Dispatch } from 'redux'
@@ -35,6 +35,7 @@ export interface ControlPointsContainerCallbacks {
   onOriginDrag(position: Point2D): void
   onReferenceDistanceHandleDrag(handleIndex: number, position: number): void
   onReferenceDistanceAnchorDrag(position: Point2D): void
+  onReferenceDistanceFreeHandleDrag(handleIndex: number, position: Point2D): void
   onFirstVanishingPointControlPointDrag(
     lineSegmentIndex: number,
     controlPointIndex: ControlPointPairIndex,
@@ -124,6 +125,9 @@ export function mapDispatchToProps(dispatch: Dispatch<AppAction>) {
       dispatch(setReferenceDistanceAnchor(
         position
       ))
+    },
+    onReferenceDistanceFreeHandleDrag: (handleIndex: number, position: Point2D) => {
+      dispatch(setReferenceDistanceFreeHandle(handleIndex, position))
     },
     onFirstVanishingPointControlPointDrag: (
       lineSegmentIndex: number,

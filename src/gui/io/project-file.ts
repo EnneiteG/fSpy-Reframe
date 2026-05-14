@@ -24,8 +24,9 @@ import { Dispatch } from 'redux'
 import { loadImage } from './util'
 import '../types/electron-api'
 import { defaultResultDisplaySettings } from '../defaults/result-display-settings'
+import { defaultControlPointsStateBase } from '../defaults/control-points-state'
 import { cameraPresets } from '../solver/camera-presets'
-import { ReferenceDistanceUnit } from '../types/calibration-settings'
+import { ReferenceDistanceMode, ReferenceDistancePlane, ReferenceDistanceUnit } from '../types/calibration-settings'
 import { EXAMPLE_PROJECT_FILENAME as EXAMPLE_PROJECT_FILE_NAME, parseProjectFileData, PROJECT_FILE_EXTENSION as PROJECT_EXTENSION, PROJECT_FILE_ID as PROJECT_ID, PROJECT_FILE_VERSION as PROJECT_VERSION, ProjectFileData, serializeProjectFileData } from './project-file-format'
 
 export default class ProjectFile {
@@ -98,6 +99,24 @@ export default class ProjectFile {
 
       let loadedState: SavedState = projectData.savedState
       let imageBuffer = projectData.imageData
+      if (loadedState.calibrationSettingsBase.referenceDistanceMode === undefined) {
+        loadedState.calibrationSettingsBase.referenceDistanceMode = ReferenceDistanceMode.Axis
+      }
+      if (loadedState.calibrationSettingsBase.referenceDistancePlane === undefined) {
+        loadedState.calibrationSettingsBase.referenceDistancePlane = ReferenceDistancePlane.XY
+      }
+      if (loadedState.controlPointsStateBase.referenceDistanceAnchor === undefined) {
+        loadedState.controlPointsStateBase.referenceDistanceAnchor = loadedState.controlPointsStateBase.origin
+      }
+      if (loadedState.controlPointsStateBase.referenceDistanceHandleOffsets === undefined) {
+        loadedState.controlPointsStateBase.referenceDistanceHandleOffsets = [...defaultControlPointsStateBase.referenceDistanceHandleOffsets]
+      }
+      if (loadedState.controlPointsStateBase.referenceDistanceFreeHandlePositions === undefined) {
+        loadedState.controlPointsStateBase.referenceDistanceFreeHandlePositions = [
+          defaultControlPointsStateBase.referenceDistanceFreeHandlePositions[0],
+          defaultControlPointsStateBase.referenceDistanceFreeHandlePositions[1]
+        ]
+      }
       if (loadedState.cameraParameters === undefined) {
         loadedState.cameraParameters = null
       }

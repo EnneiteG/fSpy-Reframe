@@ -32,6 +32,16 @@ export function calibrationSettingsBase(state: CalibrationSettingsBase | undefin
         ...state,
         referenceDistanceAxis: action.axis
       }
+    case ActionTypes.SET_REFERENCE_DISTANCE_MODE:
+      return {
+        ...state,
+        referenceDistanceMode: action.mode
+      }
+    case ActionTypes.SET_REFERENCE_DISTANCE_PLANE:
+      return {
+        ...state,
+        referenceDistancePlane: action.plane
+      }
     case ActionTypes.SET_REFERENCE_DISTANCE:
       return {
         ...state,

@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { CalibrationSettingsBase, CalibrationSettings1VP, CalibrationSettings2VP, ReferenceDistanceUnit, PrincipalPointMode1VP, Axis, PrincipalPointMode2VP } from '../types/calibration-settings'
+import { CalibrationSettingsBase, CalibrationSettings1VP, CalibrationSettings2VP, ReferenceDistanceUnit, PrincipalPointMode1VP, Axis, PrincipalPointMode2VP, ReferenceDistanceMode, ReferenceDistancePlane } from '../types/calibration-settings'
 
 export const defaultCalibrationSettingsBase: CalibrationSettingsBase = {
   referenceDistanceAxis: null,
   referenceDistance: 4,
   referenceDistanceUnit: ReferenceDistanceUnit.Meters,
+  referenceDistanceMode: ReferenceDistanceMode.Axis,
+  referenceDistancePlane: ReferenceDistancePlane.XY,
   cameraData: {
     presetId: null,
     presetData: null,
