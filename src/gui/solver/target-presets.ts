@@ -23,11 +23,13 @@ import { Axis, CalibrationSettingsBase, ReferenceDistancePlane, ReferenceDistanc
 
 export enum TargetPresetId {
   FSpy = 'fspy',
+  Blender = 'blender',
   Unreal = 'unreal'
 }
 
 export enum TargetRotationFormat {
   AxisAngleDegrees = 'AxisAngleDegrees',
+  BlenderXYZEulerDegrees = 'BlenderXYZEulerDegrees',
   UnrealRotatorDegrees = 'UnrealRotatorDegrees'
 }
 
@@ -85,6 +87,25 @@ export const targetPresets: { [id: string]: TargetPreset } = {
     rotationFormat: TargetRotationFormat.AxisAngleDegrees,
     locationLabels: ['x', 'y', 'z'],
     rotationLabels: ['x', 'y', 'z', 'Angle'],
+    basisToFSpy: [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ],
+    cameraBasisToFSpy: [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1]
+    ]
+  },
+  [TargetPresetId.Blender]: {
+    id: TargetPresetId.Blender,
+    displayName: 'Blender',
+    locationUnit: TargetLocationUnit.Project,
+    rotationFormat: TargetRotationFormat.BlenderXYZEulerDegrees,
+    locationLabels: ['X', 'Y', 'Z'],
+    rotationLabels: ['X', 'Y', 'Z', null],
+    // Blender uses the same world and camera basis as fSpy's native camera transform.
     basisToFSpy: [
       [1, 0, 0],
       [0, 1, 0],
@@ -295,6 +316,8 @@ function targetRotation(matrix: number[][], preset: TargetPreset): [number, numb
   switch (preset.rotationFormat) {
     case TargetRotationFormat.UnrealRotatorDegrees:
       return unrealRotatorFromMatrix(matrix)
+    case TargetRotationFormat.BlenderXYZEulerDegrees:
+      return blenderXYZEulerFromMatrix(matrix)
     case TargetRotationFormat.AxisAngleDegrees:
       return axisAngleFromMatrix(matrix)
   }
@@ -328,6 +351,40 @@ function unrealRotatorFromMatrix(matrix: number[][]): [number, number, number, n
     180 * roll / Math.PI,
     180 * pitch / Math.PI,
     normalizeDegrees360(180 * yaw / Math.PI),
+    null
+  ]
+}
+
+function blenderXYZEulerFromMatrix(matrix: number[][]): [number, number, number, null] {
+  const cy = Math.hypot(matrix[0][0], matrix[1][0])
+  let euler: [number, number, number]
+
+  if (cy > 0.0000375) {
+    const euler1: [number, number, number] = [
+      Math.atan2(matrix[2][1], matrix[2][2]),
+      Math.atan2(-matrix[2][0], cy),
+      Math.atan2(matrix[1][0], matrix[0][0])
+    ]
+    const euler2: [number, number, number] = [
+      Math.atan2(-matrix[2][1], -matrix[2][2]),
+      Math.atan2(-matrix[2][0], -cy),
+      Math.atan2(-matrix[1][0], -matrix[0][0])
+    ]
+    euler = Math.abs(euler1[0]) + Math.abs(euler1[1]) + Math.abs(euler1[2]) > Math.abs(euler2[0]) + Math.abs(euler2[1]) + Math.abs(euler2[2])
+      ? euler2
+      : euler1
+  } else {
+    euler = [
+      Math.atan2(-matrix[1][2], matrix[1][1]),
+      Math.atan2(-matrix[2][0], cy),
+      0
+    ]
+  }
+
+  return [
+    180 * euler[0] / Math.PI,
+    180 * euler[1] / Math.PI,
+    180 * euler[2] / Math.PI,
     null
   ]
 }

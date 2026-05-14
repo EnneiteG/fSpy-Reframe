@@ -116,6 +116,19 @@ function getResourceURL(fileName: string): string {
   return ''
 }
 
+function getWindowIconPath(): string | undefined {
+  if (process.platform == 'darwin') {
+    return undefined
+  }
+  if (!app.isPackaged) {
+    return path.join(process.cwd(), process.platform == 'win32' ? 'assets/build/icon.ico' : 'assets/electron/icon.png')
+  }
+  if (!process.resourcesPath) {
+    return undefined
+  }
+  return path.join(process.resourcesPath, process.platform == 'win32' ? 'icon.ico' : 'icon.png')
+}
+
 function getExampleProjectPath(): string {
   return getResourcePath(EXAMPLE_PROJECT_FILENAME)
 }
@@ -230,16 +243,7 @@ function createWindow() {
     { width: minWidth, height: minHeight }
   )
 
-  let windowIconPath: string | undefined
-  if (process.resourcesPath) {
-    if (process.platform == 'darwin') {
-      // macOS uses the app bundle icon.
-    } else if (process.platform == 'win32') {
-      windowIconPath = path.join(process.resourcesPath, 'icon.ico')
-    } else {
-      windowIconPath = path.join(process.resourcesPath, 'icon.png')
-    }
-  }
+  const windowIconPath = getWindowIconPath()
 
   let window = new BrowserWindow({
     ...initialWindowBounds,

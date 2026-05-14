@@ -8,7 +8,7 @@ fSpy-UE started as a fork of fSpy focused on making the camera matching workflow
 
 The goal is now broader: keep the app maintained on a modern Electron/React toolchain while preserving fSpy's original calibration model and adding target presets for more applications over time. The solved camera data remains compatible with fSpy, while the UI and exports can present that same camera in target-specific coordinate systems.
 
-The fork currently includes an Unreal Engine target preset, scene orientation options, Unreal-style camera rotation display and a target camera JSON export. Future presets can follow the same approach for other DCCs, engines or rendering tools.
+The fork currently includes Unreal Engine and Blender target presets, scene orientation options, target-specific camera rotation display and a target camera JSON export. Future presets can follow the same approach for other DCCs, engines or rendering tools.
 
 ![fSpy-UE screenshot](doc/images/Capture_01.png)
 

@@ -57,6 +57,24 @@ function unrealRotationMatrix(pitchDegrees: number, yawDegrees: number, rollDegr
   ]
 }
 
+function blenderXYZEulerMatrix(xDegrees: number, yDegrees: number, zDegrees: number): number[][] {
+  const x = degreesToRadians(xDegrees)
+  const y = degreesToRadians(yDegrees)
+  const z = degreesToRadians(zDegrees)
+  const sinX = Math.sin(x)
+  const cosX = Math.cos(x)
+  const sinY = Math.sin(y)
+  const cosY = Math.cos(y)
+  const sinZ = Math.sin(z)
+  const cosZ = Math.cos(z)
+
+  return [
+    [cosY * cosZ, cosZ * sinX * sinY - cosX * sinZ, sinX * sinZ + cosX * cosZ * sinY],
+    [cosY * sinZ, cosX * cosZ + sinX * sinY * sinZ, cosX * sinY * sinZ - cosZ * sinX],
+    [-sinY, cosY * sinX, cosX * cosY]
+  ]
+}
+
 function cameraParametersWithRotation(
   rotation: number[][],
   location: [number, number, number] = [0, 0, 0],
@@ -169,6 +187,46 @@ describe('GUI', () => {
     expect(converted.imageHeight).toEqual(1080)
   })
 
+  test('creates stable Blender target camera export payload', () => {
+    const preset = targetPresetForId(TargetPresetId.Blender)
+    const sceneOrientation = targetSceneOrientationForId(TargetSceneOrientationId.Default)
+    const blenderRotation = blenderXYZEulerMatrix(70.559, 0, 46.692)
+
+    const converted = convertCameraParametersForTarget(
+      cameraParametersWithRotation(
+        blenderRotation,
+        [1.25, -2, 0.5],
+        degreesToRadians(60),
+        degreesToRadians(40),
+        1920,
+        1080
+      ),
+      calibrationSettings,
+      preset,
+      sceneOrientation
+    )
+
+    expect(converted.presetId).toEqual(TargetPresetId.Blender)
+    expect(converted.presetName).toEqual('Blender')
+    expect(converted.sceneOrientationId).toEqual(TargetSceneOrientationId.Default)
+    expect(converted.sceneOrientationName).toEqual('Default (+X)')
+    expect(converted.locationUnit).toEqual('Meters')
+    expect(converted.rotationUnit).toEqual('degrees')
+    expect(converted.locationLabels).toEqual(['X', 'Y', 'Z'])
+    expect(converted.rotationLabels).toEqual(['X', 'Y', 'Z', null])
+    expect(converted.location[0]).toBeCloseTo(1.25, 5)
+    expect(converted.location[1]).toBeCloseTo(-2, 5)
+    expect(converted.location[2]).toBeCloseTo(0.5, 5)
+    expect(converted.rotation[0]).toBeCloseTo(70.559, 5)
+    expect(converted.rotation[1]).toBeCloseTo(0, 5)
+    expect(converted.rotation[2]).toBeCloseTo(46.692, 5)
+    expect(converted.rotation[3]).toBeNull()
+    expect(converted.horizontalFieldOfView).toBeCloseTo(60, 5)
+    expect(converted.verticalFieldOfView).toBeCloseTo(40, 5)
+    expect(converted.imageWidth).toEqual(1920)
+    expect(converted.imageHeight).toEqual(1080)
+  })
+
   test('scales Unreal target camera locations to centimeters', () => {
     const preset = targetPresetForId(TargetPresetId.Unreal)
     const sceneOrientation = targetSceneOrientationForId(TargetSceneOrientationId.Default)
@@ -260,5 +318,18 @@ describe('GUI', () => {
       expect(targetAxisToFSpyAxis(testCase[2], preset, sceneOrientation)).toEqual(Axis.PositiveY)
       expect(targetAxisToFSpyAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
     }
+  })
+
+  test('keeps Blender target axes aligned with fSpy axes', () => {
+    const preset = targetPresetForId(TargetPresetId.Blender)
+    const sceneOrientation = targetSceneOrientationForId(TargetSceneOrientationId.Default)
+
+    expect(fSpyReferenceAxisToTargetAxis(Axis.PositiveX, preset, sceneOrientation)).toEqual(Axis.PositiveX)
+    expect(fSpyReferenceAxisToTargetAxis(Axis.PositiveY, preset, sceneOrientation)).toEqual(Axis.PositiveY)
+    expect(fSpyReferenceAxisToTargetAxis(Axis.PositiveZ, preset, sceneOrientation)).toEqual(Axis.PositiveZ)
+
+    expect(fSpyReferencePlaneToTargetPlane(ReferenceDistancePlane.XY, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.XY)
+    expect(fSpyReferencePlaneToTargetPlane(ReferenceDistancePlane.XZ, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.XZ)
+    expect(fSpyReferencePlaneToTargetPlane(ReferenceDistancePlane.YZ, preset, sceneOrientation)).toEqual(ReferenceDistancePlane.YZ)
   })
 })
