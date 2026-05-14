@@ -1,12 +1,12 @@
 {
-  "name": "fspy-ue",
-  "version": "0.7.1-ue",
+  "name": "fspy-reframe",
+  "version": "0.8.0",
   "packageManager": "npm@10.9.2",
   "main": "build/main.js",
-  "homepage": "https://github.com/EnneiteG/fSpy-UE",
+  "homepage": "https://github.com/EnneiteG/fSpy-Reframe",
   "repository": {
     "type": "git",
-    "url": "https://github.com/EnneiteG/fSpy-UE.git"
+    "url": "https://github.com/EnneiteG/fSpy-Reframe.git"
   },
   "author": {
     "name": "Per Gantelius",
@@ -84,11 +84,11 @@
     "publish": {
       "provider": "github",
       "owner": "EnneiteG",
-      "repo": "fSpy-UE",
+      "repo": "fSpy-Reframe",
       "publishAutoUpdate": false
     },
-    "productName": "fSpy UE",
-    "appId": "com.enneiteg.fspyue",
+    "productName": "fSpy Reframe",
+    "appId": "com.enneiteg.fspyreframe",
     "mac": {
       "target": [
         {

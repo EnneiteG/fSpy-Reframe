@@ -3,7 +3,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
-const executableName = process.platform === 'win32' ? 'fSpy UE.exe' : 'fSpy UE'
+const executableName = process.platform === 'win32' ? 'fSpy Reframe.exe' : 'fSpy Reframe'
 const executablePath = path.resolve(__dirname, '..', 'dist', 'win-unpacked', executableName)
 
 if (!fs.existsSync(executablePath)) {

@@ -677,7 +677,7 @@ function createWindow() {
     }
 
     if (process.platform !== 'darwin') {
-      title += ' - fSpy UE'
+      title += ' - fSpy Reframe'
     }
 
     window.setTitle(title)
