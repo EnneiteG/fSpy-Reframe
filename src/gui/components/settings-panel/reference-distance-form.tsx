@@ -41,16 +41,16 @@ export default class ReferenceDistanceForm extends React.PureComponent<Reference
   render() {
     return (
       <div className='panelSection'>
-          <ReferenceDistanceAxisDropdown
-            selectedAxis={this.props.referenceAxis}
-            targetPresetId={this.props.targetPresetId}
-            targetSceneOrientationId={this.props.targetSceneOrientationId}
-            onChange={(axis: Axis | null) => {
-              this.props.onReferenceAxisChange(axis)
-            }}
-          />
-          { this.renderTargetAxisHint() }
-          { this.renderDistanceInputField() }
+        <ReferenceDistanceAxisDropdown
+          selectedAxis={this.props.referenceAxis}
+          targetPresetId={this.props.targetPresetId}
+          targetSceneOrientationId={this.props.targetSceneOrientationId}
+          onChange={(axis: Axis | null) => {
+            this.props.onReferenceAxisChange(axis)
+          }}
+        />
+        { this.renderTargetAxisHint() }
+        { this.renderDistanceInputField() }
       </div>
     )
   }
@@ -75,7 +75,7 @@ export default class ReferenceDistanceForm extends React.PureComponent<Reference
 
     return (
       <div>
-      <PanelSpacer />
+        <PanelSpacer />
         <div style={{ display: 'flex' }}>
           <NumericInputField
             isDisabled={this.props.referenceAxis == null}

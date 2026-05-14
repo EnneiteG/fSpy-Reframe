@@ -202,27 +202,27 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
 
     return (
       <div className='panel-section bottom-border'>
-          <div className='panel-group-title'>Camera orientation ({targetCameraParameters.rotationUnit})</div>
-          <TableRow
-            isFirstRow={true}
-            title={labels[0]}
-            value={rotation[0]}
-          />
-          <TableRow
-            title={labels[1]}
-            value={rotation[1]}
-          />
-          <TableRow
-            isLastRow={fourthLabel === null}
-            title={labels[2]}
-            value={rotation[2]}
-          />
-          {fourthLabel !== null ? (<TableRow
-            isLastRow={true}
-            title={fourthLabel}
-            value={rotation[3] || 0}
-          />) : null}
-        </div>
+        <div className='panel-group-title'>Camera orientation ({targetCameraParameters.rotationUnit})</div>
+        <TableRow
+          isFirstRow={true}
+          title={labels[0]}
+          value={rotation[0]}
+        />
+        <TableRow
+          title={labels[1]}
+          value={rotation[1]}
+        />
+        <TableRow
+          isLastRow={fourthLabel === null}
+          title={labels[2]}
+          value={rotation[2]}
+        />
+        {fourthLabel !== null ? (<TableRow
+          isLastRow={true}
+          title={fourthLabel}
+          value={rotation[3] || 0}
+        />) : null}
+      </div>
     )
   }
 
@@ -255,26 +255,26 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
 
     return (
       <div className='panel-section bottom-border'>
-          <div className='panel-group-title'>Principal point</div>
-          <Dropdown
-            options={[
-              { id: PrincipalPointFormat.Absolute, title: 'Absolute', value: PrincipalPointFormat.Absolute },
-              { id: PrincipalPointFormat.Relative, title: 'Relative', value: PrincipalPointFormat.Relative }
-            ]}
-            selectedOptionId={this.props.resultDisplaySettings.principalPointFormat}
-            onOptionSelected={this.props.onPrincipalPointDisplayFormatChanged}
-          />
-          <TableRow
-            isFirstRow={true}
-            title={'x'}
-            value={displayPosition.x}
-          />
-          <TableRow
-            isLastRow={true}
-            title={'y'}
-            value={displayPosition.y}
-          />
-        </div>
+        <div className='panel-group-title'>Principal point</div>
+        <Dropdown
+          options={[
+            { id: PrincipalPointFormat.Absolute, title: 'Absolute', value: PrincipalPointFormat.Absolute },
+            { id: PrincipalPointFormat.Relative, title: 'Relative', value: PrincipalPointFormat.Relative }
+          ]}
+          selectedOptionId={this.props.resultDisplaySettings.principalPointFormat}
+          onOptionSelected={this.props.onPrincipalPointDisplayFormatChanged}
+        />
+        <TableRow
+          isFirstRow={true}
+          title={'x'}
+          value={displayPosition.x}
+        />
+        <TableRow
+          isLastRow={true}
+          title={'y'}
+          value={displayPosition.y}
+        />
+      </div>
     )
   }
 
@@ -297,14 +297,9 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
       sensorHeight = preset.sensorHeight
     }
     let sensorAspectRatio = sensorHeight > 0 ? sensorWidth / sensorHeight : 1
-    let absoluteFocalLength = 0
-    if (sensorAspectRatio > 1) {
-      // wide sensor.
-      absoluteFocalLength = 0.5 * sensorWidth * cameraParameters.relativeFocalLength
-    } else {
-      // tall sensor
-      absoluteFocalLength = 0.5 * sensorHeight * cameraParameters.relativeFocalLength
-    }
+    const absoluteFocalLength = sensorAspectRatio > 1
+      ? 0.5 * sensorWidth * cameraParameters.relativeFocalLength
+      : 0.5 * sensorHeight * cameraParameters.relativeFocalLength
 
     const displayFocalLength = this.props.resultDisplaySettings.displayAbsoluteFocalLength
     const proportionsMatch = Solver.imageProportionsMatchSensor(
@@ -335,14 +330,14 @@ export default class ResultPanel extends React.PureComponent<ResultPanelProps> {
   private renderCameraPresetForm(absoluteFocalLength: number, cameraData: CameraData) {
     return (
       <div style={{ marginTop: '5px' }}>
-      <CameraPresetForm
-            absoluteFocalLength={absoluteFocalLength}
-            cameraData={cameraData}
-            onCameraPresetChange={this.props.onCameraPresetChange}
-            onSensorSizeChange={this.props.onSensorSizeChange}
-          >
-        <TableRow value={absoluteFocalLength} title='Value (mm)' />
-      </CameraPresetForm>
+        <CameraPresetForm
+          absoluteFocalLength={absoluteFocalLength}
+          cameraData={cameraData}
+          onCameraPresetChange={this.props.onCameraPresetChange}
+          onSensorSizeChange={this.props.onSensorSizeChange}
+        >
+          <TableRow value={absoluteFocalLength} title='Value (mm)' />
+        </CameraPresetForm>
       </div>
     )
   }

@@ -32,6 +32,9 @@ jobs:
       - name: Build Windows installer
         run: npm run dist-win
 
+      - name: Smoke launch packaged app
+        run: npm run smoke:packaged
+
       - name: Upload installer artifact
         uses: actions/upload-artifact@v7
         with:

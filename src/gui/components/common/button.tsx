@@ -28,7 +28,7 @@ interface ButtonProps {
 
 export default function Button(props: ButtonProps) {
 
-  let style: any = {
+  let style: React.CSSProperties = {
     width: '135px'
   }
 

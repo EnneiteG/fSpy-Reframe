@@ -28,9 +28,9 @@ interface NumericInputFieldProps {
 }
 
 interface NumericInputFieldState {
-  isEditing: Boolean
+  isEditing: boolean
   editedValue: string
-  editedValueIsValid: Boolean
+  editedValueIsValid: boolean
 }
 
 export default class NumericInputField extends React.Component<NumericInputFieldProps, NumericInputFieldState> {
@@ -44,7 +44,7 @@ export default class NumericInputField extends React.Component<NumericInputField
     }
   }
 
-  handleChange(event: any) {
+  handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({
       ...this.state,
       editedValue: event.target.value,
@@ -52,22 +52,22 @@ export default class NumericInputField extends React.Component<NumericInputField
     })
   }
 
-  handleSubmit(event: any) {
+  handleSubmit(event: React.FormEvent<HTMLInputElement>) {
     event.preventDefault()
     this.finishEditing()
-    event.target.blur()
+    event.currentTarget.blur()
   }
 
-  handleFocus(_: any) {
+  handleFocus(_event: React.FocusEvent<HTMLInputElement>) {
     this.beginEditing()
   }
 
-  handleBlur(_: any) {
+  handleBlur(_event: React.FocusEvent<HTMLInputElement>) {
     this.cancelEditing()
   }
 
   render() {
-    let inputStyle: any = {
+    let inputStyle: React.CSSProperties = {
       height: '22px',
       outline: 'none',
       width: '60px',
@@ -109,26 +109,26 @@ export default class NumericInputField extends React.Component<NumericInputField
         style={inputStyle}
         type='text'
         value={this.state.isEditing ? this.state.editedValue : displayValue}
-        onChange={(event: any) => {
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           if (!this.props.isDisabled) {
             this.handleChange(event)
           }
         }}
-        onFocus={(event: any) => {
+        onFocus={(event: React.FocusEvent<HTMLInputElement>) => {
           if (!this.props.isDisabled) {
             this.handleFocus(event)
           }
         }}
-        onBlur={(event: any) => {
+        onBlur={(event: React.FocusEvent<HTMLInputElement>) => {
           if (!this.props.isDisabled) {
             this.handleBlur(event)
           }
         }}
-        onKeyDown={(event: any) => {
+        onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
           if (!this.props.isDisabled) {
             if (event.key == 'Escape') {
               this.cancelEditing()
-              event.target.blur()
+              event.currentTarget.blur()
             } else if (event.key == 'Enter') {
               if (this.state.editedValueIsValid) {
                 this.handleSubmit(event)

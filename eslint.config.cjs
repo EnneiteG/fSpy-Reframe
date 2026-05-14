@@ -42,23 +42,24 @@ module.exports = [
       'no-undef': 'off',
       'no-redeclare': 'off',
       'no-case-declarations': 'off',
-      'no-useless-assignment': 'off',
+      'no-useless-assignment': 'error',
+      'no-var': 'error',
       'space-before-function-paren': ['error', {
         'anonymous': 'always',
         'named': 'never',
         'asyncArrow': 'ignore'
       }],
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-expressions': 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-unsafe-function-type': 'off',
-      '@typescript-eslint/no-wrapper-object-types': 'off'
+      '@typescript-eslint/no-empty-object-type': 'error',
+      '@typescript-eslint/no-unsafe-function-type': 'error',
+      '@typescript-eslint/no-wrapper-object-types': 'error'
     }
   }
 ]

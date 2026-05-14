@@ -157,7 +157,7 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
         <div className='panel-section'>
           <div className='panel-group-title'>
             Principal point
-        </div>
+          </div>
 
           <Dropdown
             options={
@@ -186,7 +186,7 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
         <div className='panel-section'>
           <div className='panel-group-title'>
             Camera data
-        </div>
+          </div>
           <CameraPresetForm
             cameraData={this.props.calibrationSettingsBase.cameraData}
             absoluteFocalLength={this.props.calibrationSettings1VP.absoluteFocalLength}
@@ -195,15 +195,15 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
           >
             <div>
             Focal length <NumericInputField
-              precision={2}
-              isDisabled={presetFocalLength !== undefined}
-              value={ focalLengthValue }
-              onSubmit={this.props.onAbsoluteFocalLengthChange1VP}
-            /> mm
-            <input disabled={ presetFocalLength !== undefined } style={{ width: '100%', marginTop: '7px' }} type='range' min='10' max='200' value={focalLengthValue} id='myRange' onChange={ (event) => {
-              this.props.onAbsoluteFocalLengthChange1VP(parseFloat(event.target.value))
-            }} />
-          </div>
+                precision={2}
+                isDisabled={presetFocalLength !== undefined}
+                value={ focalLengthValue }
+                onSubmit={this.props.onAbsoluteFocalLengthChange1VP}
+              /> mm
+              <input disabled={ presetFocalLength !== undefined } style={{ width: '100%', marginTop: '7px' }} type='range' min='10' max='200' value={focalLengthValue} id='myRange' onChange={ (event) => {
+                this.props.onAbsoluteFocalLengthChange1VP(parseFloat(event.target.value))
+              }} />
+            </div>
           </CameraPresetForm>
         </div>
       </div>
@@ -216,7 +216,7 @@ export default class SettingsPanel extends React.PureComponent<SettingsContainer
         <div className='panel-section'>
           <div className='panel-group-title'>
             Principal point
-        </div>
+          </div>
           <Dropdown
             options={
               [

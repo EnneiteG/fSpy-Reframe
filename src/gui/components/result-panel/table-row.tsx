@@ -30,7 +30,7 @@ interface TableRowProps {
 export default class TableRow extends React.PureComponent<TableRowProps> {
   render() {
 
-    const style: any = { display: 'flex', lineHeight: '24px' }
+    const style: React.CSSProperties = { display: 'flex', lineHeight: '24px' }
     if (this.props.isFirstRow == true) {
       style.marginTop = '5px'
     } else if (this.props.isLastRow == true) {

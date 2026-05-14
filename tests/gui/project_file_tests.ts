@@ -5,6 +5,7 @@ import { join } from 'path'
 import { TextDecoder, TextEncoder } from 'util'
 import ProjectFile from '../../src/gui/io/project-file'
 import { ActionTypes, AppAction, LoadState } from '../../src/gui/actions'
+import { Dispatch } from 'redux'
 import { defaultGlobalSettings } from '../../src/gui/defaults/global-settings'
 import { defaultCalibrationSettingsBase, defaultCalibrationSettings1VP, defaultCalibrationSettings2VP } from '../../src/gui/defaults/calibration-settings'
 import { defaultControlPointsStateBase, defaultControlPointsState1VP, defaultControlPointsState2VP } from '../../src/gui/defaults/control-points-state'
@@ -15,8 +16,8 @@ import { cameraPresets } from '../../src/gui/solver/camera-presets'
 import type { ElectronAPI } from '../../src/gui/types/electron-api'
 import { isProjectFileData } from '../../src/gui/io/project-file-format'
 
-;(global as any).TextDecoder = TextDecoder
-;(global as any).TextEncoder = TextEncoder
+Object.defineProperty(global, 'TextDecoder', { value: TextDecoder })
+Object.defineProperty(global, 'TextEncoder', { value: TextEncoder })
 
 const noop = () => {
   // test fallback
@@ -51,9 +52,11 @@ function installElectronAPIFallback() {
     onSaveProjectAs: noop,
     onOpenImage: noop,
     onExport: noop,
-    onSetSidePanelVisibility: noop
+    onSetSidePanelVisibility: noop,
+    onRunSmokeTest: noop,
+    sendSmokeTestResult: noop
   }
-  ;(global as any).window = { electronAPI: api }
+  Object.defineProperty(global, 'window', { value: { electronAPI: api }, writable: true })
 }
 
 function writeProjectFileBuffer(stateBuffer: Buffer): string {
@@ -73,16 +76,20 @@ function writeProjectFileBuffer(stateBuffer: Buffer): string {
   return filePath
 }
 
-function writeProjectFile(state: any): string {
+function writeProjectFile(state: unknown): string {
   return writeProjectFileBuffer(Buffer.from(JSON.stringify(state)))
 }
 
-async function loadProjectState(state: any, isExampleProject = false): Promise<LoadState> {
-  const actions: AppAction[] = []
-  const dispatch = ((action: AppAction) => {
+function captureDispatch(actions: AppAction[]): Dispatch<AppAction> {
+  return <T extends AppAction>(action: T): T => {
     actions.push(action)
     return action
-  }) as any
+  }
+}
+
+async function loadProjectState(state: unknown, isExampleProject = false): Promise<LoadState> {
+  const actions: AppAction[] = []
+  const dispatch = captureDispatch(actions)
   const filePath = writeProjectFile(state)
 
   await ProjectFile.load(filePath, dispatch, isExampleProject)
@@ -92,7 +99,7 @@ async function loadProjectState(state: any, isExampleProject = false): Promise<L
   return actions[0] as LoadState
 }
 
-function savedState(overrides: any = {}): any {
+function savedState(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     globalSettings: defaultGlobalSettings,
     calibrationSettingsBase: defaultCalibrationSettingsBase,
@@ -171,10 +178,7 @@ describe('Project file compatibility', () => {
 
   test('does not dispatch state when project state JSON is invalid', async () => {
     const actions: AppAction[] = []
-    const dispatch = ((action: AppAction) => {
-      actions.push(action)
-      return action
-    }) as any
+    const dispatch = captureDispatch(actions)
     const filePath = writeProjectFileBuffer(Buffer.from('{not-json'))
 
     await ProjectFile.load(filePath, dispatch, false)

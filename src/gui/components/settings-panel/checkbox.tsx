@@ -34,10 +34,10 @@ export default function Checkbox(props: CheckboxProps) {
           name={props.title}
           type='checkbox'
           checked={props.isSelected}
-          onChange={(event: any) => {
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             props.onChange(event.target.checked)
           }}
-      />
+        />
       </div>
     </div>
   )

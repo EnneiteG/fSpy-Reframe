@@ -63,7 +63,7 @@ const menuContainerStyle = {
   width: '100%'
 }
 
-const menuCellStyle: any = {
+const menuCellStyle: React.CSSProperties = {
   textAlign: 'left',
   backgroundColor: Palette.white,
   width: '100%',
@@ -109,9 +109,9 @@ export default class Dropdown<T> extends React.PureComponent<DropdownProps<T>, D
     })
   }
 
-  handleClickOutside(event: any) {
+  handleClickOutside(event: MouseEvent) {
     if (this.topContainerRef.current && event.target) {
-      if (!this.topContainerRef.current.contains(event.target)) {
+      if (!this.topContainerRef.current.contains(event.target as Node)) {
         this.hideMenu()
       }
     }
@@ -134,7 +134,7 @@ export default class Dropdown<T> extends React.PureComponent<DropdownProps<T>, D
   }
 
   private renderMenu() {
-    let scrollContainerStyle: any = {
+    let scrollContainerStyle: React.CSSProperties = {
       border: '1px solid ' + Palette.gray,
       maxHeight: '133px',
       overflowX: 'hidden',
@@ -186,7 +186,7 @@ export default class Dropdown<T> extends React.PureComponent<DropdownProps<T>, D
       }
     }
 
-    let titleStyle: any = {
+    let titleStyle: React.CSSProperties = {
       display: 'inline-block'
     }
 
@@ -245,7 +245,7 @@ export default class Dropdown<T> extends React.PureComponent<DropdownProps<T>, D
         this.scrollContainerRef.current.scrollTop = 0
       }
     },
-      200)
+    200)
   }
 
   private toggleMenu() {

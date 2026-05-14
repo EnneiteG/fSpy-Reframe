@@ -1,3 +1,6 @@
+import type { ExportType } from './ipc-messages'
+import type { SmokeTestResult } from './smoke-test-options'
+import type { ExportFileData } from '../gui/ipc-messages'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -42,7 +45,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendOpenDroppedProject: (filePath: string): void => {
     ipcRenderer.send('OpenDroppedProjectMessage', { filePath })
   },
-  sendSpecifyExportPath: (exportType: number, data: unknown): void => {
+  sendSpecifyExportPath: (exportType: ExportType, data: ExportFileData): void => {
     ipcRenderer.send('SpecifyExportPathMessage', { exportType, data })
   },
 
@@ -64,13 +67,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onOpenImage: (callback: (filePath: string) => void): void => {
     ipcRenderer.on('openImage', (_event, message) => callback(message.filePath))
   },
-  onExport: (callback: (exportType: number) => void): void => {
+  onExport: (callback: (exportType: ExportType) => void): void => {
     ipcRenderer.on('export', (_event, message) => callback(message.exportType))
   },
   onSetSidePanelVisibility: (callback: (panelsAreVisible: boolean) => void): void => {
     ipcRenderer.on('setSidePanelVisibility', (_event, message) => {
       callback(message.panelsAreVisible)
     })
+  },
+  onRunSmokeTest: (callback: (imagePath: string, exportPath: string) => void): void => {
+    ipcRenderer.on('runSmokeTest', (_event, message) => {
+      callback(message.imagePath, message.exportPath)
+    })
+  },
+
+  // Smoke test
+  sendSmokeTestResult: (result: SmokeTestResult): void => {
+    ipcRenderer.send('SmokeTestResultMessage', result)
   },
 
   // Clipboard
@@ -80,6 +93,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // File utilities
   getPathForFile: (file: File): string => {
-    return webUtils.getPathForFile(file)
+    const filePath = webUtils.getPathForFile(file)
+    ipcRenderer.send('RegisterFilePathMessage', { filePath })
+    return filePath
   }
 })

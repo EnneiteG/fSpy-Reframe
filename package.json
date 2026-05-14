@@ -55,6 +55,7 @@
     "predist-win": "rimraf dist && npm run build-dist",
     "dist-preview": "electron-builder --dir",
     "dist-win": "electron-builder --win --x64 --publish never",
+    "smoke:packaged": "node scripts/smoke-packaged-app.js",
     "start": "npm run build-dev && npm run electron-dev",
     "dev-server": "webpack serve --config webpack.config.js --mode development",
     "electron-dev": "cross-env DEV=true node scripts/run-electron.js .",
