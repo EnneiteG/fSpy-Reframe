@@ -1,6 +1,6 @@
 {
   "name": "fspy-reframe",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "packageManager": "npm@10.9.2",
   "main": "build/main.js",
   "homepage": "https://github.com/EnneiteG/fSpy-Reframe",
@@ -118,6 +118,12 @@
           "arch": "x64"
         }
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "selectPerMachineByDefault": false,
+      "allowElevation": true
     },
     "files": [
       "build/**/*"
