@@ -1,0 +1,54 @@
+name: macOS CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 3"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Verify macOS package
+    runs-on: macos-latest
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build development bundles
+        run: npm run build-dev
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build unpacked macOS package
+        run: npm run dist-preview
+
+      - name: Smoke launch packaged app
+        run: npm run smoke:packaged
+
+      - name: Upload unpacked app
+        uses: actions/upload-artifact@v7
+        with:
+          name: fSpy-Reframe-mac-unpacked
+          path: dist/mac*
+          if-no-files-found: error

@@ -53,8 +53,12 @@
     "predist": "npm run build-dist",
     "predist-preview": "npm run build-dist",
     "predist-win": "rimraf dist && npm run build-dist",
+    "predist-linux": "rimraf dist && npm run build-dist",
+    "predist-mac": "rimraf dist && npm run build-dist",
     "dist-preview": "electron-builder --dir",
     "dist-win": "electron-builder --win --x64 --publish never",
+    "dist-linux": "electron-builder --linux AppImage deb rpm --x64 --publish never",
+    "dist-mac": "electron-builder --mac --x64 --arm64 --publish never",
     "smoke:packaged": "node scripts/smoke-packaged-app.js",
     "start": "npm run build-dev && npm run electron-dev",
     "dev-server": "webpack serve --config webpack.config.js --mode development",
@@ -90,6 +94,8 @@
     "productName": "fSpy Reframe",
     "appId": "com.enneiteg.fspyreframe",
     "mac": {
+      "icon": "assets/build/icon.icns",
+      "artifactName": "fSpy-Reframe-${version}-mac-${arch}.${ext}",
       "target": [
         {
           "target": "dmg",
@@ -102,8 +108,23 @@
       "category": "public.app-category.utilities"
     },
     "linux": {
+      "artifactName": "fSpy-Reframe-${version}-linux-${arch}.${ext}",
+      "category": "Graphics",
+      "executableName": "fspy-reframe",
+      "icon": "assets/electron/icon.png",
       "target": [
-        "AppImage"
+        {
+          "target": "AppImage",
+          "arch": "x64"
+        },
+        {
+          "target": "deb",
+          "arch": "x64"
+        },
+        {
+          "target": "rpm",
+          "arch": "x64"
+        }
       ]
     },
     "win": {
