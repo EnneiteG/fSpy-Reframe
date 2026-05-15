@@ -1,0 +1,62 @@
+name: Linux Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build Linux packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libopenjp2-tools rpm xvfb
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify build and tests
+        run: npm run verify
+
+      - name: Build Linux packages
+        run: npm run dist-linux
+
+      - name: Smoke launch packaged app
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x24" npm run smoke:packaged
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: fSpy-Reframe-linux-packages
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v3
+        with:
+          prerelease: false
+          files: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+          fail_on_unmatched_files: true

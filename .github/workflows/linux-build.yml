@@ -1,0 +1,57 @@
+name: Linux CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 2"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Verify Linux package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libopenjp2-tools rpm xvfb
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build development bundles
+        run: npm run build-dev
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build unpacked Linux package
+        run: npm run dist-preview
+
+      - name: Smoke launch packaged app
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x24" npm run smoke:packaged
+
+      - name: Upload unpacked app
+        uses: actions/upload-artifact@v7
+        with:
+          name: fSpy-Reframe-linux-unpacked
+          path: dist/linux-unpacked
+          if-no-files-found: error

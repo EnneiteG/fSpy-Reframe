@@ -120,7 +120,23 @@ Build the Windows installer and zip archive:
 npm run dist-win
 ```
 
-The release workflow builds the same Windows artifacts on tags matching `v*`, uploads them to the GitHub Release, and runs a smoke launch of the packaged app before publishing.
+Build Linux packages:
+
+```bash
+npm run dist-linux
+```
+
+This creates x64 AppImage, deb and rpm packages.
+
+Build macOS DMGs:
+
+```bash
+npm run dist-mac
+```
+
+macOS signing and notarization require Apple credentials and are not enabled by default.
+
+The release workflows build platform artifacts on tags matching `v*`, upload them to the GitHub Release, and run a smoke launch of the packaged app before publishing where supported.
 
 ## Repository Layout
 
